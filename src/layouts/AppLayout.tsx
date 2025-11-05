@@ -37,6 +37,7 @@ export default function AppLayout() {
               <summary className="cursor-pointer rounded px-3 py-2 hover:bg-white/10 list-none select-none">Participación</summary>
               <div className="ml-3 mt-1 space-y-1 border-l border-white/10 pl-3">
                 <NavLink to="/asistencia" onClick={close} className={({isActive}) => `block rounded px-3 py-2 ${isActive?"bg-white text-black":"hover:bg-white/10"}`}>Confirmar asistencia</NavLink>
+                <NavLink to="/participa/mesas" onClick={close} className={({isActive}) => `block rounded px-3 py-2 ${isActive?"bg-white text-black":"hover:bg-white/10"}`}>Mesas</NavLink>
                 <NavLink to="/galeria" onClick={close} className={({isActive}) => `block rounded px-3 py-2 ${isActive?"bg-white text-black":"hover:bg-white/10"}`}>Subir fotos</NavLink>
               </div>
             </details>
@@ -45,8 +46,13 @@ export default function AppLayout() {
             <details className="group">
               <summary className="cursor-pointer rounded px-3 py-2 hover:bg-white/10 list-none select-none">Organización</summary>
               <div className="ml-3 mt-1 space-y-1 border-l border-white/10 pl-3">
-                <NavLink to="/mesas" onClick={close} className={({isActive}) => `block rounded px-3 py-2 ${isActive?"bg-white text-black":"hover:bg-white/10"}`}>Mesas</NavLink>
-                <NavLink to="/ajustes" onClick={close} className={({isActive}) => `block rounded px-3 py-2 ${isActive?"bg-white text-black":"hover:bg-white/10"}`}>Ajustes</NavLink>
+                <NavLink to="/organiza/personalizacion" onClick={close} className={({isActive}) => `block rounded px-3 py-2 ${isActive?"bg-white text-black":"hover:bg-white/10"}`}>Personalización</NavLink>
+                <NavLink to="/organiza/checklist" onClick={close} className={({isActive}) => `block rounded px-3 py-2 ${isActive?"bg-white text-black":"hover:bg-white/10"}`}>Checklist</NavLink>
+                <NavLink to="/organiza/agenda" onClick={close} className={({isActive}) => `block rounded px-3 py-2 ${isActive?"bg-white text-black":"hover:bg-white/10"}`}>Agenda</NavLink>
+                <NavLink to="/organiza/invitados" onClick={close} className={({isActive}) => `block rounded px-3 py-2 ${isActive?"bg-white text-black":"hover:bg-white/10"}`}>Invitados</NavLink>
+                <NavLink to="/organiza/presupuesto" onClick={close} className={({isActive}) => `block rounded px-3 py-2 ${isActive?"bg-white text-black":"hover:bg-white/10"}`}>Presupuesto</NavLink>
+                <NavLink to="/organiza/archivos" onClick={close} className={({isActive}) => `block rounded px-3 py-2 ${isActive?"bg-white text-black":"hover:bg-white/10"}`}>Archivos</NavLink>
+                <NavLink to="/organiza/ajustes" onClick={close} className={({isActive}) => `block rounded px-3 py-2 ${isActive?"bg-white text-black":"hover:bg-white/10"}`}>Ajustes</NavLink>
               </div>
             </details>
           </nav>
