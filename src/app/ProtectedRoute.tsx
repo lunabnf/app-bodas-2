@@ -1,9 +1,7 @@
-import type { ReactElement } from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../store/useAuth";
+// src/App.tsx
+import { RouterProvider } from "react-router-dom";
+import { router } from "./app/routes";
 
-export default function ProtectedRoute({ children }: { children: ReactElement }) {
-  const user = useAuth((s) => s.user);
-  if (!user) return <Navigate to="/login" replace />;
-  return children;
+export default function App() {
+  return <RouterProvider router={router} />;
 }
