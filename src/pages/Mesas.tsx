@@ -13,6 +13,7 @@ type Table = {
   id: string;
   name: string;
   capacity: number;
+  captainId: string | null;
 };
 
 function uuid(): string {
@@ -35,7 +36,7 @@ export default function Mesas() {
     try {
       const g = localStorage.getItem("wedding.guests");
       if (g) setGuests(JSON.parse(g));
-    } catch {}
+    } catch (_e) { /* ignore */ }
     try {
       const t = localStorage.getItem("wedding.tables");
       if (t) {
@@ -43,17 +44,17 @@ export default function Mesas() {
         setTables(parsed);
         setNumTables(parsed.length);
       }
-    } catch {}
+    } catch (_e) { /* ignore */ }
   }, []);
 
   // Persistir cambios de mesas
   useEffect(() => {
-    try { localStorage.setItem("wedding.tables", JSON.stringify(tables)); } catch {}
+    try { localStorage.setItem("wedding.tables", JSON.stringify(tables)); } catch (_e) { /* ignore */ }
   }, [tables]);
 
   // Persistir cambios de asignaciones de invitados
   useEffect(() => {
-    try { localStorage.setItem("wedding.guests", JSON.stringify(guests)); } catch {}
+    try { localStorage.setItem("wedding.guests", JSON.stringify(guests)); } catch (_e) { /* ignore */ }
   }, [guests]);
 
   const unassigned = useMemo(() => guests.filter(g => !g.tableId), [guests]);
@@ -63,7 +64,7 @@ export default function Mesas() {
     setTables(prev => {
       const copy = [...prev];
       if (numTables > copy.length) {
-        while (copy.length < numTables) copy.push({ id: uuid(), name: `Mesa ${copy.length + 1}`, capacity: Math.max(1, defaultCap) });
+        while (copy.length < numTables) copy.push({ id: uuid(), name: `Mesa ${copy.length + 1}`, capacity: Math.max(1, defaultCap), captainId: null });
       } else if (numTables < copy.length) {
         // si reducimos, desasignamos invitados que estaban en mesas que se eliminan
         const toRemove = new Set(copy.slice(numTables).map(t => t.id));
@@ -82,16 +83,24 @@ export default function Mesas() {
     setTables(prev => prev.map(t => (t.id === id ? { ...t, capacity: Math.max(1, cap) } : t)));
   }
 
+  function setCaptain(id: string, guestId: string | null) {
+    setTables(prev => prev.map(t => (t.id === id ? { ...t, captainId: guestId } : t)));
+  }
+
   function assignGuest(guestId: string, tableId: string | null) {
     setGuests(prev => prev.map(g => (g.id === guestId ? { ...g, tableId } : g)));
   }
 
   function removeGuest(guestId: string) {
-    assignGuest(guestId, null);
+    // Desasignar invitado
+    setGuests(prev => prev.map(g => (g.id === guestId ? { ...g, tableId: null } : g)));
+    // Si era capitán de alguna mesa, limpiarlo
+    setTables(prev => prev.map(t => (t.captainId === guestId ? { ...t, captainId: null } : t)));
   }
 
   function clearAll() {
     setGuests(prev => prev.map(g => ({ ...g, tableId: null })));
+    setTables(prev => prev.map(t => ({ ...t, captainId: null })));
   }
 
   function autoDistribute() {
@@ -187,18 +196,37 @@ export default function Mesas() {
                   />
                 </label>
               </div>
+              <div className="mb-3">
+                <label className="text-xs block mb-1">Capitán de mesa</label>
+                <select
+                  className="w-full rounded-md bg-black/30 border border-white/20 p-2 text-sm"
+                  value={t.captainId ?? ""}
+                  onChange={(e) => setCaptain(t.id, e.target.value || null)}
+                >
+                  <option value="">Elegir capitán…</option>
+                  {assigned.map(g => (
+                    <option key={g.id} value={g.id}>{g.fullName}</option>
+                  ))}
+                </select>
+              </div>
               <div className="text-sm opacity-80 mb-2">Asignados: {assigned.length}/{t.capacity}</div>
               <ul className="space-y-2">
                 {assigned.map(g => (
                   <li key={g.id} className="flex items-center justify-between rounded-lg bg-black/30 border border-white/10 px-2 py-1">
                     <div>
-                      <div className="text-sm">{g.fullName}</div>
+                      <div className="text-sm flex items-center gap-2">
+                        {g.fullName}
+                        {t.captainId === g.id && <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-500/20 border border-yellow-500/30">⭐ Capitán</span>}
+                      </div>
                       {g.allergies && <div className="text-[11px] opacity-80">{g.allergies}</div>}
                     </div>
                     <button onClick={() => removeGuest(g.id)} className="text-xs px-2 py-1 rounded bg-white/10 hover:bg-white/20">Quitar</button>
                   </li>
                 ))}
               </ul>
+              <p className="mt-3 text-xs opacity-75">
+                <b>¿Qué hace el capitán de mesa?</b> Es la persona de referencia para coordinar su mesa: ayuda a sentar y organizar a los comensales, canaliza peticiones al servicio, anima a cumplir los tiempos (entrada, brindis, fotos) y colabora con los novios o el equipo para avisos.
+              </p>
             </article>
           );
         })}
