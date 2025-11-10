@@ -31,7 +31,7 @@ export default function AppLayout() {
           {open ? "✕" : "☰"}
         </button>
         <aside
-          className={`fixed inset-y-0 left-0 z-20 w-64 overflow-y-auto bg-black/80 backdrop-blur-md shadow-lg transition-all duration-300 sm:static sm:translate-x-0 mt-[64px] ${
+          className={`fixed inset-y-0 left-0 z-20 w-64 overflow-y-auto bg-black/80 backdrop-blur-md shadow-lg transition-all duration-300 sm:static sm:translate-x-0 mt-16 ${
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -119,7 +119,7 @@ export default function AppLayout() {
               </summary>
               <div className="ml-3 mt-1 space-y-1 border-l border-white/10 pl-3">
                 <NavLink
-                  to="/asistencia"
+                  to="/participa/confirmar-asistencia"
                   onClick={close}
                   className={({ isActive }) =>
                     `block rounded px-3 py-2 ${
@@ -253,7 +253,7 @@ export default function AppLayout() {
           </nav>
         </aside>
 
-        <main className="flex-1 overflow-auto bg-black/50 backdrop-blur-sm p-4">
+        <main className="flex-1 overflow-auto bg-black/50 backdrop-blur-sm p-4 pt-16">
           <Outlet />
         </main>
       </div>

@@ -7,31 +7,35 @@ export type Guest = {
   mesa?: string | null; // no usado aquí, pero útil si ya existe en otros módulos
 };
 
-// Intento no romper nada: leo invitados confirmados desde una de estas fuentes, en este orden:
-// 1) window.__APP_STATE__.guests.confirmed (si existe)
-// 2) localStorage["confirmedGuests"] (JSON)
-// 3) []
+// 1) Tipado del posible estado global
+type AppState = { __APP_STATE__?: { guests?: { confirmed?: unknown[] } } };
+
 function getConfirmedGuestsFallback(): Guest[] {
   try {
-    // @ts-ignore - ventana extendida si existe estado global
-    const fromWindow = (window as any)?.__APP_STATE__?.guests?.confirmed;
+    const fromWindow = (globalThis as AppState).__APP_STATE__?.guests?.confirmed;
     if (Array.isArray(fromWindow)) return normalize(fromWindow);
-  } catch {}
+  } catch { /* noop */ }
   try {
     const raw = localStorage.getItem("confirmedGuests");
-    if (raw) return normalize(JSON.parse(raw));
-  } catch {}
+    if (raw) {
+      const parsed: unknown = JSON.parse(raw);
+      if (Array.isArray(parsed)) return normalize(parsed);
+    }
+  } catch { /* noop */ }
   return [];
 }
 
-function normalize(items: any[]): Guest[] {
-  return (items || [])
+function normalize(items: unknown[]): Guest[] {
+  return (Array.isArray(items) ? items : [])
     .filter(Boolean)
-    .map((g, i) => ({
-      id: String(g.id ?? g.uid ?? g.email ?? i),
-      nombre: String(g.nombre ?? g.name ?? g.fullName ?? g.alias ?? "Invitado"),
-      mesa: g.mesa ?? null,
-    }));
+    .map((g, i) => {
+      const obj = g as Record<string, unknown>;
+      return {
+        id: String(obj.id ?? obj.uid ?? obj.email ?? i),
+        nombre: String(obj.nombre ?? obj.name ?? obj.fullName ?? obj.alias ?? "Invitado"),
+        mesa: (obj.mesa as string | null | undefined) ?? null,
+      };
+    });
 }
 
 // Modelo mínimo de "asiento" en ceremonia: dos bloques (izquierda/derecha) y una lista de "sin asignar".

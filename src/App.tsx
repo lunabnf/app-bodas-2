@@ -44,6 +44,7 @@ function Root() {
         <Route path="/confirmar-asistencia" element={<ConfirmarAsistencia />} />
         <Route path="/info/desplazamientos" element={<Desplazamientos />} />
         <Route path="/info/alojamientos" element={<Alojamientos />} />
+        <Route path="/participa/confirmar-asistencia" element={<ConfirmarAsistencia />} />
         <Route path="/participa/mesas" element={<Mesas />} />
         <Route path="/participa/asientos-ceremonia" element={<AsientosCeremonia />} />
         <Route path="/countdown" element={<CountdownPage />} />

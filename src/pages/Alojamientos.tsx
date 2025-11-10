@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, ChangeEvent } from "react";
+// cspell:ignore Alojamientos invitados MYVOTES myvotes marcados dispositivo Persistencia Utilidades Página novios formulario edición ordenación sincronizar inválida inválido Importado interes  interesados Recientes Editar Añadir Nombre Distancia Precio Noche Notas Publicado Guardar cambios alojamientos aprox noche hoteles
 
 /** ===== Tipos ===== **/
 type HotelOption = {
@@ -18,8 +19,12 @@ const STORAGE_HOTELS = "wedding.hotels";
 const STORAGE_VOTES = "wedding.hotels.votes";
 const STORAGE_MYVOTES = "wedding.hotels.myvotes"; // set de ids marcados desde este dispositivo
 
-function uuid() {
-  if ("randomUUID" in crypto) return (crypto as any).randomUUID();
+function uuid(): string {
+  const c: Crypto | undefined = (globalThis as { crypto?: Crypto }).crypto;
+  if (c && "randomUUID" in c) {
+    const maybe = c as Crypto & { randomUUID?: () => string };
+    if (typeof maybe.randomUUID === "function") return maybe.randomUUID();
+  }
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
@@ -196,7 +201,8 @@ export default function AlojamientosPage() {
     if (!confirm("¿Borrar este hotel?")) return;
     setHotels((prev) => prev.filter((x) => x.id !== id));
     setVotes((prev) => {
-      const { [id]: _, ...rest } = prev;
+      const rest: Record<string, number> = { ...prev };
+      delete rest[id];
       return rest;
     });
     setMyVotes((prev) => {
