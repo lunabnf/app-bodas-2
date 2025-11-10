@@ -8,6 +8,7 @@ import Agenda from "../pages/Agenda";
 import Invitados from "../pages/Invitados";
 import Checklist from "../pages/Checklist";
 import Musica from "../pages/Musica";
+import ConfirmarAsistencia from "../pages/ConfirmarAsistencia";
 import Alojamientos from "../pages/Alojamientos";
 import Desplazamientos from "../pages/Desplazamientos";
 import NotFound from "../pages/NotFound";
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
       { path: "/invitados", element: <Invitados /> },
       { path: "/checklist", element: <Checklist /> },
       { path: "/musica", element: <Musica /> },
+      { path: "/confirmar-asistencia", element: <ConfirmarAsistencia /> },
       { path: "/alojamientos", element: <Alojamientos /> },
       { path: "/desplazamientos", element: <Desplazamientos /> },
       { path: "*", element: <NotFound /> },

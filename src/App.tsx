@@ -7,10 +7,11 @@ import Login from "./pages/Login";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import Programa from "./pages/Programa";
-import RSVP from "./pages/RSVP";
+import ConfirmarAsistencia from "./pages/ConfirmarAsistencia";
 import Desplazamientos from "./pages/Desplazamientos";
 import Alojamientos from "./pages/Alojamientos";
 import Mesas from "./pages/Mesas";
+import AsientosCeremonia from "./pages/AsientosCeremonia";
 import CountdownPage from "./pages/Countdown";
 import { useAuth } from "./store/useAuth";
 
@@ -40,10 +41,11 @@ function Root() {
         <Route path="/contacto" element={<div>Contacto</div>} />
 
         <Route path="/programa" element={<Programa />} />
-        <Route path="/rsvp" element={<RSVP />} />
+        <Route path="/confirmar-asistencia" element={<ConfirmarAsistencia />} />
         <Route path="/info/desplazamientos" element={<Desplazamientos />} />
         <Route path="/info/alojamientos" element={<Alojamientos />} />
         <Route path="/participa/mesas" element={<Mesas />} />
+        <Route path="/participa/asientos-ceremonia" element={<AsientosCeremonia />} />
         <Route path="/countdown" element={<CountdownPage />} />
 
         {/* Organización (novios) */}

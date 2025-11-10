@@ -35,9 +35,11 @@ export default function SidebarItem({ label, to, children }: Props) {
           {children.map((c) => (
             <NavLink
               key={c.to}
-              to={c.to}
-              className={({isActive}) =>
-                `block rounded px-3 py-2 text-sm ${isActive ? "bg-white text-black" : "hover:bg-white/10"}`
+              to={c.to.startsWith("/") ? c.to : `/${c.to}`}
+              className={({ isActive }) =>
+                `block rounded px-3 py-2 text-sm ${
+                  isActive ? "bg-white text-black" : "hover:bg-white/10"
+                }`
               }
             >
               {c.label}

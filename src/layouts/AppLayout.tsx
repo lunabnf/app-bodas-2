@@ -74,7 +74,7 @@ export default function AppLayout() {
                     }`
                   }
                 >
-                  Alojamientos
+                  Alojamiento
                 </NavLink>
                 <NavLink
                   to="/info/desplazamientos"
@@ -85,7 +85,7 @@ export default function AppLayout() {
                     }`
                   }
                 >
-                  Desplazamientos
+                  Desplazamiento
                 </NavLink>
                 <NavLink
                   to="/countdown"
@@ -139,6 +139,17 @@ export default function AppLayout() {
                   }
                 >
                   Mesas
+                </NavLink>
+                <NavLink
+                  to="/participa/asientos-ceremonia"
+                  onClick={close}
+                  className={({ isActive }) =>
+                    `block rounded px-3 py-2 ${
+                      isActive ? "bg-white text-black" : "hover:bg-white/10"
+                    }`
+                  }
+                >
+                  Asientos ceremonia
                 </NavLink>
                 <NavLink
                   to="/galeria"
