@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 export default function AppLayout() {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
+  // Simulación temporal de rol del usuario
+  const user = { role: "admin" }; // Temporalmente admin para desarrollo
 
   return (
     <div
@@ -11,32 +14,24 @@ export default function AppLayout() {
       style={{ backgroundImage: "url('/bg-disco.jpg')" }}
     >
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-      <header className="flex items-center justify-between border-b border-white/20 bg-black/60 backdrop-blur-md p-4">
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="block rounded bg-white/10 px-3 py-2 hover:bg-white/20 sm:hidden"
-          aria-label="Toggle menu"
-        >
-          ☰
-        </button>
-        <h1 className="text-xl font-bold tracking-wide">Tu Boda</h1>
-        <nav className="hidden sm:block">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `rounded px-3 py-2 ${
-                isActive ? "bg-white text-black" : "hover:bg-white/10"
-              }`
-            }
-          >
-            Inicio
-          </NavLink>
-        </nav>
-      </header>
+      {user.role === "admin" ? (
+        <Navbar />
+      ) : (
+        <div className="fixed top-0 w-full z-40 bg-black/60 backdrop-blur-md text-center py-3 border-b border-white/10 text-pink-300 font-semibold tracking-wide">
+          💍 Boda de Eric y Leticia
+        </div>
+      )}
 
       <div className="flex flex-1 overflow-hidden">
+        <button
+          onClick={() => setOpen(!open)}
+          className="fixed top-20 left-4 z-30 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 backdrop-blur-md border border-white/10 sm:hidden"
+          aria-label="Abrir menú lateral"
+        >
+          {open ? "✕" : "☰"}
+        </button>
         <aside
-          className={`fixed inset-y-0 left-0 z-10 w-64 overflow-y-auto bg-black/70 backdrop-blur-md p-4 transition-transform duration-300 sm:static sm:translate-x-0 ${
+          className={`fixed inset-y-0 left-0 z-20 w-64 overflow-y-auto bg-black/80 backdrop-blur-md shadow-lg transition-all duration-300 sm:static sm:translate-x-0 mt-[64px] ${
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >
