@@ -23,6 +23,17 @@ import Presupuesto from "./pages/Presupuesto";
 import Archivos from "./pages/Archivos";
 import Ajustes from "./pages/Ajustes";
 
+import AdminLayout from "./admin/AdminLayout";
+import Resumen from "./admin/Resumen";
+import InvitadosAdmin from "./admin/Invitados";
+import MesasAdmin from "./admin/Mesas";
+import CeremoniaAdmin from "./admin/Ceremonia";
+import PresupuestoAdmin from "./admin/Presupuesto";
+import ChecklistAdmin from "./admin/Checklist";
+import AgendaAdmin from "./admin/Agenda";
+import ArchivosAdmin from "./admin/Archivos";
+import AjustesAdmin from "./admin/Ajustes";
+
 function ProtectedRoute({ children }: { children: ReactElement }) {
   const user = useAuth((s) => s.user);
   if (!user) return <Navigate to="/login" replace />;
@@ -68,6 +79,17 @@ function Root() {
           </ProtectedRoute>
         }
       />
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route path="resumen" element={<Resumen />} />
+        <Route path="invitados" element={<InvitadosAdmin />} />
+        <Route path="mesas" element={<MesasAdmin />} />
+        <Route path="ceremonia" element={<CeremoniaAdmin />} />
+        <Route path="presupuesto" element={<PresupuestoAdmin />} />
+        <Route path="checklist" element={<ChecklistAdmin />} />
+        <Route path="agenda" element={<AgendaAdmin />} />
+        <Route path="archivos" element={<ArchivosAdmin />} />
+        <Route path="ajustes" element={<AjustesAdmin />} />
+      </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
