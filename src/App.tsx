@@ -15,14 +15,6 @@ import AsientosCeremonia from "./pages/AsientosCeremonia";
 import CountdownPage from "./pages/Countdown";
 import { useAuth } from "./store/useAuth";
 
-import Personalizacion from "./pages/Personalizacion";
-import Checklist from "./pages/Checklist";
-import Agenda from "./pages/Agenda";
-import Invitados from "./pages/Invitados";
-import Presupuesto from "./pages/Presupuesto";
-import Archivos from "./pages/Archivos";
-import Ajustes from "./pages/Ajustes";
-
 import AdminLayout from "./admin/AdminLayout";
 import Resumen from "./admin/Resumen";
 import InvitadosAdmin from "./admin/Invitados";
@@ -59,15 +51,6 @@ function Root() {
         <Route path="/participa/mesas" element={<Mesas />} />
         <Route path="/participa/asientos-ceremonia" element={<AsientosCeremonia />} />
         <Route path="/countdown" element={<CountdownPage />} />
-
-        {/* Organización (novios) */}
-        <Route path="/organiza/personalizacion" element={<Personalizacion />} />
-        <Route path="/organiza/checklist" element={<Checklist />} />
-        <Route path="/organiza/agenda" element={<Agenda />} />
-        <Route path="/organiza/invitados" element={<Invitados />} />
-        <Route path="/organiza/presupuesto" element={<Presupuesto />} />
-        <Route path="/organiza/archivos" element={<Archivos />} />
-        <Route path="/organiza/ajustes" element={<Ajustes />} />
       </Route>
 
       <Route path="/login" element={<Login />} />

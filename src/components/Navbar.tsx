@@ -23,27 +23,12 @@ export default function Navbar() {
         </button>
 
         {/* Menú escritorio */}
-        <div className="hidden sm:flex gap-6 text-sm font-medium">
+        <div className="hidden sm:flex gap-6 text-sm font-medium ml-auto">
           <NavLink
-            to="/"
-            className={({ isActive }) =>
-              `transition-colors ${
-                isActive
-                  ? "text-pink-400 border-b-2 border-pink-400"
-                  : "hover:text-pink-300"
-              }`
-            }
+            to="/admin/resumen"
+            className="text-pink-400 hover:text-pink-300 font-semibold transition-colors"
           >
-            Inicio
-          </NavLink>
-          <NavLink to="/programa" className="hover:text-pink-300">
-            Programa
-          </NavLink>
-          <NavLink to="/musica" className="hover:text-pink-300">
-            Música
-          </NavLink>
-          <NavLink to="/contacto" className="hover:text-pink-300">
-            Contacto
+            Panel de Novios
           </NavLink>
         </div>
       </div>
@@ -55,32 +40,11 @@ export default function Navbar() {
         }`}
       >
         <NavLink
-          to="/"
+          to="/admin/resumen"
           onClick={() => setMenuOpen(false)}
           className="py-2 text-pink-300 hover:text-white transition-colors"
         >
-          Inicio
-        </NavLink>
-        <NavLink
-          to="/programa"
-          onClick={() => setMenuOpen(false)}
-          className="py-2 text-pink-300 hover:text-white transition-colors"
-        >
-          Programa
-        </NavLink>
-        <NavLink
-          to="/musica"
-          onClick={() => setMenuOpen(false)}
-          className="py-2 text-pink-300 hover:text-white transition-colors"
-        >
-          Música
-        </NavLink>
-        <NavLink
-          to="/contacto"
-          onClick={() => setMenuOpen(false)}
-          className="py-2 text-pink-300 hover:text-white transition-colors"
-        >
-          Contacto
+          Panel de Novios
         </NavLink>
       </div>
     </nav>
