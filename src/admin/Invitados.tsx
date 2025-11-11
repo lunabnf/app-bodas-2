@@ -1,10 +1,21 @@
 import { useState } from "react";
+import { QRCodeCanvas } from "qrcode.react";
 
 interface Invitado {
   id: number;
   nombre: string;
   tipo: string;
   grupo: string;
+  grupoTipo:
+    | "familia_novia"
+    | "familia_novio"
+    | "amigos_novia"
+    | "amigos_novio"
+    | "amigos_comunes"
+    | "amigos_trabajo"
+    | "amigos_pueblo"
+    | "proveedores"
+    | "otros";
   estado: "confirmado" | "pendiente" | "rechazado";
   mesa?: string;
 }
@@ -13,9 +24,9 @@ export default function Invitados() {
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState("todos");
   const [invitados, setInvitados] = useState<Invitado[]>([
-    { id: 1, nombre: "Ana Pérez", tipo: "Adulto", grupo: "Familia novia", estado: "confirmado", mesa: "Mesa 3" },
-    { id: 2, nombre: "Carlos Ruiz", tipo: "Adulto", grupo: "Amigos novio", estado: "pendiente" },
-    { id: 3, nombre: "Lucía Gómez", tipo: "Niño", grupo: "Familia novio", estado: "rechazado" },
+    { id: 1, nombre: "Ana Pérez", tipo: "Adulto", grupo: "Familia novia", grupoTipo: "familia_novia", estado: "confirmado", mesa: "Mesa 3" },
+    { id: 2, nombre: "Carlos Ruiz", tipo: "Adulto", grupo: "Amigos novio", grupoTipo: "amigos_novio", estado: "pendiente" },
+    { id: 3, nombre: "Lucía Gómez", tipo: "Niño", grupo: "Familia novio", grupoTipo: "familia_novio", estado: "rechazado" },
   ]);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [nuevoInvitado, setNuevoInvitado] = useState<Invitado>({
@@ -23,9 +34,13 @@ export default function Invitados() {
     nombre: "",
     tipo: "Adulto",
     grupo: "",
+    grupoTipo: "otros",
     estado: "confirmado",
     mesa: "",
   });
+
+  const [mostrarQR, setMostrarQR] = useState(false);
+  const [invitadoQR, setInvitadoQR] = useState<Invitado | null>(null);
 
   const invitadosFiltrados = invitados.filter(
     (i) =>
@@ -33,12 +48,18 @@ export default function Invitados() {
       i.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
 
+  const resumenGrupos = invitados.reduce((acc, inv) => {
+    acc[inv.grupoTipo] = (acc[inv.grupoTipo] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
   const abrirModal = () => {
     setNuevoInvitado({
       id: 0,
       nombre: "",
       tipo: "Adulto",
       grupo: "",
+      grupoTipo: "otros",
       estado: "confirmado",
       mesa: "",
     });
@@ -56,6 +77,7 @@ export default function Invitados() {
       nombre: nuevoInvitado.nombre.trim(),
       tipo: nuevoInvitado.tipo,
       grupo: nuevoInvitado.grupo.trim(),
+      grupoTipo: nuevoInvitado.grupoTipo,
       estado: nuevoInvitado.estado,
       mesa: nuevoInvitado.mesa?.trim() || undefined,
     };
@@ -86,6 +108,15 @@ export default function Invitados() {
           <p className="text-lg font-semibold text-red-400">Rechazados</p>
           <p className="text-2xl font-bold">{invitados.filter(i => i.estado === "rechazado").length}</p>
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
+        {Object.entries(resumenGrupos).map(([grupo, cantidad]) => (
+          <div key={grupo} className="bg-white/10 p-3 rounded-lg border border-white/10 text-center">
+            <p className="capitalize text-sm text-white/70">{grupo.replace("_", " ")}</p>
+            <p className="text-2xl font-bold text-pink-400">{cantidad}</p>
+          </div>
+        ))}
       </div>
 
       {/* Filtros */}
@@ -132,7 +163,15 @@ export default function Invitados() {
                 <td className="p-3 border-b border-white/10 capitalize">{inv.estado}</td>
                 <td className="p-3 border-b border-white/10">{inv.mesa || "-"}</td>
                 <td className="p-3 border-b border-white/10">
-                  <button className="bg-pink-400 text-black px-2 py-1 rounded text-sm">Ver QR</button>
+                  <button
+                    onClick={() => {
+                      setInvitadoQR(inv);
+                      setMostrarQR(true);
+                    }}
+                    className="bg-pink-400 text-black px-2 py-1 rounded text-sm hover:bg-pink-300 transition"
+                  >
+                    Ver QR
+                  </button>
                 </td>
                 <td className="p-3 border-b border-white/10">
                   <button className="bg-blue-500 hover:bg-blue-400 text-white px-2 py-1 rounded text-sm mr-2">
@@ -204,6 +243,29 @@ export default function Invitados() {
                 />
               </div>
               <div className="mb-4">
+                <label className="block mb-1 font-semibold">Tipo de grupo</label>
+                <select
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  value={nuevoInvitado.grupoTipo}
+                  onChange={(e) =>
+                    setNuevoInvitado({
+                      ...nuevoInvitado,
+                      grupoTipo: e.target.value as Invitado["grupoTipo"],
+                    })
+                  }
+                >
+                  <option value="familia_novia">Familia de la novia</option>
+                  <option value="familia_novio">Familia del novio</option>
+                  <option value="amigos_novia">Amigos de la novia</option>
+                  <option value="amigos_novio">Amigos del novio</option>
+                  <option value="amigos_comunes">Amigos comunes</option>
+                  <option value="amigos_trabajo">Amigos del trabajo</option>
+                  <option value="amigos_pueblo">Amigos del pueblo</option>
+                  <option value="proveedores">Proveedores</option>
+                  <option value="otros">Otros</option>
+                </select>
+              </div>
+              <div className="mb-4">
                 <label className="block mb-1 font-semibold">Estado</label>
                 <select
                   className="w-full border border-gray-300 rounded px-3 py-2"
@@ -245,6 +307,30 @@ export default function Invitados() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {mostrarQR && invitadoQR && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
+          <div className="bg-white bg-opacity-90 backdrop-blur-md rounded-lg p-6 text-center text-black shadow-xl w-[320px]">
+            <h2 className="text-xl font-bold mb-3">QR de {invitadoQR.nombre}</h2>
+            <QRCodeCanvas
+              value={`https://bodaleticiayeric.com/rsvp/${invitadoQR.id}`}
+              size={200}
+              bgColor="#ffffff"
+              fgColor="#000000"
+              includeMargin={true}
+            />
+            <p className="text-sm text-gray-700 mt-3 break-all">
+              https://bodaleticiayeric.com/rsvp/{invitadoQR.id}
+            </p>
+            <button
+              onClick={() => setMostrarQR(false)}
+              className="mt-4 px-4 py-2 bg-pink-500 text-white rounded hover:bg-pink-400"
+            >
+              Cerrar
+            </button>
           </div>
         </div>
       )}
