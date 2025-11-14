@@ -13,7 +13,7 @@ import Alojamientos from "../pages/Alojamientos";
 import Desplazamientos from "../pages/Desplazamientos";
 import NotFound from "../pages/NotFound";
 
-import Admin from "../admin/Admin";
+import Admin from "../admin/AdminLayout";
 import Presupuesto from "../admin/Presupuesto";
 import Mesas from "../admin/Mesas";
 import Ceremonia from "../admin/Ceremonia";

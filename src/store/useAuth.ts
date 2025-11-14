@@ -9,7 +9,7 @@ type User = {
 type AuthState = {
   user: User | null;
   init: () => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -23,7 +23,7 @@ export const useAuth = create<AuthState>((set) => ({
     }
   },
 
-  login: async (email, password) => {
+  login: async (email) => {
     const fakeUser: User = {
       uid: crypto.randomUUID(),
       email,
