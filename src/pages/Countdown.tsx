@@ -7,12 +7,13 @@ import { useEffect, useMemo, useState } from "react";
  */
 
 function readTargetDate(): Date {
-  const fromLS = localStorage.getItem("wedding.date");
-  if (fromLS) {
-    const d = new Date(fromLS);
+  const fecha = localStorage.getItem("wedding.fecha"); // "YYYY-MM-DD"
+  const hora = localStorage.getItem("wedding.hora");   // "HH:MM"
+  if (fecha && hora) {
+    const iso = `${fecha}T${hora}:00`;
+    const d = new Date(iso);
     if (!Number.isNaN(d.getTime())) return d;
   }
-  // Defecto: 2 de agosto de 2025 a las 18:00
   return new Date("2025-08-02T18:00:00");
 }
 
@@ -42,11 +43,12 @@ export default function CountdownPage() {
 
   function onPickDate(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value; // "YYYY-MM-DDTHH:MM"
-    // Safari no soporta segundos en type=datetime-local
-    const d = new Date(value);
-    if (!Number.isNaN(d.getTime())) {
-      setTarget(d);
-      localStorage.setItem("wedding.date", d.toISOString());
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) {
+      const [day, time] = value.split("T");
+      localStorage.setItem("wedding.fecha", day);
+      localStorage.setItem("wedding.hora", time);
+      setTarget(date);
     }
   }
 
