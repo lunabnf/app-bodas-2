@@ -13,6 +13,12 @@ import Alojamientos from "../pages/Alojamientos";
 import Desplazamientos from "../pages/Desplazamientos";
 import NotFound from "../pages/NotFound";
 
+import Admin from "../admin/Admin";
+import Presupuesto from "../admin/Presupuesto";
+import Mesas from "../admin/Mesas";
+import Ceremonia from "../admin/Ceremonia";
+import ProgramaAdmin from "../admin/ProgramaAdmin";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -28,6 +34,16 @@ export const router = createBrowserRouter([
       { path: "/alojamientos", element: <Alojamientos /> },
       { path: "/desplazamientos", element: <Desplazamientos /> },
       { path: "*", element: <NotFound /> },
+    ],
+  },
+  {
+    path: "/admin",
+    element: <Admin />,
+    children: [
+      { path: "presupuesto", element: <Presupuesto /> },
+      { path: "mesas", element: <Mesas /> },
+      { path: "ceremonia", element: <Ceremonia /> },
+      { path: "programa", element: <ProgramaAdmin /> },
     ],
   },
 ]);

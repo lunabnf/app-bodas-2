@@ -16,6 +16,7 @@ export default function AdminLayout() {
           <Link to="/admin/invitados">Invitados</Link>
           <Link to="/admin/mesas">Mesas</Link>
           <Link to="/admin/ceremonia">Ceremonia</Link>
+          <Link to="/admin/programa">Programa</Link>
           <Link to="/admin/presupuesto">Presupuesto</Link>
           <Link to="/admin/checklist">Checklist</Link>
           <Link to="/admin/agenda">Agenda</Link>

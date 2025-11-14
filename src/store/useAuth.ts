@@ -1,8 +1,13 @@
 import { create } from "zustand";
-import { api } from "@/lib/api";
+
+type User = {
+  uid: string;
+  email: string;
+  name?: string;
+};
 
 type AuthState = {
-  user: { uid: string } | null;
+  user: User | null;
   init: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -10,13 +15,27 @@ type AuthState = {
 
 export const useAuth = create<AuthState>((set) => ({
   user: null,
-  init: async () => set({ user: await api.me() }),
-  login: async (email, password) => {
-    const u = await api.login(email, password);
-    set({ user: u });
+
+  init: async () => {
+    const data = localStorage.getItem("auth.user");
+    if (data) {
+      set({ user: JSON.parse(data) });
+    }
   },
+
+  login: async (email, password) => {
+    const fakeUser: User = {
+      uid: crypto.randomUUID(),
+      email,
+      name: "Usuario Demo",
+    };
+
+    localStorage.setItem("auth.user", JSON.stringify(fakeUser));
+    set({ user: fakeUser });
+  },
+
   logout: async () => {
-    await api.logout();
+    localStorage.removeItem("auth.user");
     set({ user: null });
   },
 }));

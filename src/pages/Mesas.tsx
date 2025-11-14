@@ -25,14 +25,14 @@ export default function Mesas() {
     try {
       const g = localStorage.getItem("wedding.guests");
       if (g) setGuests(JSON.parse(g));
-    } catch (_e) { /* ignore */ }
+    } catch { /* ignore */ }
     try {
       const t = localStorage.getItem("wedding.tables");
       if (t) {
         const parsed = JSON.parse(t) as Table[];
         setTables(parsed);
       }
-    } catch (_e) { /* ignore */ }
+    } catch { /* ignore */ }
   }, []);
 
   if (tables.length === 0 || guests.length === 0) {

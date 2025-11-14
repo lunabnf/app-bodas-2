@@ -332,13 +332,6 @@ export default function Presupuesto() {
   // Color for difference: green if real <= previsto, red if real > previsto
   const diferenciaColor = diferencia >= 0 ? "text-green-400" : "text-red-400";
 
-  // Color by estado for each gasto: Pagado=green, Pendiente=yellow, Confirmado=green (treat as paid)
-  const estadoColor = (estado: Gasto["estado"], previsto: number, real: number) => {
-    if (real > previsto) return "text-red-500";
-    if (estado === "Pagado" || estado === "Confirmado") return "text-green-400";
-    if (estado === "Pendiente") return "text-yellow-400";
-    return "text-white";
-  };
 
   // SVG circle parameters for progress ring
   const radius = 50;

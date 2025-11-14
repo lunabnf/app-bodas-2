@@ -22,6 +22,7 @@ import MesasAdmin from "./admin/Mesas";
 import CeremoniaAdmin from "./admin/Ceremonia";
 import PresupuestoAdmin from "./admin/Presupuesto";
 import ChecklistAdmin from "./admin/Checklist";
+import ProgramaAdmin from "./admin/ProgramaAdmin";
 import AgendaAdmin from "./admin/Agenda";
 import ArchivosAdmin from "./admin/Archivos";
 import AjustesAdmin from "./admin/Ajustes";
@@ -72,6 +73,7 @@ function Root() {
         <Route path="agenda" element={<AgendaAdmin />} />
         <Route path="archivos" element={<ArchivosAdmin />} />
         <Route path="ajustes" element={<AjustesAdmin />} />
+        <Route path="programa" element={<ProgramaAdmin />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
