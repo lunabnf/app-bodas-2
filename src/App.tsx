@@ -15,6 +15,8 @@ import AsientosCeremonia from "./pages/AsientosCeremonia";
 import CountdownPage from "./pages/Countdown";
 import { useAuth } from "./store/useAuth";
 
+import IdentificarInvitado from "./pages/IdentificarInvitado";
+
 import AdminLayout from "./admin/AdminLayout";
 import Resumen from "./admin/Resumen";
 import InvitadosAdmin from "./admin/Invitados";
@@ -28,6 +30,7 @@ import ArchivosAdmin from "./admin/Archivos";
 import AjustesAdmin from "./admin/Ajustes";
 import AlojamientoAdmin from "./admin/AlojamientoAdmin";
 import DesplazamientoAdmin from "./admin/DesplazamientoAdmin";
+import ActividadAdmin from "./admin/Actividad";
 
 function ProtectedRoute({ children }: { children: ReactElement }) {
   const user = useAuth((s) => s.user);
@@ -54,6 +57,7 @@ function Root() {
         <Route path="/participa/mesas" element={<Mesas />} />
         <Route path="/participa/asientos-ceremonia" element={<AsientosCeremonia />} />
         <Route path="/countdown" element={<CountdownPage />} />
+        <Route path="/rsvp/:token" element={<IdentificarInvitado />} />
       </Route>
 
       <Route path="/login" element={<Login />} />
@@ -78,6 +82,7 @@ function Root() {
         <Route path="programa" element={<ProgramaAdmin />} />
         <Route path="alojamiento" element={<AlojamientoAdmin />} />
         <Route path="desplazamiento" element={<DesplazamientoAdmin />} />
+        <Route path="actividad" element={<ActividadAdmin />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>

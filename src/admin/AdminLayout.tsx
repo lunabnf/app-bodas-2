@@ -21,6 +21,7 @@ export default function AdminLayout() {
           <Link to="/admin/desplazamiento">Desplazamiento</Link>
 
           <h2 className="text-sm uppercase opacity-60 mt-4 mb-1">Solo Novios</h2>
+          <Link to="/admin/actividad">Actividad</Link>
           <Link to="/admin/resumen">Resumen</Link>
           <Link to="/admin/presupuesto">Presupuesto</Link>
           <Link to="/admin/checklist">Checklist</Link>

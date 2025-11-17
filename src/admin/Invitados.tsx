@@ -18,15 +18,16 @@ interface Invitado {
     | "otros";
   estado: "confirmado" | "pendiente" | "rechazado";
   mesa?: string;
+  token: string;
 }
 
 export default function Invitados() {
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState("todos");
   const [invitados, setInvitados] = useState<Invitado[]>([
-    { id: 1, nombre: "Ana Pérez", tipo: "Adulto", grupo: "Familia novia", grupoTipo: "familia_novia", estado: "confirmado", mesa: "Mesa 3" },
-    { id: 2, nombre: "Carlos Ruiz", tipo: "Adulto", grupo: "Amigos novio", grupoTipo: "amigos_novio", estado: "pendiente" },
-    { id: 3, nombre: "Lucía Gómez", tipo: "Niño", grupo: "Familia novio", grupoTipo: "familia_novio", estado: "rechazado" },
+    { id: 1, nombre: "Ana Pérez", tipo: "Adulto", grupo: "Familia novia", grupoTipo: "familia_novia", estado: "confirmado", mesa: "Mesa 3", token: crypto.randomUUID() },
+    { id: 2, nombre: "Carlos Ruiz", tipo: "Adulto", grupo: "Amigos novio", grupoTipo: "amigos_novio", estado: "pendiente", token: crypto.randomUUID() },
+    { id: 3, nombre: "Lucía Gómez", tipo: "Niño", grupo: "Familia novio", grupoTipo: "familia_novio", estado: "rechazado", token: crypto.randomUUID() },
   ]);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [nuevoInvitado, setNuevoInvitado] = useState<Invitado>({
@@ -37,6 +38,7 @@ export default function Invitados() {
     grupoTipo: "otros",
     estado: "confirmado",
     mesa: "",
+    token: crypto.randomUUID(),
   });
 
   const [mostrarQR, setMostrarQR] = useState(false);
@@ -62,6 +64,7 @@ export default function Invitados() {
       grupoTipo: "otros",
       estado: "confirmado",
       mesa: "",
+      token: crypto.randomUUID(),
     });
     setMostrarModal(true);
   };
@@ -80,6 +83,7 @@ export default function Invitados() {
       grupoTipo: nuevoInvitado.grupoTipo,
       estado: nuevoInvitado.estado,
       mesa: nuevoInvitado.mesa?.trim() || undefined,
+      token: nuevoInvitado.token,
     };
     setInvitados([...invitados, invitadoAGuardar]);
     setMostrarModal(false);
@@ -316,14 +320,14 @@ export default function Invitados() {
           <div className="bg-white bg-opacity-90 backdrop-blur-md rounded-lg p-6 text-center text-black shadow-xl w-[320px]">
             <h2 className="text-xl font-bold mb-3">QR de {invitadoQR.nombre}</h2>
             <QRCodeCanvas
-              value={`https://bodaleticiayeric.com/rsvp/${invitadoQR.id}`}
+              value={`https://bodaleticiayeric.com/rsvp/${invitadoQR.token}`}
               size={200}
               bgColor="#ffffff"
               fgColor="#000000"
               includeMargin={true}
             />
             <p className="text-sm text-gray-700 mt-3 break-all">
-              https://bodaleticiayeric.com/rsvp/{invitadoQR.id}
+              https://bodaleticiayeric.com/rsvp/{invitadoQR.token}
             </p>
             <button
               onClick={() => setMostrarQR(false)}
