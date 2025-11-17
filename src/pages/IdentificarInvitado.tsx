@@ -1,6 +1,11 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
+interface Invitado {
+  token: string;
+  [key: string]: unknown;
+}
+
 export default function IdentificarInvitado() {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -15,15 +20,15 @@ export default function IdentificarInvitado() {
       return;
     }
 
-    let invitados = [];
+    let invitados: Invitado[] = [];
     try {
-      invitados = JSON.parse(raw);
+      invitados = JSON.parse(raw) as Invitado[];
     } catch {
       navigate("/");
       return;
     }
 
-    const invitado = invitados.find((i: any) => i.token === token);
+    const invitado = invitados.find((i) => i.token === token);
 
     if (!invitado) {
       navigate("/");
