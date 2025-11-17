@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { obtenerAlojamientos } from "../services/alojamientosService";
+import { addLog } from "../services/logsService";
+import { getUsuarioActual } from "../services/userService";
 
 type Alojamiento = {
   nombre: string;
@@ -10,14 +13,7 @@ export default function AlojamientosPage() {
   const [alojamientos, setAlojamientos] = useState<Alojamiento[]>([]);
 
   useEffect(() => {
-    const raw = localStorage.getItem("wedding.alojamientos");
-    if (raw) {
-      try {
-        setAlojamientos(JSON.parse(raw));
-      } catch {
-        setAlojamientos([]);
-      }
-    }
+    obtenerAlojamientos().then((data) => setAlojamientos(data || []));
   }, []);
 
   return (
@@ -43,6 +39,12 @@ export default function AlojamientosPage() {
                 href={a.link}
                 target="_blank"
                 rel="noreferrer"
+                onClick={() => {
+                  const usuario = getUsuarioActual();
+                  if (usuario) {
+                    addLog(usuario.nombre, `Abrió alojamiento: ${a.nombre}`);
+                  }
+                }}
                 className="text-blue-300 underline block mt-2"
               >
                 Ver enlace

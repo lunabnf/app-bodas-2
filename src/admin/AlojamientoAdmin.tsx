@@ -1,32 +1,43 @@
-
 type Alojamiento = {
+  id: string;
   nombre: string;
   direccion: string;
   link: string;
 };
 import { useState, useEffect } from "react";
+import { obtenerAlojamientos, guardarAlojamientos, borrarAlojamiento } from "../services/alojamientosService";
+import { addLog } from "../services/logsService";
+import { getUsuarioActual } from "../services/userService";
 
 export default function AlojamientoAdmin() {
   const [alojamientos, setAlojamientos] = useState<Alojamiento[]>([]);
-  const [nuevo, setNuevo] = useState({ nombre: "", direccion: "", link: "" });
+  const [nuevo, setNuevo] = useState({ id: crypto.randomUUID(), nombre: "", direccion: "", link: "" });
 
   useEffect(() => {
-    const saved = localStorage.getItem("wedding.alojamientos");
-    if (saved) setAlojamientos(JSON.parse(saved));
+    obtenerAlojamientos().then((data) => setAlojamientos(data));
   }, []);
 
   const guardar = () => {
     if (!nuevo.nombre.trim()) return;
     const updated = [...alojamientos, nuevo];
     setAlojamientos(updated);
-    localStorage.setItem("wedding.alojamientos", JSON.stringify(updated));
-    setNuevo({ nombre: "", direccion: "", link: "" });
+    guardarAlojamientos(updated);
+    const usuario = getUsuarioActual();
+    if (usuario) {
+      addLog(usuario.nombre, `Creó alojamiento: ${nuevo.nombre}`);
+    }
+    setNuevo({ id: crypto.randomUUID(), nombre: "", direccion: "", link: "" });
   };
 
   const borrar = (index: number) => {
+    const h = alojamientos[index];
     const updated = alojamientos.filter((_, i) => i !== index);
     setAlojamientos(updated);
-    localStorage.setItem("wedding.alojamientos", JSON.stringify(updated));
+    borrarAlojamiento(h.id);
+    const usuario = getUsuarioActual();
+    if (usuario) {
+      addLog(usuario.nombre, `Borró alojamiento: ${h.nombre}`);
+    }
   };
 
   return (

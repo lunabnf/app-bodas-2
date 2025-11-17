@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { obtenerLogs } from "../services/logsService";
 
 type Log = {
   id: string;
@@ -11,14 +12,7 @@ export default function ActividadAdmin() {
   const [logs, setLogs] = useState<Log[]>([]);
 
   useEffect(() => {
-    const raw = localStorage.getItem("wedding.activity");
-    if (raw) {
-      try {
-        setLogs(JSON.parse(raw));
-      } catch {
-        setLogs([]);
-      }
-    }
+    obtenerLogs().then((data) => setLogs(data || []));
   }, []);
 
   const formatearFecha = (ts: number) =>

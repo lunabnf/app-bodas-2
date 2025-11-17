@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { obtenerTransportes, guardarTransportes } from "../services/transporteService";
+import { addLog } from "../services/logsService";
+import { getUsuarioActual } from "../services/userService";
 
 type Transporte = {
   id: string;
@@ -15,14 +18,9 @@ export default function DesplazamientosPage() {
   const [solicitudes, setSolicitudes] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    const raw = localStorage.getItem("wedding.desplazamientos");
-    if (raw) {
-      try {
-        setItems(JSON.parse(raw));
-      } catch {
-        setItems([]);
-      }
-    }
+    obtenerTransportes().then((data) => {
+      setItems(data || []);
+    });
 
     const sol = localStorage.getItem("wedding.desplazamientos.solicitudes");
     if (sol) {
@@ -35,13 +33,17 @@ export default function DesplazamientosPage() {
   }, []);
 
   const solicitar = (id: string) => {
+    const usuario = getUsuarioActual();
+    if (usuario) {
+      const transporte = items.find((t) => t.id === id);
+      const nombreTransporte = transporte ? transporte.nombre : "Transporte";
+      addLog(usuario.nombre, `Solicitó plaza en ${nombreTransporte}`);
+    }
     const updated = { ...solicitudes };
     updated[id] = (updated[id] || 0) + 1;
     setSolicitudes(updated);
-    localStorage.setItem(
-      "wedding.desplazamientos.solicitudes",
-      JSON.stringify(updated)
-    );
+    localStorage.setItem("wedding.desplazamientos.solicitudes", JSON.stringify(updated));
+    guardarTransportes(items);
   };
 
   return (

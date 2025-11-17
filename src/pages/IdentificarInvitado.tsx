@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { addLog } from "../services/logsService";
 
 interface Invitado {
   token: string;
@@ -34,6 +35,8 @@ export default function IdentificarInvitado() {
       navigate("/");
       return;
     }
+
+    addLog(invitado.nombre as string, "Entró desde su invitación QR");
 
     // Guardar como usuario logueado
     localStorage.setItem("wedding.user", JSON.stringify(invitado));

@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { addLog } from "../services/logsService";
+import { getUsuarioActual } from "../services/userService";
+import { guardarRSVP } from "../services/rsvpService";
 
 // Estado de asistencia
 type RSVP = "" | "si" | "no";
@@ -158,6 +161,39 @@ export default function ConfirmarAsistencia() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     // Aquí, en el futuro, enviar a Firestore o API y crear tarjetas vinculadas
+    const usuario = getUsuarioActual();
+    if (usuario) {
+      if (attending === "si") {
+        addLog(usuario.nombre, "Confirmó asistencia a la boda");
+      } else if (attending === "no") {
+        addLog(usuario.nombre, "Rechazó la asistencia a la boda");
+      }
+    }
+    // Guardar RSVP
+    if (usuario) {
+      const data = {
+        id: usuario.token,
+        attending,
+        adultos: numAdults,
+        ninos: numChildren,
+        detalles: [
+          ...adults.map(a => ({
+            nombre: a.fullName,
+            alergias: a.allergies,
+            intolerancias: a.customAllergy,
+          })),
+          ...children.map(c => ({
+            nombre: c.fullName,
+            edad: c.age,
+            alergias: c.allergies,
+            intolerancias: c.customAllergy,
+          }))
+        ],
+        timestamp: Date.now(),
+      };
+
+      guardarRSVP(usuario.token, data);
+    }
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);
   }

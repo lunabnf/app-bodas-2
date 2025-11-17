@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import { guardarInvitados, borrarInvitado } from "../services/invitadosService";
+import { addLog } from "../services/logsService";
+import { getUsuarioActual } from "../services/userService";
 
 interface Invitado {
   id: number;
@@ -24,11 +27,10 @@ interface Invitado {
 export default function Invitados() {
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState("todos");
-  const [invitados, setInvitados] = useState<Invitado[]>([
-    { id: 1, nombre: "Ana Pérez", tipo: "Adulto", grupo: "Familia novia", grupoTipo: "familia_novia", estado: "confirmado", mesa: "Mesa 3", token: crypto.randomUUID() },
-    { id: 2, nombre: "Carlos Ruiz", tipo: "Adulto", grupo: "Amigos novio", grupoTipo: "amigos_novio", estado: "pendiente", token: crypto.randomUUID() },
-    { id: 3, nombre: "Lucía Gómez", tipo: "Niño", grupo: "Familia novio", grupoTipo: "familia_novio", estado: "rechazado", token: crypto.randomUUID() },
-  ]);
+  const [invitados, setInvitados] = useState<Invitado[]>(() => {
+    const datos = localStorage.getItem("wedding.invitados");
+    return datos ? JSON.parse(datos) : [];
+  });
   const [mostrarModal, setMostrarModal] = useState(false);
   const [nuevoInvitado, setNuevoInvitado] = useState<Invitado>({
     id: 0,
@@ -86,6 +88,11 @@ export default function Invitados() {
       token: nuevoInvitado.token,
     };
     setInvitados([...invitados, invitadoAGuardar]);
+    guardarInvitados([...invitados, invitadoAGuardar]);
+    const usuario = getUsuarioActual();
+    if (usuario) {
+      addLog(usuario.nombre, `Añadió invitado: ${invitadoAGuardar.nombre}`);
+    }
     setMostrarModal(false);
   };
 
@@ -181,7 +188,17 @@ export default function Invitados() {
                   <button className="bg-blue-500 hover:bg-blue-400 text-white px-2 py-1 rounded text-sm mr-2">
                     Editar
                   </button>
-                  <button className="bg-red-500 hover:bg-red-400 text-white px-2 py-1 rounded text-sm">
+                  <button
+                    onClick={() => {
+                      borrarInvitado(inv.token);
+                      setInvitados(invitados.filter(i => i.token !== inv.token));
+                      const usuario = getUsuarioActual();
+                      if (usuario) {
+                        addLog(usuario.nombre, `Eliminó invitado: ${inv.nombre}`);
+                      }
+                    }}
+                    className="bg-red-500 hover:bg-red-400 text-white px-2 py-1 rounded text-sm"
+                  >
                     Eliminar
                   </button>
                 </td>

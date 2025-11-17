@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { obtenerTransportes, guardarTransportes, borrarTransporte } from "../services/transporteService";
+import { addLog } from "../services/logsService";
+import { getUsuarioActual } from "../services/userService";
 
 type Transporte = {
   id: string;
@@ -26,8 +29,7 @@ export default function DesplazamientoAdmin() {
   });
 
   useEffect(() => {
-    const saved = localStorage.getItem("wedding.desplazamientos");
-    if (saved) setItems(JSON.parse(saved));
+    obtenerTransportes().then((data) => setItems(data));
   }, []);
 
   const guardar = () => {
@@ -45,7 +47,12 @@ export default function DesplazamientoAdmin() {
 
     const updated = [...items, entry];
     setItems(updated);
-    localStorage.setItem("wedding.desplazamientos", JSON.stringify(updated));
+    guardarTransportes(updated);
+
+    const usuario = getUsuarioActual();
+    if (usuario) {
+      addLog(usuario.nombre, `Creó transporte: ${entry.nombre}`);
+    }
 
     setNuevo({
       nombre: "",
@@ -60,7 +67,13 @@ export default function DesplazamientoAdmin() {
   const borrar = (id: string) => {
     const updated = items.filter((t) => t.id !== id);
     setItems(updated);
-    localStorage.setItem("wedding.desplazamientos", JSON.stringify(updated));
+    borrarTransporte(id);
+
+    const usuario = getUsuarioActual();
+    const transporte = items.find((t) => t.id === id);
+    if (usuario && transporte) {
+      addLog(usuario.nombre, `Borró transporte: ${transporte.nombre}`);
+    }
   };
 
   return (

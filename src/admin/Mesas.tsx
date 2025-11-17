@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { addLog } from "../services/logsService";
+import { getUsuarioActual } from "../services/userService";
 
 type Invitado = {
   id: string;
@@ -47,6 +49,12 @@ export default function MesasAdmin() {
       i.id === id ? { ...i, mesa: mesaId } : i
     );
     setInvitados(actualizados);
+    const usuario = getUsuarioActual();
+    const invitado = invitados.find((i) => i.id === id);
+    const mesa = mesas.find((m) => m.id === mesaId);
+    if (usuario && invitado && mesa) {
+      addLog(usuario.nombre, `Asignó a ${invitado.nombre} a ${mesa.nombre}`);
+    }
     localStorage.setItem("wedding.guests", JSON.stringify(actualizados));
   };
 
