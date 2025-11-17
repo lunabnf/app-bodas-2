@@ -12,18 +12,21 @@ export default function AdminLayout() {
         </Link>
         <h1 className="text-xl font-semibold text-pink-400 mb-4">Panel de Novios</h1>
         <nav className="flex flex-col space-y-2">
-          <Link to="/admin/resumen">Resumen</Link>
+          <h2 className="text-sm uppercase opacity-60 mt-2 mb-1">Invitados</h2>
           <Link to="/admin/invitados">Invitados</Link>
           <Link to="/admin/mesas">Mesas</Link>
           <Link to="/admin/ceremonia">Ceremonia</Link>
           <Link to="/admin/programa">Programa</Link>
+          <Link to="/admin/alojamiento">Alojamiento</Link>
+          <Link to="/admin/desplazamiento">Desplazamiento</Link>
+
+          <h2 className="text-sm uppercase opacity-60 mt-4 mb-1">Solo Novios</h2>
+          <Link to="/admin/resumen">Resumen</Link>
           <Link to="/admin/presupuesto">Presupuesto</Link>
           <Link to="/admin/checklist">Checklist</Link>
           <Link to="/admin/agenda">Agenda</Link>
           <Link to="/admin/archivos">Archivos</Link>
           <Link to="/admin/ajustes">Ajustes</Link>
-          <Link to="/admin/alojamiento">Alojamiento</Link>
-          <Link to="/admin/desplazamiento">Desplazamiento</Link>
         </nav>
       </aside>
 
