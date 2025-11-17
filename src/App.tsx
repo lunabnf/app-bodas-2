@@ -26,6 +26,8 @@ import ProgramaAdmin from "./admin/ProgramaAdmin";
 import AgendaAdmin from "./admin/Agenda";
 import ArchivosAdmin from "./admin/Archivos";
 import AjustesAdmin from "./admin/Ajustes";
+import AlojamientoAdmin from "./admin/AlojamientoAdmin";
+import DesplazamientoAdmin from "./admin/DesplazamientoAdmin";
 
 function ProtectedRoute({ children }: { children: ReactElement }) {
   const user = useAuth((s) => s.user);
@@ -74,6 +76,8 @@ function Root() {
         <Route path="archivos" element={<ArchivosAdmin />} />
         <Route path="ajustes" element={<AjustesAdmin />} />
         <Route path="programa" element={<ProgramaAdmin />} />
+        <Route path="alojamiento" element={<AlojamientoAdmin />} />
+        <Route path="desplazamiento" element={<DesplazamientoAdmin />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>

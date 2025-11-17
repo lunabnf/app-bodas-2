@@ -22,6 +22,8 @@ export default function AdminLayout() {
           <Link to="/admin/agenda">Agenda</Link>
           <Link to="/admin/archivos">Archivos</Link>
           <Link to="/admin/ajustes">Ajustes</Link>
+          <Link to="/admin/alojamiento">Alojamiento</Link>
+          <Link to="/admin/desplazamiento">Desplazamiento</Link>
         </nav>
       </aside>
 
