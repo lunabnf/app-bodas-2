@@ -12,8 +12,9 @@ export default function Ajustes() {
   const [mostrarMesas, setMostrarMesas] = useState(true);
 
   useEffect(() => {
-    const savedNames = localStorage.getItem("wedding.nombres");
-    if (savedNames) setNombres(JSON.parse(savedNames));
+    const savedNovio = localStorage.getItem("wedding.novio") || "";
+    const savedNovia = localStorage.getItem("wedding.novia") || "";
+    setNombres({ novio1: savedNovio, novio2: savedNovia });
 
     const savedFecha = localStorage.getItem("wedding.fecha");
     if (savedFecha) setFecha(savedFecha);
@@ -44,7 +45,7 @@ export default function Ajustes() {
             onChange={(e) => {
               const updatedNames = { ...nombres, novio1: e.target.value };
               setNombres(updatedNames);
-              localStorage.setItem("wedding.nombres", JSON.stringify(updatedNames));
+              localStorage.setItem("wedding.novio", e.target.value);
             }}
             className="p-2 bg-black/30 border border-white/30 rounded"
           />
@@ -56,7 +57,7 @@ export default function Ajustes() {
             onChange={(e) => {
               const updatedNames = { ...nombres, novio2: e.target.value };
               setNombres(updatedNames);
-              localStorage.setItem("wedding.nombres", JSON.stringify(updatedNames));
+              localStorage.setItem("wedding.novia", e.target.value);
             }}
             className="p-2 bg-black/30 border border-white/30 rounded"
           />
