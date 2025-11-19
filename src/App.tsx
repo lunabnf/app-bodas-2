@@ -13,6 +13,7 @@ import Alojamientos from "./pages/Alojamientos";
 import Mesas from "./pages/Mesas";
 import AsientosCeremonia from "./pages/AsientosCeremonia";
 import CountdownPage from "./pages/Countdown";
+import Musica from "./pages/Musica";
 import { useAuth } from "./store/useAuth";
 
 import IdentificarInvitado from "./pages/IdentificarInvitado";
@@ -56,6 +57,7 @@ function Root() {
         <Route path="/participa/confirmar-asistencia" element={<ConfirmarAsistencia />} />
         <Route path="/participa/mesas" element={<Mesas />} />
         <Route path="/participa/asientos-ceremonia" element={<AsientosCeremonia />} />
+        <Route path="/participa/musica" element={<Musica />} />
         <Route path="/countdown" element={<CountdownPage />} />
         <Route path="/rsvp/:token" element={<IdentificarInvitado />} />
       </Route>

@@ -152,6 +152,17 @@ export default function AppLayout() {
                   Asientos ceremonia
                 </NavLink>
                 <NavLink
+                  to="/participa/musica"
+                  onClick={close}
+                  className={({ isActive }) =>
+                    `block rounded px-3 py-2 ${
+                      isActive ? "bg-white text-black" : "hover:bg-white/10"
+                    }`
+                  }
+                >
+                  Música
+                </NavLink>
+                <NavLink
                   to="/galeria"
                   onClick={close}
                   className={({ isActive }) =>
