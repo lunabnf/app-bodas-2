@@ -1,41 +1,40 @@
 import { create } from "zustand";
 
-type User = {
-  uid: string;
-  email: string;
-  name?: string;
-};
+export interface GuestData {
+  token: string;
+  nombre: string;
+  mesa?: string;
+  esAdulto?: boolean;
+}
 
-type AuthState = {
-  user: User | null;
-  init: () => Promise<void>;
-  login: (email: string) => Promise<void>;
-  logout: () => Promise<void>;
-};
+interface AuthState {
+  invitado: GuestData | null;
+  esAdmin: boolean;
+
+  loginAsGuest: (data: GuestData) => void;
+  loginAsAdmin: () => void;
+  logout: () => void;
+}
 
 export const useAuth = create<AuthState>((set) => ({
-  user: null,
+  invitado: null,
+  esAdmin: false,
 
-  init: async () => {
-    const data = localStorage.getItem("auth.user");
-    if (data) {
-      set({ user: JSON.parse(data) });
-    }
-  },
+  loginAsGuest: (data) =>
+    set({
+      invitado: data,
+      esAdmin: false,
+    }),
 
-  login: async (email) => {
-    const fakeUser: User = {
-      uid: crypto.randomUUID(),
-      email,
-      name: "Usuario Demo",
-    };
+  loginAsAdmin: () =>
+    set({
+      invitado: null,
+      esAdmin: true,
+    }),
 
-    localStorage.setItem("auth.user", JSON.stringify(fakeUser));
-    set({ user: fakeUser });
-  },
-
-  logout: async () => {
-    localStorage.removeItem("auth.user");
-    set({ user: null });
-  },
+  logout: () =>
+    set({
+      invitado: null,
+      esAdmin: false,
+    }),
 }));

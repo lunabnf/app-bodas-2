@@ -1,15 +1,18 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { addLog } from "../services/logsService";
+import { registrarActividad } from "../services/actividadService";
+import { useAuth } from "../store/useAuth";
 
 interface Invitado {
   token: string;
+  nombre: string;
   [key: string]: unknown;
 }
 
 export default function IdentificarInvitado() {
   const { token } = useParams();
   const navigate = useNavigate();
+  const loginAsGuest = useAuth((s) => s.loginAsGuest);
 
   useEffect(() => {
     if (!token) return;
@@ -36,14 +39,19 @@ export default function IdentificarInvitado() {
       return;
     }
 
-    addLog(invitado.nombre as string, "Entró desde su invitación QR");
+    registrarActividad({
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      tipo: "login_invitado",
+      mensaje: `${invitado.nombre} ha accedido desde su invitación QR`,
+      tokenInvitado: invitado.token,
+    });
 
-    // Guardar como usuario logueado
-    localStorage.setItem("wedding.user", JSON.stringify(invitado));
+    loginAsGuest(invitado as Invitado);
 
     // Redirigir al panel público del invitado
     navigate("/");
-  }, [token, navigate]);
+  }, [token, navigate, loginAsGuest]);
 
   return (
     <div className="text-white p-6">

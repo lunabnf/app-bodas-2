@@ -163,7 +163,7 @@ export default function AppLayout() {
                   Música
                 </NavLink>
                 <NavLink
-                  to="/galeria"
+                  to="/participa/fotos"
                   onClick={close}
                   className={({ isActive }) =>
                     `block rounded px-3 py-2 ${

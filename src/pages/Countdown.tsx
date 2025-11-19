@@ -22,7 +22,7 @@ function pad(n: number): string {
 }
 
 export default function CountdownPage() {
-  const [target, setTarget] = useState<Date>(() => readTargetDate());
+const [target] = useState<Date>(() => readTargetDate());
   const [now, setNow] = useState<Date>(() => new Date());
 
   // Tick por segundo
@@ -41,32 +41,13 @@ export default function CountdownPage() {
     return { days, hours, minutes, seconds };
   }, [target, now]);
 
-  function onPickDate(e: React.ChangeEvent<HTMLInputElement>) {
-    const value = e.target.value; // "YYYY-MM-DDTHH:MM"
-    const date = new Date(value);
-    if (!Number.isNaN(date.getTime())) {
-      const [day, time] = value.split("T");
-      localStorage.setItem("wedding.fecha", day);
-      localStorage.setItem("wedding.hora", time);
-      setTarget(date);
-    }
-  }
-
   return (
     <div className="max-w-4xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-semibold mb-3">Cuenta atrás</h1>
 
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <label className="text-sm">
-          Fecha de la boda
-          <input
-            type="datetime-local"
-            onChange={onPickDate}
-            className="mt-1 block rounded-lg bg-white/5 border border-white/15 px-3 py-2 text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-white/30 backdrop-blur-md"
-          />
-        </label>
-        <small className="opacity-70">Actual: {target.toLocaleString()}</small>
-      </div>
+      <p className="mb-4 text-sm opacity-80">
+        Fecha de la boda: {target.toLocaleString()}
+      </p>
 
       <section className="flex flex-wrap gap-3">
         <Box label="Días" value={String(diff.days)} />

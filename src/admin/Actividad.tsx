@@ -38,9 +38,10 @@ export default function ActividadAdmin() {
     });
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-6 space-y-10 text-white">
+
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Actividad reciente</h1>
+        <h1 className="text-3xl font-bold">Actividad</h1>
         <button
           type="button"
           onClick={handleLimpiar}
@@ -51,35 +52,147 @@ export default function ActividadAdmin() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-gray-500">Cargando actividad...</p>
+        <p className="text-sm opacity-60">Cargando actividad...</p>
       ) : items.length === 0 ? (
-        <p className="text-sm text-gray-500">
-          Todavía no hay actividad registrada.
-        </p>
+        <p className="text-sm opacity-60">Todavía no hay actividad registrada.</p>
       ) : (
-        <ul className="space-y-2 text-sm">
-          {items.map((evento) => (
-            <li
-              key={evento.id}
-              className="rounded-lg border bg-white/70 p-3 shadow-sm backdrop-blur"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <p className="font-medium">{evento.mensaje}</p>
-                  <p className="mt-1 text-[11px] text-gray-500">
-                    Tipo: {evento.tipo}
-                    {evento.tokenInvitado && (
-                      <> · Invitado: {evento.tokenInvitado}</>
-                    )}
-                  </p>
-                </div>
-                <span className="whitespace-nowrap text-[11px] text-gray-500">
-                  {formatFecha(evento.timestamp)}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <>
+          {/* =================== CONFIRMAR ASISTENCIA =================== */}
+          <section>
+            <h2 className="text-xl font-semibold mb-3">Confirmación asistencia</h2>
+            <div className="overflow-auto rounded-lg border border-white/20 bg-white/5">
+              <table className="w-full text-sm">
+                <thead className="bg-white/10 text-left">
+                  <tr>
+                    <th className="px-3 py-2">Invitado</th>
+                    <th className="px-3 py-2">Acción</th>
+                    <th className="px-3 py-2">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items
+                    .filter((e) => e.tipo === "rsvp" || e.tipo.includes("confirmacion"))
+                    .map((e) => (
+                      <tr key={e.id} className="border-t border-white/10">
+                        <td className="px-3 py-2">{e.tokenInvitado || "-"}</td>
+                        <td className="px-3 py-2">{e.mensaje}</td>
+                        <td className="px-3 py-2">{formatFecha(e.timestamp)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* =================== ALOJAMIENTOS =================== */}
+          <section>
+            <h2 className="text-xl font-semibold mb-3">Alojamientos</h2>
+            <div className="overflow-auto rounded-lg border border-white/20 bg-white/5">
+              <table className="w-full text-sm">
+                <thead className="bg-white/10 text-left">
+                  <tr>
+                    <th className="px-3 py-2">Invitado</th>
+                    <th className="px-3 py-2">Acción</th>
+                    <th className="px-3 py-2">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items
+                    .filter((e) => e.tipo === "alojamiento")
+                    .map((e) => (
+                      <tr key={e.id} className="border-t border-white/10">
+                        <td className="px-3 py-2">{e.tokenInvitado || "-"}</td>
+                        <td className="px-3 py-2">{e.mensaje}</td>
+                        <td className="px-3 py-2">{formatFecha(e.timestamp)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* =================== TRANSPORTE =================== */}
+          <section>
+            <h2 className="text-xl font-semibold mb-3">Transporte</h2>
+            <div className="overflow-auto rounded-lg border border-white/20 bg-white/5">
+              <table className="w-full text-sm">
+                <thead className="bg-white/10 text-left">
+                  <tr>
+                    <th className="px-3 py-2">Invitado</th>
+                    <th className="px-3 py-2">Acción</th>
+                    <th className="px-3 py-2">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items
+                    .filter((e) => e.tipo === "transporte")
+                    .map((e) => (
+                      <tr key={e.id} className="border-t border-white/10">
+                        <td className="px-3 py-2">{e.tokenInvitado || "-"}</td>
+                        <td className="px-3 py-2">{e.mensaje}</td>
+                        <td className="px-3 py-2">{formatFecha(e.timestamp)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* =================== MÚSICA =================== */}
+          <section>
+            <h2 className="text-xl font-semibold mb-3">Música</h2>
+
+            {/* Propuestas */}
+            <h3 className="font-medium mt-4 mb-2">Propuestas</h3>
+            <div className="overflow-auto rounded-lg border border-white/20 bg-white/5 mb-6">
+              <table className="w-full text-sm">
+                <thead className="bg-white/10 text-left">
+                  <tr>
+                    <th className="px-3 py-2">Invitado</th>
+                    <th className="px-3 py-2">Canción</th>
+                    <th className="px-3 py-2">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items
+                    .filter((e) => e.tipo === "musica_propuesta")
+                    .map((e) => (
+                      <tr key={e.id} className="border-t border-white/10">
+                        <td className="px-3 py-2">{e.tokenInvitado || "-"}</td>
+                        <td className="px-3 py-2">{e.mensaje}</td>
+                        <td className="px-3 py-2">{formatFecha(e.timestamp)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Votos */}
+            <h3 className="font-medium mt-4 mb-2">Votos</h3>
+            <div className="overflow-auto rounded-lg border border-white/20 bg-white/5">
+              <table className="w-full text-sm">
+                <thead className="bg-white/10 text-left">
+                  <tr>
+                    <th className="px-3 py-2">Invitado</th>
+                    <th className="px-3 py-2">Canción</th>
+                    <th className="px-3 py-2">Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items
+                    .filter((e) => e.tipo === "musica_voto")
+                    .map((e) => (
+                      <tr key={e.id} className="border-t border-white/10">
+                        <td className="px-3 py-2">{e.tokenInvitado || "-"}</td>
+                        <td className="px-3 py-2">{e.mensaje}</td>
+                        <td className="px-3 py-2">{formatFecha(e.timestamp)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </>
       )}
     </div>
   );

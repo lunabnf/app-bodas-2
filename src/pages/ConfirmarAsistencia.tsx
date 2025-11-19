@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { addLog } from "../services/logsService";
 import { getUsuarioActual } from "../services/userService";
 import { guardarRSVP } from "../services/rsvpService";
+import { registrarActividad } from "../services/actividadService";
 
 // Estado de asistencia
 type RSVP = "" | "si" | "no";
@@ -158,7 +159,7 @@ export default function ConfirmarAsistencia() {
     return [...adultsCards, ...childrenCards];
   }, [attending, adults, children]);
 
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     // Aquí, en el futuro, enviar a Firestore o API y crear tarjetas vinculadas
     const usuario = getUsuarioActual();
@@ -193,6 +194,25 @@ export default function ConfirmarAsistencia() {
       };
 
       guardarRSVP(usuario.token, data);
+
+      // Registrar actividad global
+      if (attending === "si") {
+        await registrarActividad({
+          id: uuid(),
+          timestamp: Date.now(),
+          tipo: "rsvp",
+          mensaje: `${usuario.nombre} ha confirmado asistencia (${numAdults} adultos, ${numChildren} niños)`,
+          tokenInvitado: usuario.token,
+        });
+      } else if (attending === "no") {
+        await registrarActividad({
+          id: uuid(),
+          timestamp: Date.now(),
+          tipo: "rsvp",
+          mensaje: `${usuario.nombre} ha rechazado la asistencia`,
+          tokenInvitado: usuario.token,
+        });
+      }
     }
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);

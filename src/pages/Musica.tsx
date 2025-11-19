@@ -71,7 +71,7 @@ export default function Musica() {
     await registrarActividad({
       id: crypto.randomUUID(),
       timestamp: Date.now(),
-      tipo: "cancion_propuesta",
+      tipo: "musica_propuesta",
       mensaje: `${invitado.nombre} ha propuesto: ${titulo} - ${artista}`,
       tokenInvitado: invitado.token,
     });
@@ -91,7 +91,7 @@ export default function Musica() {
       await registrarActividad({
         id: crypto.randomUUID(),
         timestamp: Date.now(),
-        tipo: "voto_cancion",
+        tipo: "musica_voto",
         mensaje: `${invitado.nombre} ha votado: ${c.titulo} - ${c.artista}`,
         tokenInvitado: invitado.token,
       });

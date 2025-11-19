@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { obtenerAlojamientos } from "../services/alojamientosService";
-import { addLog } from "../services/logsService";
-import { getUsuarioActual } from "../services/userService";
+import { registrarActividad } from "../services/actividadService";
+import { useAuth } from "../store/useAuth";
 
 type Alojamiento = {
   nombre: string;
@@ -11,6 +11,7 @@ type Alojamiento = {
 
 export default function AlojamientosPage() {
   const [alojamientos, setAlojamientos] = useState<Alojamiento[]>([]);
+  const { invitado } = useAuth();
 
   useEffect(() => {
     obtenerAlojamientos().then((data) => setAlojamientos(data || []));
@@ -40,9 +41,14 @@ export default function AlojamientosPage() {
                 target="_blank"
                 rel="noreferrer"
                 onClick={() => {
-                  const usuario = getUsuarioActual();
-                  if (usuario) {
-                    addLog(usuario.nombre, `Abrió alojamiento: ${a.nombre}`);
+                  if (invitado) {
+                    registrarActividad({
+                      id: crypto.randomUUID(),
+                      timestamp: Date.now(),
+                      tipo: "alojamiento",
+                      mensaje: `${invitado.nombre} ha abierto el alojamiento: ${a.nombre}`,
+                      tokenInvitado: invitado.token,
+                    });
                   }
                 }}
                 className="text-blue-300 underline block mt-2"

@@ -1,4 +1,4 @@
-import { useEffect, type ReactElement } from "react";
+import { type ReactElement } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import AppLayout from "./layouts/AppLayout";
@@ -14,6 +14,7 @@ import Mesas from "./pages/Mesas";
 import AsientosCeremonia from "./pages/AsientosCeremonia";
 import CountdownPage from "./pages/Countdown";
 import Musica from "./pages/Musica";
+import Fotos from "./pages/Fotos";
 import { useAuth } from "./store/useAuth";
 
 import IdentificarInvitado from "./pages/IdentificarInvitado";
@@ -34,20 +35,16 @@ import DesplazamientoAdmin from "./admin/DesplazamientoAdmin";
 import ActividadAdmin from "./admin/Actividad";
 
 function ProtectedRoute({ children }: { children: ReactElement }) {
-  const user = useAuth((s) => s.user);
-  if (!user) return <Navigate to="/login" replace />;
+  const esAdmin = useAuth((s) => s.esAdmin);
+  if (!esAdmin) return <Navigate to="/login" replace />;
   return children;
 }
 
 function Root() {
-  const init = useAuth((s) => s.init);
-  useEffect(() => { void init(); }, [init]);
-
   return (
     <Routes>
       <Route element={<AppLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/galeria" element={<div>Galería</div>} />
         <Route path="/contacto" element={<div>Contacto</div>} />
 
         <Route path="/programa" element={<Programa />} />
@@ -58,6 +55,7 @@ function Root() {
         <Route path="/participa/mesas" element={<Mesas />} />
         <Route path="/participa/asientos-ceremonia" element={<AsientosCeremonia />} />
         <Route path="/participa/musica" element={<Musica />} />
+        <Route path="/participa/fotos" element={<Fotos />} />
         <Route path="/countdown" element={<CountdownPage />} />
         <Route path="/rsvp/:token" element={<IdentificarInvitado />} />
       </Route>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { obtenerTransportes, guardarTransportes } from "../services/transporteService";
-import { addLog } from "../services/logsService";
-import { getUsuarioActual } from "../services/userService";
+import { registrarActividad } from "../services/actividadService";
+import { useAuth } from "../store/useAuth";
 
 type Transporte = {
   id: string;
@@ -16,6 +16,7 @@ type Transporte = {
 export default function DesplazamientosPage() {
   const [items, setItems] = useState<Transporte[]>([]);
   const [solicitudes, setSolicitudes] = useState<Record<string, number>>({});
+  const { invitado } = useAuth();
 
   useEffect(() => {
     obtenerTransportes().then((data) => {
@@ -33,11 +34,16 @@ export default function DesplazamientosPage() {
   }, []);
 
   const solicitar = (id: string) => {
-    const usuario = getUsuarioActual();
-    if (usuario) {
+    if (invitado) {
       const transporte = items.find((t) => t.id === id);
       const nombreTransporte = transporte ? transporte.nombre : "Transporte";
-      addLog(usuario.nombre, `Solicitó plaza en ${nombreTransporte}`);
+      registrarActividad({
+        id: crypto.randomUUID(),
+        timestamp: Date.now(),
+        tipo: "transporte",
+        mensaje: `${invitado.nombre} ha solicitado plaza en ${nombreTransporte}`,
+        tokenInvitado: invitado.token,
+      });
     }
     const updated = { ...solicitudes };
     updated[id] = (updated[id] || 0) + 1;
