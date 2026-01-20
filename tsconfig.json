@@ -10,7 +10,9 @@
       "@/*": ["src/*"]
     },
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noEmit": true,
+    "incremental": true
   },
   "include": ["src"]
 }
