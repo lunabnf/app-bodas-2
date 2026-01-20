@@ -5,12 +5,12 @@ import { useAuth } from "@/store/useAuth";
 export default function Login() {
   const [email, setEmail] = useState("demo@demo.com");
   const [password, setPassword] = useState("demo");
-  const login = useAuth((s) => s.login);
+  const loginAsAdmin = useAuth((s) => s.loginAsAdmin);
   const nav = useNavigate();
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    await login(email, password);
+    loginAsAdmin();
     nav("/admin");
   }
 
