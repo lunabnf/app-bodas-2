@@ -69,5 +69,6 @@ export default defineConfig([
       // other options...
     },
   },
+  Prueba conexión VS Code → GitHub (fecha y hora)
 ])
 ```
