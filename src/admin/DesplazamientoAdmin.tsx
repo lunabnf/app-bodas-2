@@ -1,24 +1,21 @@
-import { useState, useEffect } from "react";
-import { obtenerTransportes, guardarTransportes, borrarTransporte } from "../services/transporteService";
+import { useEffect, useState } from "react";
+import type { TransportOption, TransportRequest } from "../domain/transport";
+import {
+  borrarTransporte,
+  guardarTransportes,
+  obtenerSolicitudesTransporte,
+  obtenerTransportes,
+} from "../services/transporteService";
 import { addLog } from "../services/logsService";
 import { getUsuarioActual } from "../services/userService";
-
-type Transporte = {
-  id: string;
-  nombre: string;
-  origen: string;
-  destino: string;
-  hora: string;
-  capacidad: number;
-  notas: string;
-};
 
 function uuid() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
 export default function DesplazamientoAdmin() {
-  const [items, setItems] = useState<Transporte[]>([]);
+  const [items, setItems] = useState<TransportOption[]>([]);
+  const [solicitudes, setSolicitudes] = useState<TransportRequest[]>([]);
   const [nuevo, setNuevo] = useState({
     nombre: "",
     origen: "",
@@ -29,13 +26,20 @@ export default function DesplazamientoAdmin() {
   });
 
   useEffect(() => {
-    obtenerTransportes().then((data) => setItems(data));
+    void (async () => {
+      const [options, requests] = await Promise.all([
+        obtenerTransportes(),
+        obtenerSolicitudesTransporte(),
+      ]);
+      setItems(options);
+      setSolicitudes(requests);
+    })();
   }, []);
 
-  const guardar = () => {
+  const guardar = async () => {
     if (!nuevo.nombre.trim()) return;
 
-    const entry: Transporte = {
+    const entry: TransportOption = {
       id: uuid(),
       nombre: nuevo.nombre,
       origen: nuevo.origen,
@@ -47,11 +51,11 @@ export default function DesplazamientoAdmin() {
 
     const updated = [...items, entry];
     setItems(updated);
-    guardarTransportes(updated);
+    await guardarTransportes(updated);
 
     const usuario = getUsuarioActual();
     if (usuario) {
-      addLog(usuario.nombre, `Creó transporte: ${entry.nombre}`);
+      await addLog(usuario.nombre, `Creó transporte: ${entry.nombre}`);
     }
 
     setNuevo({
@@ -64,15 +68,15 @@ export default function DesplazamientoAdmin() {
     });
   };
 
-  const borrar = (id: string) => {
-    const updated = items.filter((t) => t.id !== id);
+  const borrar = async (id: string) => {
+    const updated = items.filter((item) => item.id !== id);
+    const transporte = items.find((item) => item.id === id);
     setItems(updated);
-    borrarTransporte(id);
+    await borrarTransporte(id);
 
     const usuario = getUsuarioActual();
-    const transporte = items.find((t) => t.id === id);
     if (usuario && transporte) {
-      addLog(usuario.nombre, `Borró transporte: ${transporte.nombre}`);
+      await addLog(usuario.nombre, `Borró transporte: ${transporte.nombre}`);
     }
   };
 
@@ -81,7 +85,7 @@ export default function DesplazamientoAdmin() {
       <h1 className="text-3xl font-bold">Desplazamientos (Admin)</h1>
 
       <p className="opacity-80">
-        Define aquí los medios de transporte para invitados (ida y vuelta).
+        Aquí configuras las opciones de desplazamiento que podrán solicitar los invitados.
       </p>
 
       <div className="p-4 bg-white/10 border border-white/20 rounded space-y-3">
@@ -123,39 +127,63 @@ export default function DesplazamientoAdmin() {
           onChange={(e) => setNuevo({ ...nuevo, notas: e.target.value })}
         />
 
-        <button className="bg-blue-600 px-4 py-2 rounded" onClick={guardar}>
+        <button className="bg-blue-600 px-4 py-2 rounded" onClick={() => void guardar()}>
           Añadir transporte
         </button>
       </div>
 
       <div className="space-y-3">
+        <h2 className="text-2xl font-semibold">Opciones publicadas</h2>
         {items.length === 0 && (
           <p className="opacity-60">No hay transportes añadidos.</p>
         )}
 
-        {items.map((t) => (
+        {items.map((item) => (
           <div
-            key={t.id}
-            className="p-4 bg-white/10 border border-white/20 rounded flex justify-between"
+            key={item.id}
+            className="p-4 bg-white/10 border border-white/20 rounded flex justify-between gap-4"
           >
             <div>
-              <p className="font-bold text-lg">{t.nombre}</p>
+              <p className="font-bold text-lg">{item.nombre}</p>
               <p className="opacity-80">
-                {t.origen} → {t.destino}
+                {item.origen} → {item.destino}
               </p>
-              <p className="opacity-80">Hora: {t.hora}</p>
-              <p className="opacity-80">Capacidad: {t.capacidad}</p>
-              {t.notas && <p className="italic opacity-70 mt-1">{t.notas}</p>}
+              <p className="opacity-80">Hora: {item.hora}</p>
+              <p className="opacity-80">Capacidad: {item.capacidad}</p>
+              {item.notas ? <p className="italic opacity-70 mt-1">{item.notas}</p> : null}
             </div>
 
             <button
               className="bg-red-600 px-3 py-1 rounded h-fit"
-              onClick={() => borrar(t.id)}
+              onClick={() => void borrar(item.id)}
             >
               Borrar
             </button>
           </div>
         ))}
+      </div>
+
+      <div className="space-y-3">
+        <h2 className="text-2xl font-semibold">Solicitudes de invitados</h2>
+        {solicitudes.length === 0 ? (
+          <p className="opacity-60">Todavía no hay solicitudes de transporte.</p>
+        ) : (
+          solicitudes.map((solicitud) => {
+            const transporte = items.find((item) => item.id === solicitud.transportId);
+            return (
+              <div
+                key={solicitud.id}
+                className="rounded-lg border border-white/20 bg-white/10 p-4"
+              >
+                <p className="font-semibold">{solicitud.guestName}</p>
+                <p className="opacity-80">
+                  {transporte ? transporte.nombre : "Transporte"} · {solicitud.seats} plaza(s)
+                </p>
+                {solicitud.notes ? <p className="mt-1 opacity-70">{solicitud.notes}</p> : null}
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

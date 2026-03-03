@@ -1,16 +1,12 @@
 import { useState } from "react";
-
-type Evento = {
-  id: string;
-  hora: string;
-  titulo: string;
-  descripcion: string;
-};
+import {
+  getWeddingProgram,
+  saveWeddingProgram,
+  type WeddingProgramEvent as Evento,
+} from "../services/programaService";
 
 export default function ProgramaAdmin() {
-  const [eventos, setEventos] = useState<Evento[]>(
-    JSON.parse(localStorage.getItem("wedding.programa") || "[]")
-  );
+  const [eventos, setEventos] = useState<Evento[]>(getWeddingProgram());
   const [nuevo, setNuevo] = useState<Evento>({
     id: "",
     hora: "",
@@ -19,7 +15,7 @@ export default function ProgramaAdmin() {
   });
 
   const guardar = () => {
-    localStorage.setItem("wedding.programa", JSON.stringify(eventos));
+    saveWeddingProgram(eventos);
   };
 
   const agregar = () => {
@@ -43,7 +39,11 @@ export default function ProgramaAdmin() {
     const copia = [...eventos];
     const nuevoIndice = direccion === "arriba" ? indice - 1 : indice + 1;
     if (nuevoIndice < 0 || nuevoIndice >= copia.length) return;
-    [copia[indice], copia[nuevoIndice]] = [copia[nuevoIndice], copia[indice]];
+    const actual = copia[indice];
+    const destino = copia[nuevoIndice];
+    if (!actual || !destino) return;
+    copia[indice] = destino;
+    copia[nuevoIndice] = actual;
     setEventos(copia);
     guardar();
   };

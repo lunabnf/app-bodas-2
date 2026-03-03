@@ -1,14 +1,7 @@
-type Evento = {
-  id: string;
-  hora: string;
-  titulo: string;
-  descripcion: string;
-};
+import { getWeddingProgram } from "../services/programaService";
 
 export default function Programa() {
-  const eventos: Evento[] = JSON.parse(
-    localStorage.getItem("wedding.programa") || "[]"
-  );
+  const eventos = getWeddingProgram();
 
   return (
     <section className="text-white p-6 space-y-4">

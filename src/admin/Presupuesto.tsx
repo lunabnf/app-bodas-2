@@ -330,7 +330,7 @@ export default function Presupuesto() {
   const porcentajeGastado = totalPrevisto > 0 ? Math.min((totalReal / totalPrevisto) * 100, 100) : 0;
 
   // Color for difference: green if real <= previsto, red if real > previsto
-  const diferenciaColor = diferencia >= 0 ? "text-green-400" : "text-red-400";
+  const diferenciaColor = diferencia >= 0 ? "text-emerald-700" : "text-red-700";
 
 
   // SVG circle parameters for progress ring
@@ -341,20 +341,22 @@ export default function Presupuesto() {
   const strokeDashoffset = circumference - (porcentajeGastado / 100) * circumference;
 
   return (
-    <section className="text-white p-6 space-y-6">
-      <h1 className="text-2xl font-bold mb-2">Gestión del Presupuesto</h1>
-      <p className="text-white/70 text-sm mb-6">
+    <section className="space-y-6 px-4 py-6 text-[var(--app-ink)] sm:px-6">
+      <div className="app-surface p-8">
+        <h1 className="app-page-title mb-3">Gestión del presupuesto</h1>
+        <p className="max-w-3xl text-sm text-[var(--app-muted)]">
         Aquí podrás llevar el control detallado de todos los gastos de la boda.
         <br />
         <strong>Total previsto</strong> es lo que planeas gastar.{" "}
         <strong>Total real</strong> refleja lo ya abonado o comprometido.{" "}
         <strong>Diferencia</strong> indica si vas por debajo o por encima del presupuesto.
-      </p>
+        </p>
+      </div>
 
-      <div className="bg-white/10 border border-white/10 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+      <div className="app-panel flex flex-col space-y-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
         <div>
-          <p className="text-sm text-white/70">Total previsto: {totalPrevisto.toLocaleString()} €</p>
-          <p className="text-sm text-white/70">Total real: {totalReal.toLocaleString()} €</p>
+          <p className="text-sm text-[var(--app-muted)]">Total previsto: {totalPrevisto.toLocaleString()} €</p>
+          <p className="text-sm text-[var(--app-muted)]">Total real: {totalReal.toLocaleString()} €</p>
           <p className={`text-xl font-bold mt-1 ${diferenciaColor}`}>
             Diferencia: {diferencia.toLocaleString()} €
           </p>
@@ -385,7 +387,7 @@ export default function Presupuesto() {
               y="50%"
               dominantBaseline="middle"
               textAnchor="middle"
-              fill="white"
+              fill="#181817"
               fontSize="16"
               fontWeight="bold"
             >
@@ -404,11 +406,11 @@ export default function Presupuesto() {
         return (
           <div
             key={cat.id}
-            className="bg-white/10 border border-white/10 rounded-lg p-4 backdrop-blur-md"
+            className="app-panel p-4"
           >
             <button
               onClick={() => toggleCategoria(cat.id)}
-              className="w-full flex justify-between items-center font-semibold text-lg hover:text-pink-300 transition"
+              className="flex w-full items-center justify-between text-lg font-semibold transition hover:opacity-70"
               aria-expanded={abierto}
               aria-controls={`${cat.id}-content`}
             >
@@ -421,7 +423,7 @@ export default function Presupuesto() {
                 {cat.gastos.map((g) => (
                   <div
                     key={g.id}
-                    className="grid grid-cols-12 gap-2 bg-black/20 border border-white/10 rounded p-3 items-center"
+                    className="grid grid-cols-12 items-center gap-2 rounded-2xl border border-[var(--app-line)] bg-[rgba(255,255,255,0.88)] p-3"
                   >
                     <input
                       type="text"
@@ -430,7 +432,7 @@ export default function Presupuesto() {
                       onChange={(e) =>
                         handleChange(cat.id, g.id, "concepto", e.target.value)
                       }
-                      className="col-span-2 bg-black/30 border border-white/20 rounded px-2 py-1 text-white text-sm"
+                      className="col-span-2 px-2 py-1 text-sm"
                     />
                     <input
                       type="text"
@@ -439,7 +441,7 @@ export default function Presupuesto() {
                       onChange={(e) =>
                         handleChange(cat.id, g.id, "proveedor", e.target.value)
                       }
-                      className="col-span-2 bg-black/30 border border-white/20 rounded px-2 py-1 text-white text-sm"
+                      className="col-span-2 px-2 py-1 text-sm"
                     />
                     <input
                       type="date"
@@ -448,7 +450,7 @@ export default function Presupuesto() {
                       onChange={(e) =>
                         handleChange(cat.id, g.id, "fecha", e.target.value)
                       }
-                      className="col-span-1 bg-black/30 border border-white/20 rounded px-2 py-1 text-white text-sm"
+                      className="col-span-1 px-2 py-1 text-sm"
                     />
                     <input
                       type="text"
@@ -457,7 +459,7 @@ export default function Presupuesto() {
                       onChange={(e) =>
                         handleChange(cat.id, g.id, "adjunto", e.target.value)
                       }
-                      className="col-span-2 bg-black/30 border border-white/20 rounded px-2 py-1 text-white text-sm"
+                      className="col-span-2 px-2 py-1 text-sm"
                     />
                     <input
                       type="number"
@@ -466,7 +468,7 @@ export default function Presupuesto() {
                       onChange={(e) =>
                         handleChange(cat.id, g.id, "previsto", e.target.value)
                       }
-                      className="col-span-1 bg-black/30 border border-white/20 rounded px-2 py-1 text-white text-sm"
+                      className="col-span-1 px-2 py-1 text-sm"
                       min={0}
                     />
                     <input
@@ -478,10 +480,10 @@ export default function Presupuesto() {
                       }
                       className={`col-span-1 border rounded px-2 py-1 text-sm ${
                         g.real > g.previsto
-                          ? "border-red-500 text-red-500 bg-black/30"
+                          ? "border-red-300 text-red-700 bg-[rgba(255,255,255,0.94)]"
                           : g.estado === "Pendiente"
-                          ? "border-yellow-400 text-yellow-400 bg-black/30"
-                          : "border-green-400 text-green-400 bg-black/30"
+                          ? "border-amber-300 text-amber-700 bg-[rgba(255,255,255,0.94)]"
+                          : "border-emerald-300 text-emerald-700 bg-[rgba(255,255,255,0.94)]"
                       }`}
                       min={0}
                     />
@@ -490,7 +492,7 @@ export default function Presupuesto() {
                       onChange={(e) =>
                         handleChange(cat.id, g.id, "estado", e.target.value)
                       }
-                      className="col-span-1 bg-black/30 border border-white/20 rounded px-2 py-1 text-white text-sm"
+                      className="col-span-1 px-2 py-1 text-sm"
                     >
                       <option>Pendiente</option>
                       <option>Pagado</option>
@@ -503,7 +505,7 @@ export default function Presupuesto() {
                       onChange={(e) =>
                         handleChange(cat.id, g.id, "notas", e.target.value)
                       }
-                      className="col-span-1 bg-black/30 border border-white/20 rounded px-2 py-1 text-white text-sm"
+                      className="col-span-1 px-2 py-1 text-sm"
                     />
                     <button
                       onClick={() => handleRemoveGasto(cat.id, g.id)}
@@ -516,14 +518,14 @@ export default function Presupuesto() {
                   </div>
                 ))}
                 <div className="flex justify-between items-center mt-2">
-                  <p className="text-sm text-white/70">
+                  <p className="text-sm text-[var(--app-muted)]">
                     Total categoría:{" "}
-                    <span className="text-pink-300">
+                    <span className="text-[var(--app-ink)]">
                       {totalCatReal.toLocaleString()} € / {totalCatPrevisto.toLocaleString()} €
                     </span>{" "}
                     <span
                       className={`font-semibold ${
-                        diferenciaCat >= 0 ? "text-green-400" : "text-red-400"
+                        diferenciaCat >= 0 ? "text-emerald-700" : "text-red-700"
                       }`}
                     >
                       ({diferenciaCat >= 0 ? "Dentro" : "Excedido"})
@@ -531,7 +533,7 @@ export default function Presupuesto() {
                   </p>
                   <button
                     onClick={() => handleAddGasto(cat.id)}
-                    className="text-green-400 hover:text-green-600 font-semibold text-sm"
+                    className="text-sm font-semibold text-[var(--app-ink)] hover:opacity-70"
                     type="button"
                   >
                     Añadir gasto

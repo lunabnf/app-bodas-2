@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { getWeddingSettings } from "../services/weddingSettingsService";
 
 /**
  * Cuenta atrás a la fecha de la boda.
@@ -7,8 +8,7 @@ import { useEffect, useMemo, useState } from "react";
  */
 
 function readTargetDate(): Date {
-  const fecha = localStorage.getItem("wedding.fecha"); // "YYYY-MM-DD"
-  const hora = localStorage.getItem("wedding.hora");   // "HH:MM"
+  const { fecha, hora } = getWeddingSettings();
   if (fecha && hora) {
     const iso = `${fecha}T${hora}:00`;
     const d = new Date(iso);
@@ -22,7 +22,7 @@ function pad(n: number): string {
 }
 
 export default function CountdownPage() {
-const [target] = useState<Date>(() => readTargetDate());
+  const [target] = useState<Date>(() => readTargetDate());
   const [now, setNow] = useState<Date>(() => new Date());
 
   // Tick por segundo

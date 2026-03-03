@@ -1,3 +1,6 @@
+import { z } from "zod";
+import { activityEventSchema } from "../domain/schemas";
+import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { supabaseConfig } from "./supabaseConfig";
 
 export interface EventoActividad {
@@ -9,12 +12,12 @@ export interface EventoActividad {
 }
 
 const STORAGE_KEY = "wedding_actividad";
+const activitySchema = z.array(activityEventSchema);
 
 // Obtener actividad
 export async function obtenerActividad(): Promise<EventoActividad[]> {
   if (!supabaseConfig.enabled) {
-    const raw = localStorage.getItem(STORAGE_KEY) || "[]";
-    return JSON.parse(raw) as EventoActividad[];
+    return readStorageWithSchema<EventoActividad[]>(STORAGE_KEY, activitySchema, []);
   }
 
   // FUTURO Supabase
@@ -27,7 +30,7 @@ export async function registrarActividad(evento: EventoActividad): Promise<boole
   lista.push(evento);
 
   if (!supabaseConfig.enabled) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
+    writeStorage(STORAGE_KEY, lista);
     return true;
   }
 

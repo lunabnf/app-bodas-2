@@ -1,50 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { guardarInvitados, borrarInvitado } from "../services/invitadosService";
-import { addLog } from "../services/logsService";
-import { getUsuarioActual } from "../services/userService";
-
-interface Invitado {
-  id: number;
-  nombre: string;
-  tipo: string;
-  grupo: string;
-  grupoTipo:
-    | "familia_novia"
-    | "familia_novio"
-    | "amigos_novia"
-    | "amigos_novio"
-    | "amigos_comunes"
-    | "amigos_trabajo"
-    | "amigos_pueblo"
-    | "proveedores"
-    | "otros";
-  estado: "confirmado" | "pendiente" | "rechazado";
-  mesa?: string;
-  token: string;
-}
+import type { Guest, GuestStatus, GuestType } from "../domain/guest";
+import {
+  createEmptyGuestDraft,
+  createGuest,
+  type GuestDraft,
+  loadGuestsAdminData,
+  removeGuest,
+} from "../application/adminGuestsService";
 
 export default function Invitados() {
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState("todos");
-  const [invitados, setInvitados] = useState<Invitado[]>(() => {
-    const datos = localStorage.getItem("wedding.invitados");
-    return datos ? JSON.parse(datos) : [];
-  });
+  const [invitados, setInvitados] = useState<Guest[]>([]);
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [nuevoInvitado, setNuevoInvitado] = useState<Invitado>({
-    id: 0,
-    nombre: "",
-    tipo: "Adulto",
-    grupo: "",
-    grupoTipo: "otros",
-    estado: "confirmado",
-    mesa: "",
-    token: crypto.randomUUID(),
-  });
+  const [nuevoInvitado, setNuevoInvitado] = useState<GuestDraft>(createEmptyGuestDraft());
 
   const [mostrarQR, setMostrarQR] = useState(false);
-  const [invitadoQR, setInvitadoQR] = useState<Invitado | null>(null);
+  const [invitadoQR, setInvitadoQR] = useState<Guest | null>(null);
+
+  useEffect(() => {
+    void loadGuestsAdminData().then(({ invitados: loadedInvitados }) => {
+      setInvitados(loadedInvitados);
+    });
+  }, []);
 
   const invitadosFiltrados = invitados.filter(
     (i) =>
@@ -58,42 +37,18 @@ export default function Invitados() {
   }, {} as Record<string, number>);
 
   const abrirModal = () => {
-    setNuevoInvitado({
-      id: 0,
-      nombre: "",
-      tipo: "Adulto",
-      grupo: "",
-      grupoTipo: "otros",
-      estado: "confirmado",
-      mesa: "",
-      token: crypto.randomUUID(),
-    });
+    setNuevoInvitado(createEmptyGuestDraft());
     setMostrarModal(true);
   };
 
-  const guardarInvitado = () => {
-    if (nuevoInvitado.nombre.trim() === "" || nuevoInvitado.grupo.trim() === "") {
-      // Podrías añadir validación y mostrar mensaje, pero no se pidió.
+  const guardarInvitado = async () => {
+    const invitadoAGuardar = await createGuest(invitados, nuevoInvitado);
+    if (!invitadoAGuardar) {
       return;
     }
-    const nuevoId = invitados.length > 0 ? Math.max(...invitados.map(i => i.id)) + 1 : 1;
-    const invitadoAGuardar: Invitado = {
-      id: nuevoId,
-      nombre: nuevoInvitado.nombre.trim(),
-      tipo: nuevoInvitado.tipo,
-      grupo: nuevoInvitado.grupo.trim(),
-      grupoTipo: nuevoInvitado.grupoTipo,
-      estado: nuevoInvitado.estado,
-      mesa: nuevoInvitado.mesa?.trim() || undefined,
-      token: nuevoInvitado.token,
-    };
-    setInvitados([...invitados, invitadoAGuardar]);
-    guardarInvitados([...invitados, invitadoAGuardar]);
-    const usuario = getUsuarioActual();
-    if (usuario) {
-      addLog(usuario.nombre, `Añadió invitado: ${invitadoAGuardar.nombre}`);
-    }
+    setInvitados((current) => [...current, invitadoAGuardar]);
     setMostrarModal(false);
+    setNuevoInvitado(createEmptyGuestDraft());
   };
 
   return (
@@ -189,13 +144,9 @@ export default function Invitados() {
                     Editar
                   </button>
                   <button
-                    onClick={() => {
-                      borrarInvitado(inv.token);
-                      setInvitados(invitados.filter(i => i.token !== inv.token));
-                      const usuario = getUsuarioActual();
-                      if (usuario) {
-                        addLog(usuario.nombre, `Eliminó invitado: ${inv.nombre}`);
-                      }
+                    onClick={async () => {
+                      await removeGuest(inv.token, inv.nombre);
+                      setInvitados((current) => current.filter((i) => i.token !== inv.token));
                     }}
                     className="bg-red-500 hover:bg-red-400 text-white px-2 py-1 rounded text-sm"
                   >
@@ -242,13 +193,18 @@ export default function Invitados() {
                   required
                 />
               </div>
-              <div className="mb-4">
-                <label className="block mb-1 font-semibold">Tipo</label>
-                <select
-                  className="w-full border border-gray-300 rounded px-3 py-2"
-                  value={nuevoInvitado.tipo}
-                  onChange={(e) => setNuevoInvitado({ ...nuevoInvitado, tipo: e.target.value })}
-                >
+                  <div className="mb-4">
+                    <label className="block mb-1 font-semibold">Tipo</label>
+                    <select
+                      className="w-full border border-gray-300 rounded px-3 py-2"
+                      value={nuevoInvitado.tipo}
+                      onChange={(e) =>
+                        setNuevoInvitado({
+                          ...nuevoInvitado,
+                          tipo: e.target.value as GuestType,
+                        })
+                      }
+                    >
                   <option value="Adulto">Adulto</option>
                   <option value="Niño">Niño</option>
                 </select>
@@ -271,7 +227,7 @@ export default function Invitados() {
                   onChange={(e) =>
                     setNuevoInvitado({
                       ...nuevoInvitado,
-                      grupoTipo: e.target.value as Invitado["grupoTipo"],
+                      grupoTipo: e.target.value as Guest["grupoTipo"],
                     })
                   }
                 >
@@ -294,7 +250,7 @@ export default function Invitados() {
                   onChange={(e) =>
                     setNuevoInvitado({
                       ...nuevoInvitado,
-                      estado: e.target.value as "confirmado" | "pendiente" | "rechazado",
+                      estado: e.target.value as GuestStatus,
                     })
                   }
                 >
@@ -310,6 +266,26 @@ export default function Invitados() {
                   className="w-full border border-gray-300 rounded px-3 py-2"
                   value={nuevoInvitado.mesa || ""}
                   onChange={(e) => setNuevoInvitado({ ...nuevoInvitado, mesa: e.target.value })}
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1 font-semibold">Edad (opcional)</label>
+                <input
+                  type="number"
+                  min="0"
+                  className="w-full border border-gray-300 rounded px-3 py-2"
+                  value={nuevoInvitado.edad ?? ""}
+                  onChange={(e) =>
+                    setNuevoInvitado((current) =>
+                      e.target.value
+                        ? { ...current, edad: Number(e.target.value) }
+                        : (() => {
+                            const rest = { ...current };
+                            delete rest.edad;
+                            return rest;
+                          })()
+                    )
+                  }
                 />
               </div>
               <div className="flex justify-end gap-4">

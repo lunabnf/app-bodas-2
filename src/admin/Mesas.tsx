@@ -1,61 +1,25 @@
 import { useEffect, useState } from "react";
-import { addLog } from "../services/logsService";
-import { getUsuarioActual } from "../services/userService";
-
-type Invitado = {
-  id: string;
-  nombre: string;
-  mesa?: string;
-};
-
-type Mesa = {
-  id: string;
-  nombre: string;
-};
+import type { Guest } from "../domain/guest";
+import type { Table } from "../domain/table";
+import { assignGuestToTable, loadGuestsAdminData } from "../application/adminGuestsService";
 
 export default function MesasAdmin() {
-  const [invitados, setInvitados] = useState<Invitado[]>([]);
-  const [mesas, setMesas] = useState<Mesa[]>([]);
+  const [invitados, setInvitados] = useState<Guest[]>([]);
+  const [mesas, setMesas] = useState<Table[]>([]);
 
-  // Cargar datos demo o desde localStorage
   useEffect(() => {
-    const storedInvitados = localStorage.getItem("wedding.guests");
-    const storedMesas = localStorage.getItem("wedding.tables");
-
-    if (storedInvitados && storedMesas) {
-      setInvitados(JSON.parse(storedInvitados));
-      setMesas(JSON.parse(storedMesas));
-    } else {
-      // Datos de ejemplo para la demo
-      const demoMesas = [
-        { id: "1", nombre: "Mesa 1" },
-        { id: "2", nombre: "Mesa 2" },
-        { id: "3", nombre: "Mesa 3" },
-      ];
-      const demoInvitados = [
-        { id: "a", nombre: "Luis Luna", mesa: "1" },
-        { id: "b", nombre: "Tatiana", mesa: "1" },
-        { id: "c", nombre: "Daniel Castañenas", mesa: "2" },
-      ];
-      setMesas(demoMesas);
-      setInvitados(demoInvitados);
-      localStorage.setItem("wedding.tables", JSON.stringify(demoMesas));
-      localStorage.setItem("wedding.guests", JSON.stringify(demoInvitados));
-    }
+    void (async () => {
+      const { invitados: loadedInvitados, mesas: loadedMesas } =
+        await loadGuestsAdminData();
+      setInvitados(loadedInvitados);
+      setMesas(loadedMesas);
+    })();
   }, []);
 
-  const asignarMesa = (id: string, mesaId: string) => {
-    const actualizados = invitados.map((i) =>
-      i.id === id ? { ...i, mesa: mesaId } : i
-    );
-    setInvitados(actualizados);
-    const usuario = getUsuarioActual();
-    const invitado = invitados.find((i) => i.id === id);
-    const mesa = mesas.find((m) => m.id === mesaId);
-    if (usuario && invitado && mesa) {
-      addLog(usuario.nombre, `Asignó a ${invitado.nombre} a ${mesa.nombre}`);
-    }
-    localStorage.setItem("wedding.guests", JSON.stringify(actualizados));
+  const asignarMesa = async (token: string, mesaId: string) => {
+    const updated = await assignGuestToTable(invitados, mesas, token, mesaId);
+    setInvitados(updated.invitados);
+    setMesas(updated.mesas);
   };
 
   if (mesas.length === 0) {
@@ -75,12 +39,12 @@ export default function MesasAdmin() {
         </thead>
         <tbody>
           {invitados.map((inv) => (
-            <tr key={inv.id} className="border-t border-white/10">
+            <tr key={inv.token} className="border-t border-white/10">
               <td className="p-2">{inv.nombre}</td>
               <td className="p-2">
                 <select
                   value={inv.mesa || ""}
-                  onChange={(e) => asignarMesa(inv.id, e.target.value)}
+                  onChange={(e) => void asignarMesa(inv.token, e.target.value)}
                   className="bg-black/30 border border-white/20 rounded px-2 py-1 text-white"
                 >
                   <option value="">Sin asignar</option>

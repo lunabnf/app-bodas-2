@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import {
-  obtenerCanciones,
-  guardarCancion,
-  votarCancion,
-  type Cancion,
-} from "../services/musicaService";
-import { registrarActividad } from "../services/actividadService";
+  loadSongsSorted,
+  proposeSong,
+  voteSong,
+} from "../application/guestParticipationService";
+import type { Cancion } from "../services/musicaService";
 import { useAuth } from "../store/useAuth";
 
 export default function Musica() {
@@ -16,9 +15,7 @@ export default function Musica() {
   const [error, setError] = useState("");
 
   const cargar = async () => {
-    const data = await obtenerCanciones();
-    const ordenadas = [...data].sort((a, b) => b.votos - a.votos);
-    setCanciones(ordenadas);
+    setCanciones(await loadSongsSorted());
   };
 
   useEffect(() => {
@@ -31,50 +28,16 @@ export default function Musica() {
 
   const handleProponer = async () => {
     setError("");
-
-    if (!invitado) {
-      setError("Debes identificarte.");
-      return;
-    }
-
-    if (!titulo.trim() || !artista.trim()) {
-      setError("Rellena título y artista.");
-      return;
-    }
-
-    if (propuestasDeEsteInvitado >= 2) {
-      setError("Solo puedes proponer 2 canciones.");
-      return;
-    }
-
-    const existe = canciones.some(
-      (c) =>
-        c.titulo.toLowerCase() === titulo.toLowerCase() &&
-        c.artista.toLowerCase() === artista.toLowerCase()
-    );
-
-    if (existe) {
-      setError("Esta canción ya está propuesta.");
-      return;
-    }
-
-    const nueva: Cancion = {
-      id: crypto.randomUUID(),
+    const result = await proposeSong({
+      invitado,
+      canciones,
       titulo,
       artista,
-      propuestaPorToken: invitado.token,
-      votos: 0,
-    };
-
-    await guardarCancion(nueva);
-
-    await registrarActividad({
-      id: crypto.randomUUID(),
-      timestamp: Date.now(),
-      tipo: "musica_propuesta",
-      mensaje: `${invitado.nombre} ha propuesto: ${titulo} - ${artista}`,
-      tokenInvitado: invitado.token,
     });
+    if (!result.ok) {
+      setError(result.error);
+      return;
+    }
 
     setTitulo("");
     setArtista("");
@@ -82,19 +45,14 @@ export default function Musica() {
   };
 
   const handleVotar = async (id: string) => {
-    if (!invitado) return;
-
-    await votarCancion(id);
-
-    const c = canciones.find((x) => x.id === id);
-    if (c) {
-      await registrarActividad({
-        id: crypto.randomUUID(),
-        timestamp: Date.now(),
-        tipo: "musica_voto",
-        mensaje: `${invitado.nombre} ha votado: ${c.titulo} - ${c.artista}`,
-        tokenInvitado: invitado.token,
-      });
+    const result = await voteSong({
+      invitado,
+      songId: id,
+      canciones,
+    });
+    if (!result.ok) {
+      setError(result.error);
+      return;
     }
 
     await cargar();

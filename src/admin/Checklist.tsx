@@ -15,12 +15,12 @@ const CATEGORIAS = [
   "Documentación",
   "Pagos",
   "Decoración",
-];
+] as const;
 
 export default function Checklist() {
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [nueva, setNueva] = useState("");
-  const [categoria, setCategoria] = useState(CATEGORIAS[0]);
+  const [categoria, setCategoria] = useState<string>(CATEGORIAS[0] ?? "");
 
   const añadirTarea = () => {
     if (!nueva.trim()) return;

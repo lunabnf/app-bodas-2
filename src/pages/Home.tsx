@@ -1,48 +1,105 @@
+import { Link } from "react-router-dom";
+import { useAuth } from "../store/useAuth";
+
 export default function Home() {
+  const esAdmin = useAuth((state) => state.esAdmin);
+  const invitado = useAuth((state) => state.invitado);
+
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center text-center text-white px-6 py-16 bg-black/40 backdrop-blur-md">
-      <div className="max-w-3xl space-y-8 bg-black/50 backdrop-blur-md p-8 rounded-xl shadow-lg border border-white/10">
-        <h1 className="text-4xl font-bold text-pink-300">
-          💍 Una app, tan real como necesaria
-        </h1>
-        <p className="text-lg leading-relaxed text-white/80">
+    <section className="mx-auto max-w-6xl px-6 pb-16 pt-10 sm:px-8">
+      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <div className="app-surface p-8 sm:p-12">
+          <p className="app-kicker">Wedding OS</p>
+          <h1 className="app-title mt-4">
+            La forma más clara de organizar una boda con calma.
+          </h1>
+          <p className="app-subtitle mt-6 max-w-3xl">
+            Una web app para que novios e invitados compartan toda la información importante en un
+            mismo espacio, con una experiencia limpia, serena y fácil de seguir.
+          </p>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link
+              to={esAdmin ? "/admin/resumen" : invitado ? "/participa/confirmar-asistencia" : "/login"}
+              className="app-button-primary text-center"
+            >
+              {esAdmin ? "Ir al panel de novios" : invitado ? "Entrar en mi panel" : "Acceder"}
+            </Link>
+            {!esAdmin && !invitado ? (
+              <Link
+                to="/participa/confirmar-asistencia"
+                className="app-button-secondary text-center"
+              >
+                Ver zona de invitados
+              </Link>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="app-grid-cards">
+          <article className="app-surface-soft p-7">
+            <p className="app-kicker">Qué resuelve</p>
+            <p className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-[var(--app-ink)]">
+              Todo el evento en una interfaz ordenada y premium.
+            </p>
+            <p className="mt-4 app-prose">
+              Invitaciones, RSVP, logística, música, mesas y actividad centralizada para que los
+              novios tengan control y los invitados sólo vean lo que necesitan.
+            </p>
+          </article>
+          <article className="app-surface-soft p-7">
+            <p className="app-kicker">Estado</p>
+            <p className="mt-3 text-5xl font-semibold tracking-[-0.05em]">01</p>
+            <p className="mt-3 app-prose">
+              La app ya está tomando una dirección visual minimalista, limpia y más consistente con
+              un producto premium.
+            </p>
+          </article>
+        </div>
+      </div>
+
+      <div className="mt-6 app-surface p-8 sm:p-12">
+        <div className="max-w-4xl space-y-6">
+          <h2 className="app-section-heading !text-[calc(var(--app-section-title-size)*1.5)]">
+            Una historia real convertida en producto útil.
+          </h2>
+          <p className="app-subtitle">
           Esta aplicación nació de una historia muy especial. En 2017 presenté a dos amigos que,
           con el paso del tiempo, se enamoraron y acabaron casándose en 2025. Quise ayudarles a que
           todo lo relacionado con su boda fuese más sencillo, organizado y bonito. El objetivo era
           que pudieran disfrutar del proceso sin tanto estrés, dedicando más tiempo a compartir
           momentos con los suyos y menos a los preparativos, para que así todo saliera perfecto.
-        </p>
-        <p className="text-lg leading-relaxed text-white/80">
+          </p>
+          <p className="app-subtitle">
           Más adelante aquí se explicará cómo funciona la página, cómo crear tu propia webapp de boda
           y cómo aprovechar todas las herramientas que ofrece esta aplicación.
-        </p>
+          </p>
+        </div>
 
-        <hr className="my-8 border-white/20" />
-
-        <div className="text-left space-y-6">
-          <h2 className="text-2xl font-semibold text-center text-pink-200">
-            📱 Cómo instalarla como WebApp en tu móvil
+        <div className="mt-10 text-left space-y-6">
+          <h2 className="app-section-heading">
+            Instalarla como WebApp
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <details className="bg-white/10 rounded-lg p-5 hover:bg-white/20 transition-colors">
-              <summary className="cursor-pointer font-medium text-lg text-pink-300">
-                🍎 iPhone / iPad (Safari)
+          <div className="grid gap-4 md:grid-cols-2">
+            <details className="app-surface-soft p-5 transition-colors">
+              <summary className="cursor-pointer text-lg font-semibold text-[var(--app-ink)]">
+                iPhone / iPad
               </summary>
-              <ol className="list-decimal pl-6 mt-2 space-y-1 text-white/80">
+              <ol className="mt-3 list-decimal space-y-1 pl-6 text-[var(--app-muted)]">
                 <li>Abre esta web en Safari.</li>
-                <li>Toca el botón <span className="italic">Compartir</span> (cuadrado con flecha hacia arriba).</li>
+                <li>Toca el botón <span className="italic">Compartir</span>.</li>
                 <li>Desplázate y pulsa <strong>Añadir a pantalla de inicio</strong>.</li>
                 <li>Opcional: cambia el nombre que verás en el icono.</li>
                 <li>Pulsa <strong>Añadir</strong>. La app quedará como si fuera una app nativa.</li>
               </ol>
             </details>
 
-            <details className="bg-white/10 rounded-lg p-5 hover:bg-white/20 transition-colors">
-              <summary className="cursor-pointer font-medium text-lg text-pink-300">
-                🤖 Android (Chrome)
+            <details className="app-surface-soft p-5 transition-colors">
+              <summary className="cursor-pointer text-lg font-semibold text-[var(--app-ink)]">
+                Android
               </summary>
-              <ol className="list-decimal pl-6 mt-2 space-y-1 text-white/80">
+              <ol className="mt-3 list-decimal space-y-1 pl-6 text-[var(--app-muted)]">
                 <li>Abre esta web en Google Chrome.</li>
                 <li>Toca el menú ⋮ en la esquina superior derecha.</li>
                 <li>Pulsa <strong>Añadir a pantalla de inicio</strong> o <strong>Instalar app</strong>.</li>
@@ -51,7 +108,7 @@ export default function Home() {
             </details>
           </div>
 
-          <p className="text-sm text-center text-white/60 mt-4">
+          <p className="mt-4 text-sm text-[var(--app-muted)]">
             Consejo: al abrirla desde el icono, la verás a pantalla completa, sin barra de dirección, y se actualizará sola cuando publiquemos mejoras.
           </p>
         </div>

@@ -1,53 +1,108 @@
+import { z } from "zod";
+import { guestRsvpSchema } from "../domain/schemas";
+import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import type { GuestRsvp } from "../domain/rsvp";
 import { supabaseConfig } from "./supabaseConfig";
 
-export type RSVPData = {
-  id: string;          // token del invitado
-  attending: "si" | "no" | "";
-  adultos: number;
-  ninos: number;
-  detalles: {
-    nombre: string;
-    edad?: number;
-    alergias: string[];
-    intolerancias?: string;
-  }[];
-  nota?: string;
-  timestamp: number;
-};
+const RSVP_COLLECTION_KEY = "wedding.rsvps";
+const guestRsvpsSchema = z.array(guestRsvpSchema);
 
-// Guardar RSVP
-export async function guardarRSVP(id: string, data: RSVPData) {
+function readAllLocalRsvps(): GuestRsvp[] {
+  const collection = readStorageWithSchema<GuestRsvp[]>(
+    RSVP_COLLECTION_KEY,
+    guestRsvpsSchema,
+    []
+  );
+  const migrated = [...collection];
+
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const key = localStorage.key(index);
+    if (!key || !key.startsWith("wedding.rsvp.")) continue;
+
+    const guestToken = key.replace("wedding.rsvp.", "");
+    const raw = localStorage.getItem(key);
+    if (!raw) continue;
+
+    try {
+      const parsed = JSON.parse(raw) as {
+        guestName?: string;
+        attending: GuestRsvp["attending"];
+        adultos: number;
+        ninos: number;
+        detalles: GuestRsvp["detalles"];
+        nota?: string;
+        timestamp: number;
+      };
+
+      if (!migrated.find((item) => item.guestToken === guestToken)) {
+        migrated.push({
+          guestToken,
+          guestName: parsed.guestName ?? "",
+          attending: parsed.attending,
+          adultos: parsed.adultos,
+          ninos: parsed.ninos,
+          detalles: parsed.detalles,
+          ...(parsed.nota ? { nota: parsed.nota } : {}),
+          timestamp: parsed.timestamp,
+        });
+      }
+
+      localStorage.removeItem(key);
+    } catch {
+      localStorage.removeItem(key);
+    }
+  }
+
+  if (migrated.length !== collection.length) {
+    writeStorage(RSVP_COLLECTION_KEY, migrated);
+  }
+
+  return migrated;
+}
+
+export async function guardarRSVP(data: GuestRsvp) {
+  const all = await obtenerTodosLosRSVP();
+  const index = all.findIndex((item) => item.guestToken === data.guestToken);
+  const updated = [...all];
+
+  if (index === -1) {
+    updated.push(data);
+  } else {
+    updated[index] = data;
+  }
+
   if (!supabaseConfig.enabled) {
-    localStorage.setItem(`wedding.rsvp.${id}`, JSON.stringify(data));
+    writeStorage(RSVP_COLLECTION_KEY, updated);
     return true;
   }
 
-  // FUTURO: Supabase
-  // await supabase.from("rsvp").upsert(data);
   return true;
 }
 
-// Obtener RSVP de un invitado
-export async function obtenerRSVP(id: string) {
+export async function obtenerRSVP(guestToken: string) {
   if (!supabaseConfig.enabled) {
-    const raw = localStorage.getItem(`wedding.rsvp.${id}`);
-    return raw ? (JSON.parse(raw) as RSVPData) : null;
+    const all = readAllLocalRsvps();
+    return all.find((item) => item.guestToken === guestToken) ?? null;
   }
-
-  // FUTURO: Supabase
-  // const { data } = await supabase.from("rsvp").select("*").eq("id", id).single();
-  // return data;
 
   return null;
 }
 
-// Borrar RSVP (si el invitado cambia completamente)
-export async function borrarRSVP(id: string) {
+export async function obtenerTodosLosRSVP(): Promise<GuestRsvp[]> {
   if (!supabaseConfig.enabled) {
-    localStorage.removeItem(`wedding.rsvp.${id}`);
+    return readAllLocalRsvps();
+  }
+
+  return [];
+}
+
+export async function borrarRSVP(guestToken: string) {
+  if (!supabaseConfig.enabled) {
+    const all = readAllLocalRsvps();
+    const updated = all.filter((item) => item.guestToken !== guestToken);
+    writeStorage(RSVP_COLLECTION_KEY, updated);
     return true;
   }
 
-  // FUTURO: Supabase
   return true;
 }

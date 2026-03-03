@@ -1,10 +1,9 @@
-import { type ReactElement } from "react";
+import { type ReactElement, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import AppLayout from "./layouts/AppLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
-import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import Programa from "./pages/Programa";
 import ConfirmarAsistencia from "./pages/ConfirmarAsistencia";
@@ -15,6 +14,7 @@ import AsientosCeremonia from "./pages/AsientosCeremonia";
 import CountdownPage from "./pages/Countdown";
 import Musica from "./pages/Musica";
 import Fotos from "./pages/Fotos";
+import ChatPage from "./pages/Chat";
 import { useAuth } from "./store/useAuth";
 
 import IdentificarInvitado from "./pages/IdentificarInvitado";
@@ -33,6 +33,8 @@ import AjustesAdmin from "./admin/Ajustes";
 import AlojamientoAdmin from "./admin/AlojamientoAdmin";
 import DesplazamientoAdmin from "./admin/DesplazamientoAdmin";
 import ActividadAdmin from "./admin/Actividad";
+import ChatAdmin from "./admin/ChatAdmin";
+import { applyAppearanceSettings, getAppearanceSettings } from "./services/appearanceService";
 
 function ProtectedRoute({ children }: { children: ReactElement }) {
   const esAdmin = useAuth((s) => s.esAdmin);
@@ -55,6 +57,7 @@ function Root() {
         <Route path="/participa/mesas" element={<Mesas />} />
         <Route path="/participa/asientos-ceremonia" element={<AsientosCeremonia />} />
         <Route path="/participa/musica" element={<Musica />} />
+        <Route path="/participa/chat" element={<ChatPage />} />
         <Route path="/participa/fotos" element={<Fotos />} />
         <Route path="/countdown" element={<CountdownPage />} />
         <Route path="/rsvp/:token" element={<IdentificarInvitado />} />
@@ -65,11 +68,11 @@ function Root() {
         path="/admin"
         element={
           <ProtectedRoute>
-            <Admin />
+            <AdminLayout />
           </ProtectedRoute>
         }
-      />
-      <Route path="/admin" element={<AdminLayout />}>
+      >
+        <Route index element={<Navigate to="/admin/resumen" replace />} />
         <Route path="resumen" element={<Resumen />} />
         <Route path="invitados" element={<InvitadosAdmin />} />
         <Route path="mesas" element={<MesasAdmin />} />
@@ -83,6 +86,7 @@ function Root() {
         <Route path="alojamiento" element={<AlojamientoAdmin />} />
         <Route path="desplazamiento" element={<DesplazamientoAdmin />} />
         <Route path="actividad" element={<ActividadAdmin />} />
+        <Route path="chat" element={<ChatAdmin />} />
       </Route>
       <Route path="*" element={<NotFound />} />
     </Routes>
@@ -90,6 +94,10 @@ function Root() {
 }
 
 export default function App() {
+  useEffect(() => {
+    applyAppearanceSettings(getAppearanceSettings());
+  }, []);
+
   return (
     <BrowserRouter>
       <Root />

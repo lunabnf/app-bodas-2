@@ -1,3 +1,5 @@
+import { z } from "zod";
+import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { supabaseConfig } from "./supabaseConfig";
 
 export interface Cancion {
@@ -9,13 +11,21 @@ export interface Cancion {
 }
 
 const STORAGE_KEY = "wedding_musica";
+const songSchema = z.object({
+  id: z.string(),
+  titulo: z.string(),
+  artista: z.string(),
+  propuestaPorToken: z.string().optional(),
+  votos: z.number(),
+});
+const songsSchema = z.array(songSchema);
 
 // -------------------------
 // Obtener canciones
 // -------------------------
 export async function obtenerCanciones(): Promise<Cancion[]> {
   if (!supabaseConfig.enabled) {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    return readStorageWithSchema<Cancion[]>(STORAGE_KEY, songsSchema, []);
   }
 
   // FUTURO: Supabase
@@ -32,7 +42,7 @@ export async function obtenerCanciones(): Promise<Cancion[]> {
 // -------------------------
 export async function guardarCanciones(canciones: Cancion[]): Promise<boolean> {
   if (!supabaseConfig.enabled) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(canciones));
+    writeStorage(STORAGE_KEY, canciones);
     return true;
   }
 
@@ -65,7 +75,9 @@ export async function votarCancion(id: string): Promise<boolean> {
 
   if (index === -1) return false;
 
-  canciones[index].votos += 1;
+  const cancion = canciones[index];
+  if (!cancion) return false;
+  cancion.votos += 1;
   return guardarCanciones(canciones);
 }
 

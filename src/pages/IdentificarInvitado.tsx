@@ -1,13 +1,9 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import type { GuestSession } from "../domain/guest";
 import { registrarActividad } from "../services/actividadService";
+import { obtenerInvitadoPorToken } from "../services/invitadosService";
 import { useAuth } from "../store/useAuth";
-
-interface Invitado {
-  token: string;
-  nombre: string;
-  [key: string]: unknown;
-}
 
 export default function IdentificarInvitado() {
   const { token } = useParams();
@@ -15,42 +11,40 @@ export default function IdentificarInvitado() {
   const loginAsGuest = useAuth((s) => s.loginAsGuest);
 
   useEffect(() => {
-    if (!token) return;
-
-    // Leer invitados guardados (temporal hasta Firestore)
-    const raw = localStorage.getItem("wedding.invitados");
-    if (!raw) {
-      navigate("/"); 
-      return;
-    }
-
-    let invitados: Invitado[] = [];
-    try {
-      invitados = JSON.parse(raw) as Invitado[];
-    } catch {
+    if (!token) {
       navigate("/");
       return;
     }
 
-    const invitado = invitados.find((i) => i.token === token);
+    void (async () => {
+      const invitado = await obtenerInvitadoPorToken(token);
 
-    if (!invitado) {
-      navigate("/");
-      return;
-    }
+      if (!invitado) {
+        navigate("/");
+        return;
+      }
 
-    registrarActividad({
-      id: crypto.randomUUID(),
-      timestamp: Date.now(),
-      tipo: "login_invitado",
-      mensaje: `${invitado.nombre} ha accedido desde su invitación QR`,
-      tokenInvitado: invitado.token,
-    });
+      await registrarActividad({
+        id: crypto.randomUUID(),
+        timestamp: Date.now(),
+        tipo: "login_invitado",
+        mensaje: `${invitado.nombre} ha accedido desde su invitación QR`,
+        tokenInvitado: invitado.token,
+      });
 
-    loginAsGuest(invitado as Invitado);
+      const guestSession: GuestSession = {
+        token: invitado.token,
+        nombre: invitado.nombre,
+        ...(invitado.mesa ? { mesa: invitado.mesa } : {}),
+        ...(typeof invitado.esAdulto === "boolean" ? { esAdulto: invitado.esAdulto } : {}),
+        ...(typeof invitado.edad === "number" ? { edad: invitado.edad } : {}),
+        grupoTipo: invitado.grupoTipo,
+        tipo: invitado.tipo,
+      };
 
-    // Redirigir al panel público del invitado
-    navigate("/");
+      loginAsGuest(guestSession);
+      navigate("/participa/confirmar-asistencia");
+    })();
   }, [token, navigate, loginAsGuest]);
 
   return (

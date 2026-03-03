@@ -1,18 +1,82 @@
+import { z } from "zod";
+import { guestSchema } from "../domain/schemas";
+import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import type { Guest } from "../domain/guest";
 import { supabaseConfig } from "./supabaseConfig";
 
-export interface Invitado {
-  token: string;
-  nombre: string;
-  mesa?: string;
-  esAdulto?: boolean;
+const STORAGE_KEY = "wedding.invitados";
+const LEGACY_STORAGE_KEYS = ["wedding_invitados"];
+const guestListSchema = z.array(guestSchema);
+
+function normalizeGuest(raw: unknown, index: number): Guest {
+  const source = (raw ?? {}) as Partial<Guest> & {
+    id?: string | number;
+    tipo?: string;
+    grupoTipo?: string;
+    estado?: string;
+  };
+
+  return {
+    id: String(source.id ?? source.token ?? index + 1),
+    token: source.token ?? crypto.randomUUID(),
+    nombre: source.nombre?.trim() || `Invitado ${index + 1}`,
+    tipo: source.tipo === "Niño" ? "Niño" : "Adulto",
+    grupo: source.grupo?.trim() || "",
+    grupoTipo:
+      source.grupoTipo === "familia_novia" ||
+      source.grupoTipo === "familia_novio" ||
+      source.grupoTipo === "amigos_novia" ||
+      source.grupoTipo === "amigos_novio" ||
+      source.grupoTipo === "amigos_comunes" ||
+      source.grupoTipo === "amigos_trabajo" ||
+      source.grupoTipo === "amigos_pueblo" ||
+      source.grupoTipo === "proveedores"
+        ? source.grupoTipo
+        : "otros",
+    estado:
+      source.estado === "pendiente" || source.estado === "rechazado"
+        ? source.estado
+        : "confirmado",
+    esAdulto: typeof source.esAdulto === "boolean" ? source.esAdulto : source.tipo !== "Niño",
+    ...(source.mesa ? { mesa: source.mesa } : {}),
+    ...(typeof source.edad === "number" ? { edad: source.edad } : {}),
+  };
 }
 
-const STORAGE_KEY = "wedding_invitados";
+function readLocalGuests(): Guest[] {
+  const candidates = [STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
+
+  for (const key of candidates) {
+    const raw = localStorage.getItem(key);
+    if (!raw) continue;
+
+    try {
+      const parsed = readStorageWithSchema<unknown[]>(key, z.array(z.unknown()), []);
+      const guests = parsed.map((item, index) => normalizeGuest(item, index));
+      const validated = guestListSchema.safeParse(guests);
+      if (!validated.success) {
+        localStorage.removeItem(key);
+        continue;
+      }
+
+      if (key !== STORAGE_KEY) {
+        writeStorage(STORAGE_KEY, validated.data);
+        localStorage.removeItem(key);
+      }
+
+      return validated.data as Guest[];
+    } catch {
+      localStorage.removeItem(key);
+    }
+  }
+
+  return [];
+}
 
 // Obtener todos los invitados
-export async function obtenerInvitados(): Promise<Invitado[]> {
+export async function obtenerInvitados(): Promise<Guest[]> {
   if (!supabaseConfig.enabled) {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    return readLocalGuests();
   }
 
   // FUTURO: Supabase
@@ -24,10 +88,15 @@ export async function obtenerInvitados(): Promise<Invitado[]> {
   return [];
 }
 
+export async function obtenerInvitadoPorToken(token: string): Promise<Guest | null> {
+  const invitados = await obtenerInvitados();
+  return invitados.find((invitado) => invitado.token === token) ?? null;
+}
+
 // Guardar invitados
-export async function guardarInvitados(lista: Invitado[]): Promise<boolean> {
+export async function guardarInvitados(lista: Guest[]): Promise<boolean> {
   if (!supabaseConfig.enabled) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(lista));
+    writeStorage(STORAGE_KEY, lista);
     return true;
   }
 
@@ -35,12 +104,26 @@ export async function guardarInvitados(lista: Invitado[]): Promise<boolean> {
   return true;
 }
 
+export async function guardarInvitado(invitado: Guest): Promise<boolean> {
+  const invitados = await obtenerInvitados();
+  const index = invitados.findIndex((item) => item.token === invitado.token);
+  const updated = [...invitados];
+
+  if (index === -1) {
+    updated.push(invitado);
+  } else {
+    updated[index] = invitado;
+  }
+
+  return guardarInvitados(updated);
+}
+
 // Borrar invitado
 export async function borrarInvitado(token: string): Promise<boolean> {
   if (!supabaseConfig.enabled) {
     const lista = await obtenerInvitados();
     const nueva = lista.filter((i) => i.token !== token);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(nueva));
+    writeStorage(STORAGE_KEY, nueva);
     return true;
   }
 

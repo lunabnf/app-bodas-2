@@ -16,13 +16,13 @@ const TIPOS = [
   "DJ / Música",
   "Coordinación",
   "Otros",
-];
+] as const;
 
 export default function Agenda() {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [hora, setHora] = useState("");
   const [titulo, setTitulo] = useState("");
-  const [tipo, setTipo] = useState(TIPOS[0]);
+  const [tipo, setTipo] = useState<string>(TIPOS[0] ?? "");
 
   const añadir = () => {
     if (!hora.trim() || !titulo.trim()) return;

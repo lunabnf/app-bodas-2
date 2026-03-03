@@ -1,11 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
+const url = import.meta.env["VITE_SUPABASE_URL"];
+const anonKey = import.meta.env["VITE_SUPABASE_ANON_KEY"];
+
 export const supabaseConfig = {
-  enabled: true,
-  url: "https://hdhvafawtuuaduqmzlcv.supabase.co",
-  key: "sb_secret_B956oiynG-Hc8u0CiDjO1Q_sVFAmjxf",
-  client: createClient(
-    "https://hdhvafawtuuaduqmzlcv.supabase.co",
-    "sb_secret_B956oiynG-Hc8u0CiDjO1Q_sVFAmjxf"
-  ),
+  enabled: Boolean(url && anonKey),
+  url: url ?? "",
+  key: anonKey ?? "",
+  client: url && anonKey ? createClient(url, anonKey) : null,
 };

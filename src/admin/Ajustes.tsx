@@ -1,116 +1,208 @@
 import { useState, useEffect } from "react";
+import {
+  applyAppearanceSettings,
+  defaultAppearanceSettings,
+  getAppearanceSettings,
+  saveAppearanceSettings,
+  type AppearanceSettings,
+} from "../services/appearanceService";
+import {
+  defaultWeddingSettings,
+  getWeddingSettings,
+  saveWeddingSettings,
+} from "../services/weddingSettingsService";
 
 export default function Ajustes() {
-  const [nombres, setNombres] = useState({ novio1: "", novio2: "" });
-  const [fecha, setFecha] = useState("");
-  const [hora, setHora] = useState("");
-  const [ubicacion, setUbicacion] = useState("");
-  const [color, setColor] = useState("#ffffff");
-  const [mensajeInvitacion, setMensajeInvitacion] = useState("");
-  const [portada, setPortada] = useState<string | null>(null);
-  const [mostrarPrograma, setMostrarPrograma] = useState(true);
-  const [mostrarMesas, setMostrarMesas] = useState(true);
+  const [settings, setSettings] = useState(defaultWeddingSettings);
+  const [appearance, setAppearance] = useState<AppearanceSettings>(defaultAppearanceSettings);
 
   useEffect(() => {
-    const savedNovio = localStorage.getItem("wedding.novio") || "";
-    const savedNovia = localStorage.getItem("wedding.novia") || "";
-    setNombres({ novio1: savedNovio, novio2: savedNovia });
-
-    const savedFecha = localStorage.getItem("wedding.fecha");
-    if (savedFecha) setFecha(savedFecha);
-
-    const savedHora = localStorage.getItem("wedding.hora");
-    if (savedHora) setHora(savedHora);
+    setSettings(getWeddingSettings());
+    setAppearance(getAppearanceSettings());
   }, []);
 
   const subirPortada = (file: File) => {
     const url = URL.createObjectURL(file);
-    setPortada(url);
+    const next = { ...settings, portada: url };
+    setSettings(next);
+    saveWeddingSettings(next);
+  };
+
+  const updateSettings = <K extends keyof typeof settings>(
+    key: K,
+    value: (typeof settings)[K]
+  ) => {
+    const next = {
+      ...settings,
+      [key]: value,
+    };
+    setSettings(next);
+    saveWeddingSettings(next);
+  };
+
+  const updateAppearance = <K extends keyof AppearanceSettings>(
+    key: K,
+    value: AppearanceSettings[K]
+  ) => {
+    const next = {
+      ...appearance,
+      [key]: value,
+    };
+    setAppearance(next);
+    saveAppearanceSettings(next);
+    applyAppearanceSettings(next);
   };
 
   return (
-    <div className="text-white p-6 max-w-4xl mx-auto space-y-10">
+    <div className="mx-auto max-w-5xl space-y-8 px-4 py-6 text-[var(--app-ink)] sm:px-6">
 
-      <h1 className="text-3xl font-bold">Ajustes y Configuración</h1>
+      <div className="app-surface p-8">
+        <p className="app-kicker">Configuración</p>
+        <h1 className="app-page-title mt-4">Ajustes y configuración</h1>
+        <p className="mt-3 max-w-3xl text-[var(--app-muted)]">
+          Controla el contenido general de la boda y también la apariencia visual de la aplicación.
+        </p>
+      </div>
 
-      {/* DATOS DE LA BODA */}
-      <section className="bg-white/10 p-5 rounded-lg border border-white/20">
-        <h2 className="text-2xl font-semibold mb-4">Datos de la boda</h2>
+      <section className="app-panel p-6">
+        <h2 className="app-section-heading mb-4">Datos de la boda</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
             placeholder="Nombre del novio / novia 1"
-            value={nombres.novio1}
-            onChange={(e) => {
-              const updatedNames = { ...nombres, novio1: e.target.value };
-              setNombres(updatedNames);
-              localStorage.setItem("wedding.novio", e.target.value);
-            }}
-            className="p-2 bg-black/30 border border-white/30 rounded"
+            value={settings.novio}
+            onChange={(e) => updateSettings("novio", e.target.value)}
+            className="p-3"
           />
 
           <input
             type="text"
             placeholder="Nombre del novio / novia 2"
-            value={nombres.novio2}
-            onChange={(e) => {
-              const updatedNames = { ...nombres, novio2: e.target.value };
-              setNombres(updatedNames);
-              localStorage.setItem("wedding.novia", e.target.value);
-            }}
-            className="p-2 bg-black/30 border border-white/30 rounded"
+            value={settings.novia}
+            onChange={(e) => updateSettings("novia", e.target.value)}
+            className="p-3"
           />
 
           <input
             type="date"
-            value={fecha}
-            onChange={(e) => {
-              setFecha(e.target.value);
-              localStorage.setItem("wedding.fecha", e.target.value);
-            }}
-            className="p-2 bg-black/30 border border-white/30 rounded"
+            value={settings.fecha}
+            onChange={(e) => updateSettings("fecha", e.target.value)}
+            className="p-3"
           />
 
           <input
             type="time"
-            value={hora}
-            onChange={(e) => {
-              setHora(e.target.value);
-              localStorage.setItem("wedding.hora", e.target.value);
-            }}
-            className="p-2 bg-black/30 border border-white/30 rounded"
+            value={settings.hora}
+            onChange={(e) => updateSettings("hora", e.target.value)}
+            className="p-3"
           />
 
           <input
             type="text"
             placeholder="Ubicación / dirección"
-            value={ubicacion}
-            onChange={(e) => setUbicacion(e.target.value)}
-            className="p-2 bg-black/30 border border-white/30 rounded col-span-1 md:col-span-2"
+            value={settings.ubicacion}
+            onChange={(e) => updateSettings("ubicacion", e.target.value)}
+            className="col-span-1 p-3 md:col-span-2"
           />
 
           <div className="flex flex-col col-span-1 md:col-span-2">
-            <label className="mb-1 font-semibold">Color principal de la boda</label>
+            <label className="mb-2 font-semibold text-[var(--app-ink)]">Color principal de la boda</label>
             <input
               type="color"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              className="w-20 h-10 p-1 rounded"
+              value={settings.color}
+              onChange={(e) => updateSettings("color", e.target.value)}
+              className="h-12 w-24 p-1"
             />
           </div>
         </div>
       </section>
 
-      {/* PORTADA */}
-      <section className="bg-white/10 p-5 rounded-lg border border-white/20">
-        <h2 className="text-2xl font-semibold mb-4">Foto de portada</h2>
+      <section className="app-panel p-6">
+        <h2 className="app-section-heading mb-4">Apariencia visual</h2>
+
+        <div className="grid gap-5 md:grid-cols-2">
+          <label className="space-y-2">
+            <span className="text-sm font-medium text-[var(--app-muted)]">
+              Tamaño título principal: {appearance.heroTitleMaxRem.toFixed(1)}rem
+            </span>
+            <input
+              type="range"
+              min="4"
+              max="7"
+              step="0.1"
+              value={appearance.heroTitleMaxRem}
+              onChange={(e) => updateAppearance("heroTitleMaxRem", Number(e.target.value))}
+              className="w-full"
+            />
+          </label>
+          <label className="space-y-2">
+            <span className="text-sm font-medium text-[var(--app-muted)]">
+              Tamaño título de página: {appearance.pageTitleRem.toFixed(1)}rem
+            </span>
+            <input
+              type="range"
+              min="2.2"
+              max="4.4"
+              step="0.1"
+              value={appearance.pageTitleRem}
+              onChange={(e) => updateAppearance("pageTitleRem", Number(e.target.value))}
+              className="w-full"
+            />
+          </label>
+          <label className="space-y-2">
+            <span className="text-sm font-medium text-[var(--app-muted)]">
+              Tamaño títulos de bloque: {appearance.sectionTitleRem.toFixed(1)}rem
+            </span>
+            <input
+              type="range"
+              min="1.2"
+              max="2.4"
+              step="0.1"
+              value={appearance.sectionTitleRem}
+              onChange={(e) => updateAppearance("sectionTitleRem", Number(e.target.value))}
+              className="w-full"
+            />
+          </label>
+          <label className="space-y-2">
+            <span className="text-sm font-medium text-[var(--app-muted)]">
+              Opacidad paneles principales: {Math.round(appearance.surfaceOpacity * 100)}%
+            </span>
+            <input
+              type="range"
+              min="0.72"
+              max="1"
+              step="0.01"
+              value={appearance.surfaceOpacity}
+              onChange={(e) => updateAppearance("surfaceOpacity", Number(e.target.value))}
+              className="w-full"
+            />
+          </label>
+          <label className="space-y-2 md:col-span-2">
+            <span className="text-sm font-medium text-[var(--app-muted)]">
+              Opacidad paneles suaves: {Math.round(appearance.softSurfaceOpacity * 100)}%
+            </span>
+            <input
+              type="range"
+              min="0.84"
+              max="1"
+              step="0.01"
+              value={appearance.softSurfaceOpacity}
+              onChange={(e) => updateAppearance("softSurfaceOpacity", Number(e.target.value))}
+              className="w-full"
+            />
+          </label>
+        </div>
+      </section>
+
+      <section className="app-panel p-6">
+        <h2 className="app-section-heading mb-4">Foto de portada</h2>
 
         <button
           onClick={() =>
             document.getElementById("filePortada")?.click()
           }
-          className="bg-blue-600 px-4 py-2 rounded mb-4"
+          className="app-button-secondary mb-4"
         >
           Subir portada
         </button>
@@ -125,10 +217,10 @@ export default function Ajustes() {
           }}
         />
 
-        {portada && (
+        {settings.portada && (
           <div className="mt-4">
             <img
-              src={portada}
+              src={settings.portada}
               alt="Portada"
               className="w-full max-h-60 object-cover rounded"
             />
@@ -136,23 +228,22 @@ export default function Ajustes() {
         )}
       </section>
 
-      {/* INVITACIONES */}
-      <section className="bg-white/10 p-5 rounded-lg border border-white/20">
-        <h2 className="text-2xl font-semibold mb-4">Invitaciones</h2>
+      <section className="app-panel p-6">
+        <h2 className="app-section-heading mb-4">Invitaciones</h2>
 
         <textarea
           placeholder="Mensaje personalizado para las invitaciones"
-          value={mensajeInvitacion}
-          onChange={(e) => setMensajeInvitacion(e.target.value)}
-          className="w-full p-3 bg-black/30 border border-white/20 rounded mb-3"
+          value={settings.mensajeInvitacion}
+          onChange={(e) => updateSettings("mensajeInvitacion", e.target.value)}
+          className="mb-3 w-full p-3"
           rows={4}
         />
 
         <div className="flex items-center gap-3 mb-3">
           <input
             type="checkbox"
-            checked={mostrarPrograma}
-            onChange={() => setMostrarPrograma(!mostrarPrograma)}
+            checked={settings.mostrarPrograma}
+            onChange={() => updateSettings("mostrarPrograma", !settings.mostrarPrograma)}
           />
           <label>Mostrar programa a los invitados</label>
         </div>
@@ -160,23 +251,22 @@ export default function Ajustes() {
         <div className="flex items-center gap-3">
           <input
             type="checkbox"
-            checked={mostrarMesas}
-            onChange={() => setMostrarMesas(!mostrarMesas)}
+            checked={settings.mostrarMesas}
+            onChange={() => updateSettings("mostrarMesas", !settings.mostrarMesas)}
           />
           <label>Mostrar mesas a los invitados</label>
         </div>
       </section>
 
-      {/* EXPORTAR / RESET */}
-      <section className="bg-white/10 p-5 rounded-lg border border-white/20">
-        <h2 className="text-2xl font-semibold mb-4">Gestión de datos</h2>
+      <section className="app-panel p-6">
+        <h2 className="app-section-heading mb-4">Gestión de datos</h2>
 
         <div className="flex flex-col md:flex-row gap-3">
-          <button className="bg-green-600 px-4 py-2 rounded">
+          <button className="app-button-secondary">
             Exportar datos
           </button>
 
-          <button className="bg-red-600 px-4 py-2 rounded">
+          <button className="app-button-primary">
             Reiniciar boda (vaciar todo)
           </button>
         </div>

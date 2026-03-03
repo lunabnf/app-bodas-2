@@ -5,171 +5,122 @@ import Navbar from "../components/Navbar";
 export default function AppLayout() {
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
-  // Simulación temporal de rol del usuario
-  const user = { role: "admin" }; // Temporalmente admin para desarrollo
+  const linkClass = ({ isActive }: { isActive: boolean }) =>
+    `app-nav-link ${isActive ? "app-nav-link-active" : ""}`;
 
   return (
-    <div
-      className="relative flex min-h-screen flex-col text-white bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: "url('/bg-disco.jpg')" }}
-    >
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-      {user.role === "admin" ? (
-        <Navbar />
-      ) : (
-        <div className="fixed top-0 w-full z-40 bg-black/60 backdrop-blur-md text-center py-3 border-b border-white/10 text-pink-300 font-semibold tracking-wide">
-          💍 Boda de Eric y Leticia
-        </div>
-      )}
+    <div className="app-shell">
+      <Navbar />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="relative flex flex-1 overflow-hidden pt-18">
         <button
           onClick={() => setOpen(!open)}
-          className="fixed top-20 left-4 z-30 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 backdrop-blur-md border border-white/10 sm:hidden"
+          className="fixed left-4 top-21 z-30 flex h-11 w-11 items-center justify-center rounded-full border border-[var(--app-line)] bg-[rgba(255,255,255,0.9)] text-[var(--app-ink)] shadow-[var(--app-shadow-soft)] sm:hidden"
           aria-label="Abrir menú lateral"
         >
           {open ? "✕" : "☰"}
         </button>
         <aside
-          className={`fixed inset-y-0 left-0 z-20 w-64 overflow-y-auto bg-black/80 backdrop-blur-md shadow-lg transition-all duration-300 sm:static sm:translate-x-0 mt-16 ${
+          className={`app-sidebar fixed inset-y-0 left-0 z-20 mt-18 w-72 overflow-y-auto px-4 py-5 shadow-[var(--app-shadow)] transition-all duration-300 sm:sticky sm:top-18 sm:mt-0 sm:h-[calc(100vh-4.5rem)] sm:translate-x-0 ${
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <nav className="p-4 space-y-2">
+          <nav className="app-surface-soft p-4 space-y-3">
             <NavLink
               to="/"
               onClick={close}
-              className={({ isActive }) =>
-                `block rounded px-3 py-2 ${
-                  isActive ? "bg-white text-black" : "hover:bg-white/10"
-                }`
-              }
+              className={linkClass}
             >
               Inicio
             </NavLink>
 
-            {/* Información */}
-            <details className="group">
-              <summary className="cursor-pointer rounded px-3 py-2 hover:bg-white/10 select-none">
+            <details className="group rounded-[20px] border border-[var(--app-line)] bg-[rgba(248,247,243,0.72)] px-2 py-2">
+              <summary className="cursor-pointer rounded-full px-3 py-2 text-sm font-semibold text-[var(--app-ink)] select-none">
                 Información
               </summary>
-              <div className="ml-3 mt-1 space-y-1 border-l border-white/10 pl-3">
+              <div className="ml-2 mt-2 space-y-1 border-l border-[var(--app-line)] pl-3">
                 <NavLink
                   to="/programa"
                   onClick={close}
-                  className={({ isActive }) =>
-                    `block rounded px-3 py-2 ${
-                      isActive ? "bg-white text-black" : "hover:bg-white/10"
-                    }`
-                  }
+                  className={linkClass}
                 >
                   Programa
                 </NavLink>
                 <NavLink
                   to="/info/alojamientos"
                   onClick={close}
-                  className={({ isActive }) =>
-                    `block rounded px-3 py-2 ${
-                      isActive ? "bg-white text-black" : "hover:bg-white/10"
-                    }`
-                  }
+                  className={linkClass}
                 >
                   Alojamiento
                 </NavLink>
                 <NavLink
                   to="/info/desplazamientos"
                   onClick={close}
-                  className={({ isActive }) =>
-                    `block rounded px-3 py-2 ${
-                      isActive ? "bg-white text-black" : "hover:bg-white/10"
-                    }`
-                  }
+                  className={linkClass}
                 >
                   Desplazamiento
                 </NavLink>
                 <NavLink
                   to="/countdown"
                   onClick={close}
-                  className={({ isActive }) =>
-                    `block rounded px-3 py-2 ${
-                      isActive ? "bg-white text-black" : "hover:bg-white/10"
-                    }`
-                  }
+                  className={linkClass}
                 >
                   Cuenta atrás
                 </NavLink>
                 <NavLink
                   to="/contacto"
                   onClick={close}
-                  className={({ isActive }) =>
-                    `block rounded px-3 py-2 ${
-                      isActive ? "bg-white text-black" : "hover:bg-white/10"
-                    }`
-                  }
+                  className={linkClass}
                 >
                   Contacto
                 </NavLink>
               </div>
             </details>
 
-            {/* Participación */}
-            <details className="group">
-              <summary className="cursor-pointer rounded px-3 py-2 hover:bg-white/10 select-none">
+            <details className="group rounded-[20px] border border-[var(--app-line)] bg-[rgba(248,247,243,0.72)] px-2 py-2">
+              <summary className="cursor-pointer rounded-full px-3 py-2 text-sm font-semibold text-[var(--app-ink)] select-none">
                 Participación
               </summary>
-              <div className="ml-3 mt-1 space-y-1 border-l border-white/10 pl-3">
+              <div className="ml-2 mt-2 space-y-1 border-l border-[var(--app-line)] pl-3">
                 <NavLink
                   to="/participa/confirmar-asistencia"
                   onClick={close}
-                  className={({ isActive }) =>
-                    `block rounded px-3 py-2 ${
-                      isActive ? "bg-white text-black" : "hover:bg-white/10"
-                    }`
-                  }
+                  className={linkClass}
                 >
                   Confirmar asistencia
                 </NavLink>
                 <NavLink
                   to="/participa/mesas"
                   onClick={close}
-                  className={({ isActive }) =>
-                    `block rounded px-3 py-2 ${
-                      isActive ? "bg-white text-black" : "hover:bg-white/10"
-                    }`
-                  }
+                  className={linkClass}
                 >
                   Mesas
                 </NavLink>
                 <NavLink
                   to="/participa/asientos-ceremonia"
                   onClick={close}
-                  className={({ isActive }) =>
-                    `block rounded px-3 py-2 ${
-                      isActive ? "bg-white text-black" : "hover:bg-white/10"
-                    }`
-                  }
+                  className={linkClass}
                 >
                   Asientos ceremonia
                 </NavLink>
                 <NavLink
                   to="/participa/musica"
                   onClick={close}
-                  className={({ isActive }) =>
-                    `block rounded px-3 py-2 ${
-                      isActive ? "bg-white text-black" : "hover:bg-white/10"
-                    }`
-                  }
+                  className={linkClass}
                 >
                   Música
                 </NavLink>
                 <NavLink
+                  to="/participa/chat"
+                  onClick={close}
+                  className={linkClass}
+                >
+                  Chat
+                </NavLink>
+                <NavLink
                   to="/participa/fotos"
                   onClick={close}
-                  className={({ isActive }) =>
-                    `block rounded px-3 py-2 ${
-                      isActive ? "bg-white text-black" : "hover:bg-white/10"
-                    }`
-                  }
+                  className={linkClass}
                 >
                   Subir fotos
                 </NavLink>
@@ -178,8 +129,10 @@ export default function AppLayout() {
           </nav>
         </aside>
 
-        <main className="flex-1 overflow-auto bg-black/50 backdrop-blur-sm p-4 pt-16">
-          <Outlet />
+        <main className="app-main relative flex-1 px-4 pb-8 pt-6 sm:px-8">
+          <div className="app-content">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
