@@ -1,83 +1,36 @@
 import { useEffect, useState } from "react";
 import type { TransportOption, TransportRequest } from "../domain/transport";
 import {
-  borrarTransporte,
-  guardarTransportes,
-  obtenerSolicitudesTransporte,
-  obtenerTransportes,
-} from "../services/transporteService";
-import { addLog } from "../services/logsService";
-import { getUsuarioActual } from "../services/userService";
-
-function uuid() {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
+  createEmptyTransportDraft,
+  createTransportOption,
+  loadAdminCatalogData,
+  removeTransportOption,
+  type TransportDraft,
+} from "../application/adminCatalogService";
 
 export default function DesplazamientoAdmin() {
   const [items, setItems] = useState<TransportOption[]>([]);
   const [solicitudes, setSolicitudes] = useState<TransportRequest[]>([]);
-  const [nuevo, setNuevo] = useState({
-    nombre: "",
-    origen: "",
-    destino: "",
-    hora: "",
-    capacidad: "",
-    notas: "",
-  });
+  const [nuevo, setNuevo] = useState<TransportDraft>(createEmptyTransportDraft());
 
   useEffect(() => {
     void (async () => {
-      const [options, requests] = await Promise.all([
-        obtenerTransportes(),
-        obtenerSolicitudesTransporte(),
-      ]);
-      setItems(options);
-      setSolicitudes(requests);
+      const data = await loadAdminCatalogData();
+      setItems(data.transportes);
+      setSolicitudes(data.solicitudesTransporte);
     })();
   }, []);
 
   const guardar = async () => {
-    if (!nuevo.nombre.trim()) return;
-
-    const entry: TransportOption = {
-      id: uuid(),
-      nombre: nuevo.nombre,
-      origen: nuevo.origen,
-      destino: nuevo.destino,
-      hora: nuevo.hora,
-      capacidad: Number(nuevo.capacidad) || 0,
-      notas: nuevo.notas,
-    };
-
-    const updated = [...items, entry];
-    setItems(updated);
-    await guardarTransportes(updated);
-
-    const usuario = getUsuarioActual();
-    if (usuario) {
-      await addLog(usuario.nombre, `Creó transporte: ${entry.nombre}`);
-    }
-
-    setNuevo({
-      nombre: "",
-      origen: "",
-      destino: "",
-      hora: "",
-      capacidad: "",
-      notas: "",
-    });
+    const entry = await createTransportOption(items, nuevo);
+    if (!entry) return;
+    setItems((current) => [...current, entry]);
+    setNuevo(createEmptyTransportDraft());
   };
 
   const borrar = async (id: string) => {
-    const updated = items.filter((item) => item.id !== id);
-    const transporte = items.find((item) => item.id === id);
-    setItems(updated);
-    await borrarTransporte(id);
-
-    const usuario = getUsuarioActual();
-    if (usuario && transporte) {
-      await addLog(usuario.nombre, `Borró transporte: ${transporte.nombre}`);
-    }
+    await removeTransportOption(items, id);
+    setItems((current) => current.filter((item) => item.id !== id));
   };
 
   return (

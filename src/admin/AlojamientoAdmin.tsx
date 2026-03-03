@@ -1,67 +1,35 @@
 import { useEffect, useState } from "react";
 import type { LodgingOption, LodgingRequest } from "../domain/lodging";
 import {
-  borrarAlojamiento,
-  guardarAlojamientos,
-  obtenerAlojamientos,
-  obtenerSolicitudesAlojamiento,
-} from "../services/alojamientosService";
-import { addLog } from "../services/logsService";
-import { getUsuarioActual } from "../services/userService";
+  createEmptyLodgingDraft,
+  createLodgingOption,
+  loadAdminCatalogData,
+  removeLodgingOption,
+} from "../application/adminCatalogService";
 
 export default function AlojamientoAdmin() {
   const [alojamientos, setAlojamientos] = useState<LodgingOption[]>([]);
   const [solicitudes, setSolicitudes] = useState<LodgingRequest[]>([]);
-  const [nuevo, setNuevo] = useState<LodgingOption>({
-    id: crypto.randomUUID(),
-    nombre: "",
-    direccion: "",
-    link: "",
-    notas: "",
-  });
+  const [nuevo, setNuevo] = useState<LodgingOption>(createEmptyLodgingDraft());
 
   useEffect(() => {
     void (async () => {
-      const [catalogo, requests] = await Promise.all([
-        obtenerAlojamientos(),
-        obtenerSolicitudesAlojamiento(),
-      ]);
-      setAlojamientos(catalogo);
-      setSolicitudes(requests);
+      const data = await loadAdminCatalogData();
+      setAlojamientos(data.alojamientos);
+      setSolicitudes(data.solicitudesAlojamiento);
     })();
   }, []);
 
   const guardar = async () => {
-    if (!nuevo.nombre.trim()) return;
-
-    const updated = [...alojamientos, nuevo];
-    setAlojamientos(updated);
-    await guardarAlojamientos(updated);
-
-    const usuario = getUsuarioActual();
-    if (usuario) {
-      await addLog(usuario.nombre, `Creó alojamiento: ${nuevo.nombre}`);
-    }
-
-    setNuevo({
-      id: crypto.randomUUID(),
-      nombre: "",
-      direccion: "",
-      link: "",
-      notas: "",
-    });
+    const lodging = await createLodgingOption(alojamientos, nuevo);
+    if (!lodging) return;
+    setAlojamientos((current) => [...current, lodging]);
+    setNuevo(createEmptyLodgingDraft());
   };
 
   const borrar = async (id: string) => {
-    const alojamiento = alojamientos.find((item) => item.id === id);
-    const updated = alojamientos.filter((item) => item.id !== id);
-    setAlojamientos(updated);
-    await borrarAlojamiento(id);
-
-    const usuario = getUsuarioActual();
-    if (usuario && alojamiento) {
-      await addLog(usuario.nombre, `Borró alojamiento: ${alojamiento.nombre}`);
-    }
+    await removeLodgingOption(alojamientos, id);
+    setAlojamientos((current) => current.filter((item) => item.id !== id));
   };
 
   return (
