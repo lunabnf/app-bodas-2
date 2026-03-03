@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { GuestSession } from "../domain/guest";
+import { eventSitePaths } from "../eventSite/paths";
 import { registrarActividad } from "../services/actividadService";
 import { obtenerInvitadoPorToken } from "../services/invitadosService";
 import { useAuth } from "../store/useAuth";
@@ -12,7 +13,7 @@ export default function IdentificarInvitado() {
 
   useEffect(() => {
     if (!token) {
-      navigate("/");
+      navigate(eventSitePaths.home);
       return;
     }
 
@@ -20,7 +21,7 @@ export default function IdentificarInvitado() {
       const invitado = await obtenerInvitadoPorToken(token);
 
       if (!invitado) {
-        navigate("/");
+        navigate(eventSitePaths.home);
         return;
       }
 
@@ -43,7 +44,7 @@ export default function IdentificarInvitado() {
       };
 
       loginAsGuest(guestSession);
-      navigate("/participa/confirmar-asistencia");
+      navigate(eventSitePaths.participaConfirmacion);
     })();
   }, [token, navigate, loginAsGuest]);
 

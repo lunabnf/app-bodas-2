@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
+import { eventSitePaths } from "../eventSite/paths";
 import { useAuth } from "@/store/useAuth";
 
 export default function Login() {
@@ -26,7 +27,7 @@ export default function Login() {
   }
 
   if (invitado) {
-    return <Navigate to="/participa/confirmar-asistencia" replace />;
+    return <Navigate to={eventSitePaths.participaConfirmacion} replace />;
   }
 
   async function onAdminSubmit(e: React.FormEvent) {
@@ -48,7 +49,7 @@ export default function Login() {
       return;
     }
 
-    nav(`/rsvp/${encodeURIComponent(normalizedToken)}`);
+    nav(eventSitePaths.guestAccess(normalizedToken));
   }
 
   return (

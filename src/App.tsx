@@ -3,8 +3,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import { useAuth } from "./store/useAuth";
 import { applyAppearanceSettings, getAppearanceSettings } from "./services/appearanceService";
+import { eventSitePaths } from "./eventSite/paths";
 
 const AppLayout = lazy(() => import("./layouts/AppLayout"));
+const MarketingLayout = lazy(() => import("./layouts/MarketingLayout"));
+const MarketingHome = lazy(() => import("./pages/MarketingHome"));
+const MarketingDemo = lazy(() => import("./pages/MarketingDemo"));
+const MarketingPricing = lazy(() => import("./pages/MarketingPricing"));
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -59,23 +64,70 @@ function Root() {
   return (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/contacto" element={<div>Contacto</div>} />
-
-          <Route path="/programa" element={<Programa />} />
-          <Route path="/confirmar-asistencia" element={<ConfirmarAsistencia />} />
-          <Route path="/info/desplazamientos" element={<Desplazamientos />} />
-          <Route path="/info/alojamientos" element={<Alojamientos />} />
-          <Route path="/participa/confirmar-asistencia" element={<ConfirmarAsistencia />} />
-          <Route path="/participa/mesas" element={<Mesas />} />
-          <Route path="/participa/asientos-ceremonia" element={<AsientosCeremonia />} />
-          <Route path="/participa/musica" element={<Musica />} />
-          <Route path="/participa/chat" element={<ChatPage />} />
-          <Route path="/participa/fotos" element={<Fotos />} />
-          <Route path="/countdown" element={<CountdownPage />} />
-          <Route path="/rsvp/:token" element={<IdentificarInvitado />} />
+        <Route element={<MarketingLayout />}>
+          <Route path="/" element={<MarketingHome />} />
+          <Route path="/demo" element={<MarketingDemo />} />
+          <Route path="/pricing" element={<MarketingPricing />} />
         </Route>
+
+        <Route element={<AppLayout />}>
+          <Route path={eventSitePaths.home} element={<Home />} />
+          <Route path={eventSitePaths.contacto} element={<div>Contacto</div>} />
+
+          <Route path={eventSitePaths.programa} element={<Programa />} />
+          <Route path={eventSitePaths.confirmarAsistencia} element={<ConfirmarAsistencia />} />
+          <Route path={eventSitePaths.desplazamientos} element={<Desplazamientos />} />
+          <Route path={eventSitePaths.alojamientos} element={<Alojamientos />} />
+          <Route path={eventSitePaths.participaConfirmacion} element={<ConfirmarAsistencia />} />
+          <Route path={eventSitePaths.participaMesas} element={<Mesas />} />
+          <Route path={eventSitePaths.participaAsientos} element={<AsientosCeremonia />} />
+          <Route path={eventSitePaths.participaMusica} element={<Musica />} />
+          <Route path={eventSitePaths.participaChat} element={<ChatPage />} />
+          <Route path={eventSitePaths.participaFotos} element={<Fotos />} />
+          <Route path={eventSitePaths.countdown} element={<CountdownPage />} />
+          <Route path="/evento/demo/rsvp/:token" element={<IdentificarInvitado />} />
+        </Route>
+
+        <Route path="/contacto" element={<Navigate to={eventSitePaths.contacto} replace />} />
+        <Route path="/programa" element={<Navigate to={eventSitePaths.programa} replace />} />
+        <Route
+          path="/confirmar-asistencia"
+          element={<Navigate to={eventSitePaths.confirmarAsistencia} replace />}
+        />
+        <Route
+          path="/info/desplazamientos"
+          element={<Navigate to={eventSitePaths.desplazamientos} replace />}
+        />
+        <Route
+          path="/info/alojamientos"
+          element={<Navigate to={eventSitePaths.alojamientos} replace />}
+        />
+        <Route
+          path="/participa/confirmar-asistencia"
+          element={<Navigate to={eventSitePaths.participaConfirmacion} replace />}
+        />
+        <Route
+          path="/participa/mesas"
+          element={<Navigate to={eventSitePaths.participaMesas} replace />}
+        />
+        <Route
+          path="/participa/asientos-ceremonia"
+          element={<Navigate to={eventSitePaths.participaAsientos} replace />}
+        />
+        <Route
+          path="/participa/musica"
+          element={<Navigate to={eventSitePaths.participaMusica} replace />}
+        />
+        <Route
+          path="/participa/chat"
+          element={<Navigate to={eventSitePaths.participaChat} replace />}
+        />
+        <Route
+          path="/participa/fotos"
+          element={<Navigate to={eventSitePaths.participaFotos} replace />}
+        />
+        <Route path="/countdown" element={<Navigate to={eventSitePaths.countdown} replace />} />
+        <Route path="/rsvp/:token" element={<IdentificarInvitado />} />
 
         <Route path="/login" element={<Login />} />
         <Route

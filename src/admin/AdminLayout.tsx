@@ -1,11 +1,12 @@
 import { Outlet, Link } from "react-router-dom";
+import { eventSitePaths } from "../eventSite/paths";
 
 export default function AdminLayout() {
   return (
     <div className="app-admin-shell flex text-[var(--app-ink)]">
       <aside className="app-sidebar sticky top-0 z-20 h-screen w-72 shrink-0 overflow-y-auto px-5 py-6 space-y-5">
         <Link
-          to="/"
+          to={eventSitePaths.home}
           className="app-button-secondary inline-flex"
         >
           Volver a la web

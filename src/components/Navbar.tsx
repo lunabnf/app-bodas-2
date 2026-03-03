@@ -1,6 +1,7 @@
 // src/components/Navbar.tsx
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { eventSitePaths } from "../eventSite/paths";
 import { getWeddingSettings } from "../services/weddingSettingsService";
 import { useAuth } from "../store/useAuth";
 
@@ -62,7 +63,7 @@ export default function Navbar() {
           ) : invitado ? (
             <>
               <NavLink
-                to="/participa/confirmar-asistencia"
+                to={eventSitePaths.participaConfirmacion}
                 className="app-button-secondary"
               >
                 Mi panel
@@ -114,7 +115,7 @@ export default function Navbar() {
         ) : invitado ? (
           <>
             <NavLink
-              to="/participa/confirmar-asistencia"
+              to={eventSitePaths.participaConfirmacion}
               onClick={() => setMenuOpen(false)}
               className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
             >

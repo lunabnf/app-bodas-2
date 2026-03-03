@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { eventSitePaths } from "../eventSite/paths";
 
 export default function AppLayout() {
   const [open, setOpen] = useState(false);
@@ -27,7 +28,7 @@ export default function AppLayout() {
         >
           <nav className="app-surface-soft p-4 space-y-3">
             <NavLink
-              to="/"
+              to={eventSitePaths.home}
               onClick={close}
               className={linkClass}
             >
@@ -40,35 +41,35 @@ export default function AppLayout() {
               </summary>
               <div className="ml-2 mt-2 space-y-1 border-l border-[var(--app-line)] pl-3">
                 <NavLink
-                  to="/programa"
+                  to={eventSitePaths.programa}
                   onClick={close}
                   className={linkClass}
                 >
                   Programa
                 </NavLink>
                 <NavLink
-                  to="/info/alojamientos"
+                  to={eventSitePaths.alojamientos}
                   onClick={close}
                   className={linkClass}
                 >
                   Alojamiento
                 </NavLink>
                 <NavLink
-                  to="/info/desplazamientos"
+                  to={eventSitePaths.desplazamientos}
                   onClick={close}
                   className={linkClass}
                 >
                   Desplazamiento
                 </NavLink>
                 <NavLink
-                  to="/countdown"
+                  to={eventSitePaths.countdown}
                   onClick={close}
                   className={linkClass}
                 >
                   Cuenta atrás
                 </NavLink>
                 <NavLink
-                  to="/contacto"
+                  to={eventSitePaths.contacto}
                   onClick={close}
                   className={linkClass}
                 >
@@ -83,42 +84,42 @@ export default function AppLayout() {
               </summary>
               <div className="ml-2 mt-2 space-y-1 border-l border-[var(--app-line)] pl-3">
                 <NavLink
-                  to="/participa/confirmar-asistencia"
+                  to={eventSitePaths.participaConfirmacion}
                   onClick={close}
                   className={linkClass}
                 >
                   Confirmar asistencia
                 </NavLink>
                 <NavLink
-                  to="/participa/mesas"
+                  to={eventSitePaths.participaMesas}
                   onClick={close}
                   className={linkClass}
                 >
                   Mesas
                 </NavLink>
                 <NavLink
-                  to="/participa/asientos-ceremonia"
+                  to={eventSitePaths.participaAsientos}
                   onClick={close}
                   className={linkClass}
                 >
                   Asientos ceremonia
                 </NavLink>
                 <NavLink
-                  to="/participa/musica"
+                  to={eventSitePaths.participaMusica}
                   onClick={close}
                   className={linkClass}
                 >
                   Música
                 </NavLink>
                 <NavLink
-                  to="/participa/chat"
+                  to={eventSitePaths.participaChat}
                   onClick={close}
                   className={linkClass}
                 >
                   Chat
                 </NavLink>
                 <NavLink
-                  to="/participa/fotos"
+                  to={eventSitePaths.participaFotos}
                   onClick={close}
                   className={linkClass}
                 >

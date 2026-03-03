@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { eventSitePaths } from "../eventSite/paths";
 import { useAuth } from "../store/useAuth";
 
 export default function Home() {
@@ -20,14 +21,14 @@ export default function Home() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
-              to={esAdmin ? "/admin/resumen" : invitado ? "/participa/confirmar-asistencia" : "/login"}
+              to={esAdmin ? "/admin/resumen" : invitado ? eventSitePaths.participaConfirmacion : "/login"}
               className="app-button-primary text-center"
             >
               {esAdmin ? "Ir al panel de novios" : invitado ? "Entrar en mi panel" : "Acceder"}
             </Link>
             {!esAdmin && !invitado ? (
               <Link
-                to="/participa/confirmar-asistencia"
+                to={eventSitePaths.participaConfirmacion}
                 className="app-button-secondary text-center"
               >
                 Ver zona de invitados
