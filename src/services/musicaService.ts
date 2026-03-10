@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { supabaseConfig } from "./supabaseConfig";
+import { scopedStorageKey } from "./eventScopeService";
 
 export interface Cancion {
   id: string; // id interno
@@ -25,7 +26,7 @@ const songsSchema = z.array(songSchema);
 // -------------------------
 export async function obtenerCanciones(): Promise<Cancion[]> {
   if (!supabaseConfig.enabled) {
-    return readStorageWithSchema<Cancion[]>(STORAGE_KEY, songsSchema, []);
+    return readStorageWithSchema<Cancion[]>(scopedStorageKey(STORAGE_KEY), songsSchema, []);
   }
 
   // FUTURO: Supabase
@@ -42,7 +43,7 @@ export async function obtenerCanciones(): Promise<Cancion[]> {
 // -------------------------
 export async function guardarCanciones(canciones: Cancion[]): Promise<boolean> {
   if (!supabaseConfig.enabled) {
-    writeStorage(STORAGE_KEY, canciones);
+    writeStorage(scopedStorageKey(STORAGE_KEY), canciones);
     return true;
   }
 

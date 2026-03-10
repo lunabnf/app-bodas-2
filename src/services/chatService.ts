@@ -8,6 +8,7 @@ import { chatMessageSchema, chatRoomSchema } from "../domain/schemas";
 import type { GuestGroupType } from "../domain/guest";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { supabaseConfig } from "./supabaseConfig";
+import { scopedStorageKey } from "./eventScopeService";
 
 const ROOMS_KEY = "wedding.chat.rooms";
 const MESSAGES_KEY = "wedding.chat.messages";
@@ -74,27 +75,44 @@ function normalizeMessage(raw: unknown, index: number): ChatMessage {
 }
 
 function readLocalRooms(): ChatRoom[] {
-  if (!localStorage.getItem(ROOMS_KEY)) {
-    writeStorage(ROOMS_KEY, [DEFAULT_ROOM]);
-    return [DEFAULT_ROOM];
+  const scopedRoomsKey = scopedStorageKey(ROOMS_KEY);
+  if (!localStorage.getItem(scopedRoomsKey)) {
+    const legacyRooms = localStorage.getItem(ROOMS_KEY);
+    if (legacyRooms) {
+      localStorage.setItem(scopedRoomsKey, legacyRooms);
+      localStorage.removeItem(ROOMS_KEY);
+    } else {
+      writeStorage(scopedRoomsKey, [DEFAULT_ROOM]);
+    }
   }
 
-  const parsed = readStorageWithSchema<unknown[]>(ROOMS_KEY, z.array(z.unknown()), []);
+  const parsed = readStorageWithSchema<unknown[]>(scopedRoomsKey, z.array(z.unknown()), []);
   const rooms = parsed.map((item, index) => normalizeRoom(item, index));
   const validated = chatRoomsSchema.safeParse(rooms);
   if (!validated.success || validated.data.length === 0) {
-    writeStorage(ROOMS_KEY, [DEFAULT_ROOM]);
+    writeStorage(scopedRoomsKey, [DEFAULT_ROOM]);
     return [DEFAULT_ROOM];
   }
   return validated.data as ChatRoom[];
 }
 
 function readLocalMessages(): ChatMessage[] {
-  if (!localStorage.getItem(MESSAGES_KEY)) {
-    return [];
+  const scopedMessagesKey = scopedStorageKey(MESSAGES_KEY);
+  if (!localStorage.getItem(scopedMessagesKey)) {
+    const legacyMessages = localStorage.getItem(MESSAGES_KEY);
+    if (legacyMessages) {
+      localStorage.setItem(scopedMessagesKey, legacyMessages);
+      localStorage.removeItem(MESSAGES_KEY);
+    } else {
+      return [];
+    }
   }
 
-  const parsed = readStorageWithSchema<unknown[]>(MESSAGES_KEY, z.array(z.unknown()), []);
+  const parsed = readStorageWithSchema<unknown[]>(
+    scopedMessagesKey,
+    z.array(z.unknown()),
+    []
+  );
   const messages = parsed
     .map((item, index) => normalizeMessage(item, index))
     .filter((item) => item.body.length > 0);
@@ -103,11 +121,11 @@ function readLocalMessages(): ChatMessage[] {
 }
 
 function saveLocalRooms(rooms: ChatRoom[]) {
-  writeStorage(ROOMS_KEY, rooms);
+  writeStorage(scopedStorageKey(ROOMS_KEY), rooms);
 }
 
 function saveLocalMessages(messages: ChatMessage[]) {
-  writeStorage(MESSAGES_KEY, messages);
+  writeStorage(scopedStorageKey(MESSAGES_KEY), messages);
 }
 
 export async function getChatRooms(): Promise<ChatRoom[]> {

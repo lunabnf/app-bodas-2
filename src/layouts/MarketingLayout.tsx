@@ -1,11 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 
 function linkClass({ isActive }: { isActive: boolean }) {
-  return `rounded-full px-4 py-2 text-sm font-medium transition ${
-    isActive
-      ? "bg-[var(--app-ink)] text-white"
-      : "text-[var(--app-muted)] hover:bg-white/80 hover:text-[var(--app-ink)]"
-  }`;
+  return `app-nav-link whitespace-nowrap ${isActive ? "app-nav-link-active" : ""}`;
 }
 
 export default function MarketingLayout() {
@@ -30,10 +26,24 @@ export default function MarketingLayout() {
             <NavLink to="/pricing" className={linkClass}>
               Planes
             </NavLink>
-            <NavLink to="/login" className="app-button-primary">
+            <NavLink to="/acceso" className="app-button-primary">
               Empezar
             </NavLink>
           </nav>
+        </div>
+        <div className="mx-auto flex max-w-6xl flex-wrap gap-2 px-6 pb-4 sm:px-8 md:hidden">
+          <NavLink to="/" end className={linkClass}>
+            Inicio
+          </NavLink>
+          <NavLink to="/demo" className={linkClass}>
+            Demo
+          </NavLink>
+          <NavLink to="/pricing" className={linkClass}>
+            Planes
+          </NavLink>
+          <NavLink to="/acceso" className="app-button-primary">
+            Empezar
+          </NavLink>
         </div>
       </header>
 
@@ -52,7 +62,7 @@ export default function MarketingLayout() {
             <NavLink to="/pricing" className="hover:text-[var(--app-ink)]">
               Planes
             </NavLink>
-            <NavLink to="/login" className="hover:text-[var(--app-ink)]">
+            <NavLink to="/acceso" className="hover:text-[var(--app-ink)]">
               Acceso
             </NavLink>
           </div>

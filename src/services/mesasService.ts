@@ -3,6 +3,7 @@ import { tableSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { Table } from "../domain/table";
 import { supabaseConfig } from "./supabaseConfig";
+import { scopedStorageKey } from "./eventScopeService";
 
 const STORAGE_KEY = "wedding.tables";
 const LEGACY_STORAGE_KEYS = ["wedding_mesas"];
@@ -21,7 +22,8 @@ function normalizeTable(raw: unknown, index: number): Table {
 }
 
 function readLocalTables(): Table[] {
-  const candidates = [STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
+  const scopedKey = scopedStorageKey(STORAGE_KEY);
+  const candidates = [scopedKey, STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
 
   for (const key of candidates) {
       const raw = localStorage.getItem(key);
@@ -36,8 +38,8 @@ function readLocalTables(): Table[] {
         continue;
       }
 
-      if (key !== STORAGE_KEY) {
-        writeStorage(STORAGE_KEY, validated.data);
+      if (key !== scopedKey) {
+        writeStorage(scopedKey, validated.data);
         localStorage.removeItem(key);
       }
 
@@ -71,8 +73,10 @@ export async function obtenerMesas(): Promise<Table[]> {
 // Guardar TODAS las mesas
 // -------------------------
 export async function guardarMesas(mesas: Table[]): Promise<boolean> {
+  const scopedKey = scopedStorageKey(STORAGE_KEY);
+
   if (!supabaseConfig.enabled) {
-    writeStorage(STORAGE_KEY, mesas);
+    writeStorage(scopedKey, mesas);
     return true;
   }
 

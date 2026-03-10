@@ -1,7 +1,17 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { eventSitePaths } from "../eventSite/paths";
 
 export default function MarketingDemo() {
+  const [params] = useSearchParams();
+  const plan = params.get("plan") === "premium" ? "premium" : params.get("plan") === "pro" ? "pro" : "free";
+  const planLabel = plan === "premium" ? "Premium" : plan === "pro" ? "Completo" : "Esencial";
+  const capabilities =
+    plan === "premium"
+      ? ["Todo activado", "Personalización avanzada", "Acompañamiento prioritario"]
+      : plan === "pro"
+        ? ["RSVP, mesas y programa", "Logística", "Música, chat y fotos"]
+        : ["RSVP", "Mesas", "Programa", "Panel básico"];
+
   return (
     <main className="min-h-screen bg-[var(--app-bg)] px-6 py-8 text-[var(--app-ink)] sm:px-8">
       <section className="mx-auto max-w-6xl space-y-6">
@@ -12,6 +22,14 @@ export default function MarketingDemo() {
             La demo os permite ver la experiencia completa: portada del evento, programa,
             confirmación de asistencia, logística, música, chat y panel de novios.
           </p>
+          <p className="mt-4 text-sm text-[var(--app-muted)]">
+            Simulación actual: plan <strong>{planLabel}</strong>.
+          </p>
+          <ul className="mt-3 space-y-1 text-sm text-[var(--app-muted)]">
+            {capabilities.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link to={eventSitePaths.home} className="app-button-primary text-center">
@@ -59,8 +77,8 @@ export default function MarketingDemo() {
               <Link to="/" className="app-button-secondary text-center">
                 Volver al inicio
               </Link>
-              <Link to="/pricing" className="app-button-primary text-center">
-                Continuar a planes
+              <Link to={`/crear-evento?plan=${plan}`} className="app-button-primary text-center">
+                Crear mi evento con este plan
               </Link>
             </div>
           </div>

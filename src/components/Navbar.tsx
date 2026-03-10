@@ -8,6 +8,7 @@ import { useAuth } from "../store/useAuth";
 export default function Navbar() {
   const { novio, novia, fecha, hora } = getWeddingSettings();
   const esAdmin = useAuth((state) => state.esAdmin);
+  const esOwner = useAuth((state) => state.esOwner);
   const invitado = useAuth((state) => state.invitado);
   const logout = useAuth((state) => state.logout);
 
@@ -44,7 +45,23 @@ export default function Navbar() {
         </button>
 
         <div className="ml-auto hidden items-center gap-3 sm:flex">
-          {esAdmin ? (
+          {esOwner ? (
+            <>
+              <NavLink
+                to="/owner"
+                className="app-button-secondary"
+              >
+                Panel Owner
+              </NavLink>
+              <button
+                type="button"
+                onClick={logout}
+                className="app-button-primary"
+              >
+                Salir
+              </button>
+            </>
+          ) : esAdmin ? (
             <>
               <NavLink
                 to="/admin/resumen"
@@ -78,7 +95,7 @@ export default function Navbar() {
             </>
           ) : (
             <NavLink
-              to="/login"
+              to="/acceso"
               className="app-button-primary"
             >
               Acceder
@@ -92,7 +109,27 @@ export default function Navbar() {
           menuOpen ? "max-h-60 py-3 mb-3" : "max-h-0 py-0 mb-0 border-transparent"
         }`}
       >
-        {esAdmin ? (
+        {esOwner ? (
+          <>
+            <NavLink
+              to="/owner"
+              onClick={() => setMenuOpen(false)}
+              className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
+            >
+              Panel Owner
+            </NavLink>
+            <button
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                logout();
+              }}
+              className="block w-full px-4 py-2 text-left text-sm font-medium text-[var(--app-muted)]"
+            >
+              Salir
+            </button>
+          </>
+        ) : esAdmin ? (
           <>
             <NavLink
               to="/admin/resumen"
@@ -134,7 +171,7 @@ export default function Navbar() {
           </>
         ) : (
           <NavLink
-            to="/login"
+            to="/acceso"
             onClick={() => setMenuOpen(false)}
             className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
           >

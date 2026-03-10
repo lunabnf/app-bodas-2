@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { eventSitePaths } from "../eventSite/paths";
 
 export default function MarketingHome() {
   return (
@@ -17,11 +18,14 @@ export default function MarketingHome() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link to="/login" className="app-button-primary text-center">
-              Empezar ahora
+            <Link to="/pricing" className="app-button-primary text-center">
+              Ver planes
             </Link>
             <Link to="/demo" className="app-button-secondary text-center">
               Ver demo de boda
+            </Link>
+            <Link to="/acceso" className="app-button-secondary text-center">
+              Ya tengo acceso
             </Link>
           </div>
         </div>
@@ -38,6 +42,9 @@ export default function MarketingHome() {
               marketing con la experiencia de invitados.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
+              <Link to={eventSitePaths.home} className="app-button-secondary">
+                Entrar en la web demo
+              </Link>
               <Link to="/demo" className="app-button-secondary">
                 Ver demo
               </Link>
@@ -114,7 +121,7 @@ export default function MarketingHome() {
                 Siguiente: demo
               </Link>
               <Link to="/pricing" className="app-button-primary text-center">
-                Ir a planes
+                Continuar a planes
               </Link>
             </div>
           </div>

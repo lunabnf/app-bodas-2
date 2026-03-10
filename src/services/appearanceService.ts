@@ -1,5 +1,6 @@
 import { appearanceSettingsSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import { scopedStorageKey } from "./eventScopeService";
 
 export type AppearanceSettings = {
   heroTitleMaxRem: number;
@@ -28,7 +29,7 @@ export function getAppearanceSettings(): AppearanceSettings {
     return defaultAppearanceSettings;
   }
   const parsed = readStorageWithSchema<AppearanceSettings>(
-    STORAGE_KEY,
+    scopedStorageKey(STORAGE_KEY),
     appearanceSettingsSchema,
     defaultAppearanceSettings
   );
@@ -43,7 +44,7 @@ export function getAppearanceSettings(): AppearanceSettings {
 
 export function saveAppearanceSettings(settings: AppearanceSettings) {
   if (typeof window === "undefined") return;
-  writeStorage(STORAGE_KEY, settings);
+  writeStorage(scopedStorageKey(STORAGE_KEY), settings);
 }
 
 export function applyAppearanceSettings(settings: AppearanceSettings) {

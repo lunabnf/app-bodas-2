@@ -2,6 +2,7 @@ import { z } from "zod";
 import { logItemSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { supabaseConfig } from "./supabaseConfig";
+import { scopedStorageKey } from "./eventScopeService";
 
 export type LogItem = {
   id: string;
@@ -23,9 +24,10 @@ export async function addLog(user: string, action: string) {
   };
 
   if (!supabaseConfig.enabled) {
-    const logs = readStorageWithSchema<LogItem[]>(LOGS_KEY, logsSchema, []);
+    const scopedKey = scopedStorageKey(LOGS_KEY);
+    const logs = readStorageWithSchema<LogItem[]>(scopedKey, logsSchema, []);
     logs.push(newLog);
-    writeStorage(LOGS_KEY, logs);
+    writeStorage(scopedKey, logs);
     return true;
   }
 
@@ -37,7 +39,7 @@ export async function addLog(user: string, action: string) {
 // Obtener logs
 export async function obtenerLogs() {
   if (!supabaseConfig.enabled) {
-    return readStorageWithSchema<LogItem[]>(LOGS_KEY, logsSchema, []);
+    return readStorageWithSchema<LogItem[]>(scopedStorageKey(LOGS_KEY), logsSchema, []);
   }
 
   // FUTURO: Supabase
@@ -50,7 +52,7 @@ export async function obtenerLogs() {
 // Limpiar todos los logs
 export async function limpiarLogs() {
   if (!supabaseConfig.enabled) {
-    writeStorage(LOGS_KEY, []);
+    writeStorage(scopedStorageKey(LOGS_KEY), []);
     return true;
   }
 

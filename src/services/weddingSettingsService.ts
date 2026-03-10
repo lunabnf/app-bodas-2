@@ -1,5 +1,6 @@
 import { weddingSettingsSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import { scopedStorageKey } from "./eventScopeService";
 
 export type WeddingSettings = {
   novio: string;
@@ -36,6 +37,7 @@ export const defaultWeddingSettings: WeddingSettings = {
 };
 
 function migrateLegacySettings(): WeddingSettings {
+  const scopedKey = scopedStorageKey(SETTINGS_KEY);
   const merged: WeddingSettings = {
     ...defaultWeddingSettings,
     novio: localStorage.getItem(LEGACY_KEYS.novio) || "",
@@ -44,13 +46,14 @@ function migrateLegacySettings(): WeddingSettings {
     hora: localStorage.getItem(LEGACY_KEYS.hora) || "",
   };
 
-  writeStorage(SETTINGS_KEY, merged);
+  writeStorage(scopedKey, merged);
   return merged;
 }
 
 export function getWeddingSettings(): WeddingSettings {
+  const scopedKey = scopedStorageKey(SETTINGS_KEY);
   const parsed = readStorageWithSchema<WeddingSettings | null>(
-    SETTINGS_KEY,
+    scopedKey,
     weddingSettingsSchema.nullable(),
     null
   );
@@ -59,13 +62,21 @@ export function getWeddingSettings(): WeddingSettings {
     return parsed;
   }
 
+  const legacyScoped = readStorageWithSchema<WeddingSettings | null>(
+    SETTINGS_KEY,
+    weddingSettingsSchema.nullable(),
+    null
+  );
+  if (legacyScoped) {
+    writeStorage(scopedKey, legacyScoped);
+    localStorage.removeItem(SETTINGS_KEY);
+    return legacyScoped;
+  }
+
   return migrateLegacySettings();
 }
 
 export function saveWeddingSettings(settings: WeddingSettings) {
-  writeStorage(SETTINGS_KEY, settings);
-  localStorage.setItem(LEGACY_KEYS.novio, settings.novio);
-  localStorage.setItem(LEGACY_KEYS.novia, settings.novia);
-  localStorage.setItem(LEGACY_KEYS.fecha, settings.fecha);
-  localStorage.setItem(LEGACY_KEYS.hora, settings.hora);
+  const scopedKey = scopedStorageKey(SETTINGS_KEY);
+  writeStorage(scopedKey, settings);
 }

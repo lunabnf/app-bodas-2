@@ -2,18 +2,21 @@ import { Link } from "react-router-dom";
 
 const plans = [
   {
+    key: "free",
     name: "Esencial",
     price: "199 EUR",
     description: "Web de boda, programa, RSVP y panel básico de gestión.",
     items: ["Web del evento", "RSVP", "Panel de novios", "Mesas y programa"],
   },
   {
+    key: "pro",
     name: "Completo",
     price: "349 EUR",
     description: "La experiencia completa con logística, música, chat y archivos.",
     items: ["Todo lo anterior", "Alojamientos", "Transportes", "Chat y fotos"],
   },
   {
+    key: "premium",
     name: "Premium",
     price: "A medida",
     description: "Pensado para personalización avanzada y acompañamiento más cercano.",
@@ -45,6 +48,14 @@ export default function MarketingPricing() {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+              <div className="mt-6 flex flex-col gap-2">
+                <Link to={`/demo?plan=${plan.key}`} className="app-button-secondary text-center">
+                  Ver demo de este plan
+                </Link>
+                <Link to={`/crear-evento?plan=${plan.key}`} className="app-button-primary text-center">
+                  Elegir este plan
+                </Link>
+              </div>
             </article>
           ))}
         </div>
@@ -61,8 +72,8 @@ export default function MarketingPricing() {
               <Link to="/demo" className="app-button-secondary text-center">
                 Volver a demo
               </Link>
-              <Link to="/login" className="app-button-primary text-center">
-                Continuar
+              <Link to="/acceso" className="app-button-primary text-center">
+                Ya tengo acceso
               </Link>
             </div>
           </div>

@@ -10,6 +10,7 @@ const MarketingLayout = lazy(() => import("./layouts/MarketingLayout"));
 const MarketingHome = lazy(() => import("./pages/MarketingHome"));
 const MarketingDemo = lazy(() => import("./pages/MarketingDemo"));
 const MarketingPricing = lazy(() => import("./pages/MarketingPricing"));
+const MarketingCreateEvent = lazy(() => import("./pages/MarketingCreateEvent"));
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -40,6 +41,8 @@ const AlojamientoAdmin = lazy(() => import("./admin/AlojamientoAdmin"));
 const DesplazamientoAdmin = lazy(() => import("./admin/DesplazamientoAdmin"));
 const ActividadAdmin = lazy(() => import("./admin/Actividad"));
 const ChatAdmin = lazy(() => import("./admin/ChatAdmin"));
+const OwnerLayout = lazy(() => import("./owner/OwnerLayout"));
+const OwnerDashboard = lazy(() => import("./owner/OwnerDashboard"));
 
 function RouteFallback() {
   return (
@@ -56,7 +59,14 @@ function RouteFallback() {
 
 function ProtectedRoute({ children }: { children: ReactElement }) {
   const esAdmin = useAuth((s) => s.esAdmin);
-  if (!esAdmin) return <Navigate to="/login" replace />;
+  const esOwner = useAuth((s) => s.esOwner);
+  if (!esAdmin && !esOwner) return <Navigate to="/acceso" replace />;
+  return children;
+}
+
+function OwnerProtectedRoute({ children }: { children: ReactElement }) {
+  const esOwner = useAuth((s) => s.esOwner);
+  if (!esOwner) return <Navigate to="/acceso" replace />;
   return children;
 }
 
@@ -68,6 +78,7 @@ function Root() {
           <Route path="/" element={<MarketingHome />} />
           <Route path="/demo" element={<MarketingDemo />} />
           <Route path="/pricing" element={<MarketingPricing />} />
+          <Route path="/crear-evento" element={<MarketingCreateEvent />} />
         </Route>
 
         <Route element={<AppLayout />}>
@@ -85,7 +96,7 @@ function Root() {
           <Route path={eventSitePaths.participaChat} element={<ChatPage />} />
           <Route path={eventSitePaths.participaFotos} element={<Fotos />} />
           <Route path={eventSitePaths.countdown} element={<CountdownPage />} />
-          <Route path="/evento/demo/rsvp/:token" element={<IdentificarInvitado />} />
+          <Route path="/evento/:slug/rsvp/:token" element={<IdentificarInvitado />} />
         </Route>
 
         <Route path="/contacto" element={<Navigate to={eventSitePaths.contacto} replace />} />
@@ -127,9 +138,22 @@ function Root() {
           element={<Navigate to={eventSitePaths.participaFotos} replace />}
         />
         <Route path="/countdown" element={<Navigate to={eventSitePaths.countdown} replace />} />
+        <Route path="/evento/demo/rsvp/:token" element={<IdentificarInvitado />} />
         <Route path="/rsvp/:token" element={<IdentificarInvitado />} />
+        <Route path="/rsvp/:slug/:token" element={<IdentificarInvitado />} />
 
         <Route path="/login" element={<Login />} />
+        <Route path="/acceso" element={<Login />} />
+        <Route
+          path="/owner"
+          element={
+            <OwnerProtectedRoute>
+              <OwnerLayout />
+            </OwnerProtectedRoute>
+          }
+        >
+          <Route index element={<OwnerDashboard />} />
+        </Route>
         <Route
           path="/admin"
           element={

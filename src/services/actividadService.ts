@@ -2,6 +2,7 @@ import { z } from "zod";
 import { activityEventSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { supabaseConfig } from "./supabaseConfig";
+import { scopedStorageKey } from "./eventScopeService";
 
 export interface EventoActividad {
   id: string;
@@ -16,8 +17,9 @@ const activitySchema = z.array(activityEventSchema);
 
 // Obtener actividad
 export async function obtenerActividad(): Promise<EventoActividad[]> {
+  const scopedKey = scopedStorageKey(STORAGE_KEY);
   if (!supabaseConfig.enabled) {
-    return readStorageWithSchema<EventoActividad[]>(STORAGE_KEY, activitySchema, []);
+    return readStorageWithSchema<EventoActividad[]>(scopedKey, activitySchema, []);
   }
 
   // FUTURO Supabase
@@ -26,11 +28,12 @@ export async function obtenerActividad(): Promise<EventoActividad[]> {
 
 // Registrar evento
 export async function registrarActividad(evento: EventoActividad): Promise<boolean> {
+  const scopedKey = scopedStorageKey(STORAGE_KEY);
   const lista = await obtenerActividad();
   lista.push(evento);
 
   if (!supabaseConfig.enabled) {
-    writeStorage(STORAGE_KEY, lista);
+    writeStorage(scopedKey, lista);
     return true;
   }
 
@@ -40,8 +43,9 @@ export async function registrarActividad(evento: EventoActividad): Promise<boole
 
 // Borrar actividad completa
 export async function limpiarActividad(): Promise<boolean> {
+  const scopedKey = scopedStorageKey(STORAGE_KEY);
   if (!supabaseConfig.enabled) {
-    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(scopedKey);
     return true;
   }
 

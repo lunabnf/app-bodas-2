@@ -3,6 +3,7 @@ import { transportOptionSchema, transportRequestSchema } from "../domain/schemas
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { TransportOption, TransportRequest } from "../domain/transport";
 import { supabaseConfig } from "./supabaseConfig";
+import { scopedStorageKey } from "./eventScopeService";
 
 const TRANSPORT_OPTIONS_KEY = "wedding.transportes";
 const TRANSPORT_REQUESTS_KEY = "wedding.transportes.requests";
@@ -12,7 +13,7 @@ const transportRequestsSchema = z.array(transportRequestSchema);
 export async function obtenerTransportes(): Promise<TransportOption[]> {
   if (!supabaseConfig.enabled) {
     return readStorageWithSchema<TransportOption[]>(
-      TRANSPORT_OPTIONS_KEY,
+      scopedStorageKey(TRANSPORT_OPTIONS_KEY),
       transportOptionsSchema,
       []
     );
@@ -23,7 +24,7 @@ export async function obtenerTransportes(): Promise<TransportOption[]> {
 
 export async function guardarTransportes(lista: TransportOption[]) {
   if (!supabaseConfig.enabled) {
-    writeStorage(TRANSPORT_OPTIONS_KEY, lista);
+    writeStorage(scopedStorageKey(TRANSPORT_OPTIONS_KEY), lista);
     return true;
   }
 
@@ -33,12 +34,12 @@ export async function guardarTransportes(lista: TransportOption[]) {
 export async function borrarTransporte(id: string) {
   if (!supabaseConfig.enabled) {
     const lista = readStorageWithSchema<TransportOption[]>(
-      TRANSPORT_OPTIONS_KEY,
+      scopedStorageKey(TRANSPORT_OPTIONS_KEY),
       transportOptionsSchema,
       []
     );
     const nueva = lista.filter((t) => t.id !== id);
-    writeStorage(TRANSPORT_OPTIONS_KEY, nueva);
+    writeStorage(scopedStorageKey(TRANSPORT_OPTIONS_KEY), nueva);
     return true;
   }
 
@@ -48,7 +49,7 @@ export async function borrarTransporte(id: string) {
 export async function obtenerSolicitudesTransporte(): Promise<TransportRequest[]> {
   if (!supabaseConfig.enabled) {
     return readStorageWithSchema<TransportRequest[]>(
-      TRANSPORT_REQUESTS_KEY,
+      scopedStorageKey(TRANSPORT_REQUESTS_KEY),
       transportRequestsSchema,
       []
     );
@@ -78,7 +79,7 @@ export async function guardarSolicitudTransporte(request: TransportRequest) {
   }
 
   if (!supabaseConfig.enabled) {
-    writeStorage(TRANSPORT_REQUESTS_KEY, updated);
+    writeStorage(scopedStorageKey(TRANSPORT_REQUESTS_KEY), updated);
     return true;
   }
 
@@ -92,7 +93,7 @@ export async function borrarSolicitudTransporte(guestToken: string, transportId:
   );
 
   if (!supabaseConfig.enabled) {
-    writeStorage(TRANSPORT_REQUESTS_KEY, updated);
+    writeStorage(scopedStorageKey(TRANSPORT_REQUESTS_KEY), updated);
     return true;
   }
 

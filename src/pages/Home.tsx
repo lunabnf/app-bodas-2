@@ -21,7 +21,7 @@ export default function Home() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
-              to={esAdmin ? "/admin/resumen" : invitado ? eventSitePaths.participaConfirmacion : "/login"}
+              to={esAdmin ? "/admin/resumen" : invitado ? eventSitePaths.participaConfirmacion : "/acceso"}
               className="app-button-primary text-center"
             >
               {esAdmin ? "Ir al panel de novios" : invitado ? "Entrar en mi panel" : "Acceder"}

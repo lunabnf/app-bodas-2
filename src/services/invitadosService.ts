@@ -3,6 +3,7 @@ import { guestSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { Guest } from "../domain/guest";
 import { supabaseConfig } from "./supabaseConfig";
+import { scopedStorageKey } from "./eventScopeService";
 
 const STORAGE_KEY = "wedding.invitados";
 const LEGACY_STORAGE_KEYS = ["wedding_invitados"];
@@ -44,7 +45,8 @@ function normalizeGuest(raw: unknown, index: number): Guest {
 }
 
 function readLocalGuests(): Guest[] {
-  const candidates = [STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
+  const scopedKey = scopedStorageKey(STORAGE_KEY);
+  const candidates = [scopedKey, STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
 
   for (const key of candidates) {
     const raw = localStorage.getItem(key);
@@ -59,8 +61,8 @@ function readLocalGuests(): Guest[] {
         continue;
       }
 
-      if (key !== STORAGE_KEY) {
-        writeStorage(STORAGE_KEY, validated.data);
+      if (key !== scopedKey) {
+        writeStorage(scopedKey, validated.data);
         localStorage.removeItem(key);
       }
 
@@ -95,8 +97,10 @@ export async function obtenerInvitadoPorToken(token: string): Promise<Guest | nu
 
 // Guardar invitados
 export async function guardarInvitados(lista: Guest[]): Promise<boolean> {
+  const scopedKey = scopedStorageKey(STORAGE_KEY);
+
   if (!supabaseConfig.enabled) {
-    writeStorage(STORAGE_KEY, lista);
+    writeStorage(scopedKey, lista);
     return true;
   }
 
@@ -120,10 +124,12 @@ export async function guardarInvitado(invitado: Guest): Promise<boolean> {
 
 // Borrar invitado
 export async function borrarInvitado(token: string): Promise<boolean> {
+  const scopedKey = scopedStorageKey(STORAGE_KEY);
+
   if (!supabaseConfig.enabled) {
     const lista = await obtenerInvitados();
     const nueva = lista.filter((i) => i.token !== token);
-    writeStorage(STORAGE_KEY, nueva);
+    writeStorage(scopedKey, nueva);
     return true;
   }
 

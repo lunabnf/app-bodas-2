@@ -4,12 +4,14 @@ import type { GuestSession } from "../domain/guest";
 import { eventSitePaths } from "../eventSite/paths";
 import { registrarActividad } from "../services/actividadService";
 import { obtenerInvitadoPorToken } from "../services/invitadosService";
+import { findOwnerEventBySlug } from "../services/ownerEventsService";
+import { setAccessEventContext } from "../services/accessEventContextService";
 import { useAuth } from "../store/useAuth";
 
 export default function IdentificarInvitado() {
-  const { token } = useParams();
+  const { token, slug } = useParams();
   const navigate = useNavigate();
-  const loginAsGuest = useAuth((s) => s.loginAsGuest);
+  const loginAsGuestForEvent = useAuth((s) => s.loginAsGuestForEvent);
 
   useEffect(() => {
     if (!token) {
@@ -18,10 +20,23 @@ export default function IdentificarInvitado() {
     }
 
     void (async () => {
+      const normalizedSlug = slug ?? "demo";
+      const event = findOwnerEventBySlug(normalizedSlug);
+      if (!event) {
+        navigate("/");
+        return;
+      }
+
+      setAccessEventContext({
+        eventId: event.id,
+        slug: event.slug,
+        coupleLabel: event.coupleLabel,
+      });
+
       const invitado = await obtenerInvitadoPorToken(token);
 
       if (!invitado) {
-        navigate(eventSitePaths.home);
+        navigate("/acceso");
         return;
       }
 
@@ -43,10 +58,14 @@ export default function IdentificarInvitado() {
         tipo: invitado.tipo,
       };
 
-      loginAsGuest(guestSession);
+      loginAsGuestForEvent(guestSession, {
+        eventId: event.id,
+        slug: event.slug,
+        coupleLabel: event.coupleLabel,
+      });
       navigate(eventSitePaths.participaConfirmacion);
     })();
-  }, [token, navigate, loginAsGuest]);
+  }, [token, slug, navigate, loginAsGuestForEvent]);
 
   return (
     <div className="text-white p-6">

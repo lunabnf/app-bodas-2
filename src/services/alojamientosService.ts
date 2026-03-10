@@ -3,6 +3,7 @@ import { lodgingOptionSchema, lodgingRequestSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { LodgingOption, LodgingRequest } from "../domain/lodging";
 import { supabaseConfig } from "./supabaseConfig";
+import { scopedStorageKey } from "./eventScopeService";
 
 const LODGING_OPTIONS_KEY = "wedding.alojamientos";
 const LODGING_REQUESTS_KEY = "wedding.alojamientos.requests";
@@ -12,7 +13,7 @@ const lodgingRequestsSchema = z.array(lodgingRequestSchema);
 export async function obtenerAlojamientos(): Promise<LodgingOption[]> {
   if (!supabaseConfig.enabled) {
     return readStorageWithSchema<LodgingOption[]>(
-      LODGING_OPTIONS_KEY,
+      scopedStorageKey(LODGING_OPTIONS_KEY),
       lodgingOptionsSchema,
       []
     );
@@ -23,7 +24,7 @@ export async function obtenerAlojamientos(): Promise<LodgingOption[]> {
 
 export async function guardarAlojamientos(lista: LodgingOption[]) {
   if (!supabaseConfig.enabled) {
-    writeStorage(LODGING_OPTIONS_KEY, lista);
+    writeStorage(scopedStorageKey(LODGING_OPTIONS_KEY), lista);
     return true;
   }
 
@@ -33,12 +34,12 @@ export async function guardarAlojamientos(lista: LodgingOption[]) {
 export async function borrarAlojamiento(id: string) {
   if (!supabaseConfig.enabled) {
     const lista = readStorageWithSchema<LodgingOption[]>(
-      LODGING_OPTIONS_KEY,
+      scopedStorageKey(LODGING_OPTIONS_KEY),
       lodgingOptionsSchema,
       []
     );
     const nueva = lista.filter((a) => a.id !== id);
-    writeStorage(LODGING_OPTIONS_KEY, nueva);
+    writeStorage(scopedStorageKey(LODGING_OPTIONS_KEY), nueva);
     return true;
   }
 
@@ -48,7 +49,7 @@ export async function borrarAlojamiento(id: string) {
 export async function obtenerSolicitudesAlojamiento(): Promise<LodgingRequest[]> {
   if (!supabaseConfig.enabled) {
     return readStorageWithSchema<LodgingRequest[]>(
-      LODGING_REQUESTS_KEY,
+      scopedStorageKey(LODGING_REQUESTS_KEY),
       lodgingRequestsSchema,
       []
     );
@@ -76,7 +77,7 @@ export async function guardarSolicitudAlojamiento(request: LodgingRequest) {
   }
 
   if (!supabaseConfig.enabled) {
-    writeStorage(LODGING_REQUESTS_KEY, updated);
+    writeStorage(scopedStorageKey(LODGING_REQUESTS_KEY), updated);
     return true;
   }
 

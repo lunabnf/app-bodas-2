@@ -3,13 +3,15 @@ import { guestRsvpSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { GuestRsvp } from "../domain/rsvp";
 import { supabaseConfig } from "./supabaseConfig";
+import { scopedStorageKey } from "./eventScopeService";
 
 const RSVP_COLLECTION_KEY = "wedding.rsvps";
 const guestRsvpsSchema = z.array(guestRsvpSchema);
 
 function readAllLocalRsvps(): GuestRsvp[] {
+  const scopedCollectionKey = scopedStorageKey(RSVP_COLLECTION_KEY);
   const collection = readStorageWithSchema<GuestRsvp[]>(
-    RSVP_COLLECTION_KEY,
+    scopedCollectionKey,
     guestRsvpsSchema,
     []
   );
@@ -54,7 +56,7 @@ function readAllLocalRsvps(): GuestRsvp[] {
   }
 
   if (migrated.length !== collection.length) {
-    writeStorage(RSVP_COLLECTION_KEY, migrated);
+    writeStorage(scopedCollectionKey, migrated);
   }
 
   return migrated;
@@ -72,7 +74,7 @@ export async function guardarRSVP(data: GuestRsvp) {
   }
 
   if (!supabaseConfig.enabled) {
-    writeStorage(RSVP_COLLECTION_KEY, updated);
+    writeStorage(scopedStorageKey(RSVP_COLLECTION_KEY), updated);
     return true;
   }
 
@@ -100,7 +102,7 @@ export async function borrarRSVP(guestToken: string) {
   if (!supabaseConfig.enabled) {
     const all = readAllLocalRsvps();
     const updated = all.filter((item) => item.guestToken !== guestToken);
-    writeStorage(RSVP_COLLECTION_KEY, updated);
+    writeStorage(scopedStorageKey(RSVP_COLLECTION_KEY), updated);
     return true;
   }
 

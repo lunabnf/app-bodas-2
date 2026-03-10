@@ -1,6 +1,14 @@
 import { Link } from "react-router-dom";
+import { getActiveEventId } from "../services/eventScopeService";
+import { getOwnerEventContext } from "../services/ownerEventContextService";
+import { getOwnerEventById } from "../services/ownerEventsService";
 
 export default function Resumen() {
+  const activeEventId = getActiveEventId();
+  const activeContext = getOwnerEventContext();
+  const activeEvent = getOwnerEventById(activeEventId);
+  const activeSlug = activeContext?.slug ?? activeEvent?.slug ?? "demo";
+
   return (
     <div className="space-y-6 text-[var(--app-ink)]">
       <div className="app-surface p-8">
@@ -9,6 +17,9 @@ export default function Resumen() {
         <p className="mt-3 max-w-2xl text-[var(--app-muted)]">
           Un panel sereno, claro y centrado en lo importante: estado global, invitados, logística y próximos pasos.
         </p>
+        <div className="mt-4 rounded-2xl border border-[var(--app-line)] bg-[rgba(255,255,255,0.7)] px-4 py-3 text-xs uppercase tracking-[0.12em] text-[var(--app-muted)]">
+          EventID: {activeEventId} · Slug: /{activeSlug}
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
