@@ -13,7 +13,7 @@ export default function MarketingDemo() {
         : ["RSVP", "Mesas", "Programa", "Panel básico"];
 
   return (
-    <main className="min-h-screen bg-[var(--app-bg)] px-6 py-8 text-[var(--app-ink)] sm:px-8">
+    <main className="min-h-screen bg-[var(--app-bg)] px-4 py-6 text-[var(--app-ink)] sm:px-6 sm:py-8 lg:px-8">
       <section className="mx-auto max-w-6xl space-y-6">
         <div className="app-surface p-8 sm:p-12">
           <p className="app-kicker">Demo</p>

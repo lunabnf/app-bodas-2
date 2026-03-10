@@ -58,8 +58,8 @@ export default function AlojamientosPage() {
   };
 
   return (
-    <div className="text-white p-6 space-y-6">
-      <h1 className="text-3xl font-bold">Alojamiento</h1>
+    <div className="space-y-6 px-4 py-4 text-white sm:px-6">
+      <h1 className="text-2xl font-bold sm:text-3xl">Alojamiento</h1>
 
       {alojamientos.length === 0 && (
         <p className="opacity-70">No hay alojamientos disponibles todavía.</p>
@@ -100,7 +100,7 @@ export default function AlojamientosPage() {
       </div>
 
       {invitado ? (
-        <section className="rounded-lg border border-white/20 bg-white/10 p-4 space-y-4">
+        <section className="space-y-4 rounded-lg border border-white/20 bg-white/10 p-4 sm:p-5">
           <div>
             <h2 className="text-xl font-semibold">Tu solicitud de alojamiento</h2>
             <p className="opacity-70 text-sm">

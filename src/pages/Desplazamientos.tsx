@@ -87,8 +87,8 @@ export default function DesplazamientosPage() {
   };
 
   return (
-    <div className="text-white p-6 space-y-6">
-      <h1 className="text-3xl font-bold">Desplazamientos</h1>
+    <div className="space-y-6 px-4 py-4 text-white sm:px-6">
+      <h1 className="text-2xl font-bold sm:text-3xl">Desplazamientos</h1>
 
       {items.length === 0 && (
         <p className="opacity-70">No hay transportes disponibles todavía.</p>
@@ -112,7 +112,7 @@ export default function DesplazamientosPage() {
 
               {invitado ? (
                 <div className="mt-4 space-y-3">
-                  <div className="grid sm:grid-cols-2 gap-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
                     <input
                       type="number"
                       min={1}
@@ -141,7 +141,7 @@ export default function DesplazamientosPage() {
                     />
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <button
                       onClick={() => void guardarSolicitud(item)}
                       className="bg-blue-600 px-4 py-2 rounded"

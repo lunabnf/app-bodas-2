@@ -36,7 +36,7 @@ export default function IdentificarInvitado() {
       const invitado = await obtenerInvitadoPorToken(token);
 
       if (!invitado) {
-        navigate("/acceso");
+        navigate("/buscar-boda");
         return;
       }
 
@@ -68,7 +68,7 @@ export default function IdentificarInvitado() {
   }, [token, slug, navigate, loginAsGuestForEvent]);
 
   return (
-    <div className="text-white p-6">
+    <div className="px-4 py-4 text-white sm:px-6">
       Identificando invitado…
     </div>
   );

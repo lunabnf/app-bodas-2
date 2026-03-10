@@ -3,7 +3,7 @@ import { eventSitePaths } from "../eventSite/paths";
 
 export default function MarketingHome() {
   return (
-    <main className="min-h-screen bg-[var(--app-bg)] px-6 py-8 text-[var(--app-ink)] sm:px-8">
+    <main className="min-h-screen bg-[var(--app-bg)] px-4 py-6 text-[var(--app-ink)] sm:px-6 sm:py-8 lg:px-8">
       <section className="mx-auto max-w-6xl space-y-6">
         <div className="app-surface p-8 sm:p-12">
           <p className="app-kicker">Wedding SaaS</p>
@@ -24,7 +24,7 @@ export default function MarketingHome() {
             <Link to="/demo" className="app-button-secondary text-center">
               Ver demo de boda
             </Link>
-            <Link to="/acceso" className="app-button-secondary text-center">
+            <Link to="/buscar-boda" className="app-button-secondary text-center">
               Ya tengo acceso
             </Link>
           </div>
@@ -33,7 +33,7 @@ export default function MarketingHome() {
         <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <article className="app-surface-soft p-7">
             <p className="app-kicker">Producto</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">
+            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
               Landing comercial, onboarding de novios y web de evento separada.
             </h2>
             <p className="mt-4 app-prose">
@@ -71,7 +71,7 @@ export default function MarketingHome() {
             </article>
             <article className="app-surface-soft p-7">
               <p className="app-kicker">Escalado</p>
-              <p className="mt-3 text-5xl font-semibold tracking-[-0.05em]">Multi-evento</p>
+              <p className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Multi-evento</p>
               <p className="mt-3 app-prose">
                 Cada boda tendrá su propio espacio, sus propios datos y su propia configuración.
               </p>

@@ -87,7 +87,7 @@ export default function OwnerDashboard() {
       coupleLabel: event.coupleLabel,
       slug: event.slug,
     });
-    navigate("/admin/resumen");
+    navigate(`/w/${event.slug}/admin`);
   }
 
   function handleDuplicateEvent(event: OwnerEvent) {

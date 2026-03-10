@@ -1,13 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { eventSitePaths } from "../eventSite/paths";
 import { useAuth } from "../store/useAuth";
 
 export default function Home() {
   const esAdmin = useAuth((state) => state.esAdmin);
   const invitado = useAuth((state) => state.invitado);
+  const { slug } = useParams();
+  const adminPath = slug ? `/w/${slug}/admin` : "/w/demo/admin";
 
   return (
-    <section className="mx-auto max-w-6xl px-6 pb-16 pt-10 sm:px-8">
+    <section className="mx-auto max-w-6xl px-4 pb-12 pt-8 sm:px-6 md:pb-16 md:pt-10 lg:px-8">
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="app-surface p-8 sm:p-12">
           <p className="app-kicker">Wedding OS</p>
@@ -21,7 +23,7 @@ export default function Home() {
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
-              to={esAdmin ? "/admin/resumen" : invitado ? eventSitePaths.participaConfirmacion : "/acceso"}
+              to={esAdmin ? adminPath : invitado ? eventSitePaths.participaConfirmacion : "/buscar-boda"}
               className="app-button-primary text-center"
             >
               {esAdmin ? "Ir al panel de novios" : invitado ? "Entrar en mi panel" : "Acceder"}
@@ -50,7 +52,7 @@ export default function Home() {
           </article>
           <article className="app-surface-soft p-7">
             <p className="app-kicker">Estado</p>
-            <p className="mt-3 text-5xl font-semibold tracking-[-0.05em]">01</p>
+            <p className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">01</p>
             <p className="mt-3 app-prose">
               La app ya está tomando una dirección visual minimalista, limpia y más consistente con
               un producto premium.

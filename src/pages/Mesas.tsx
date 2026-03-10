@@ -21,16 +21,16 @@ export default function Mesas() {
 
   if (tables.length === 0 || guests.length === 0) {
     return (
-      <section className="min-h-screen text-white px-4 py-6">
-        <h1 className="text-2xl font-semibold mb-4">Distribución de Mesas</h1>
+      <section className="px-4 py-4 text-white sm:px-6">
+        <h1 className="mb-4 text-2xl font-semibold sm:text-3xl">Distribución de Mesas</h1>
         <p className="text-white/70">Todavía no se ha publicado la organización de mesas.</p>
       </section>
     );
   }
 
   return (
-    <section className="min-h-screen text-white px-4 py-6">
-      <h1 className="text-2xl font-semibold mb-6">Distribución de Mesas</h1>
+    <section className="px-4 py-4 text-white sm:px-6">
+      <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">Distribución de Mesas</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {tables.map(t => {

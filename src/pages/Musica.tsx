@@ -59,8 +59,8 @@ export default function Musica() {
   };
 
   return (
-    <div className="p-6 text-white space-y-6">
-      <h1 className="text-3xl font-bold">Música</h1>
+    <div className="space-y-6 px-4 py-4 text-white sm:px-6">
+      <h1 className="text-2xl font-bold sm:text-3xl">Música</h1>
 
       <div className="space-y-3 bg-white/10 p-4 rounded-lg border border-white/20">
         <h2 className="text-xl font-semibold">Proponer canción</h2>
@@ -104,7 +104,7 @@ export default function Musica() {
           {canciones.map((c) => (
             <div
               key={c.id}
-              className="p-4 bg-white/10 border border-white/20 rounded-lg flex justify-between items-center"
+              className="flex flex-col gap-3 rounded-lg border border-white/20 bg-white/10 p-4 sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
                 <p className="font-semibold">{c.titulo}</p>

@@ -13,16 +13,22 @@ export default function AppLayout() {
     <div className="app-shell">
       <Navbar />
 
-      <div className="relative flex flex-1 overflow-hidden pt-18">
+      <div className="relative flex min-h-screen flex-1 pt-[4.5rem]">
         <button
           onClick={() => setOpen(!open)}
-          className="fixed left-4 top-21 z-30 flex h-11 w-11 items-center justify-center rounded-full border border-[var(--app-line)] bg-[rgba(255,255,255,0.9)] text-[var(--app-ink)] shadow-[var(--app-shadow-soft)] sm:hidden"
+          className="fixed left-4 top-[5.25rem] z-30 flex h-11 w-11 items-center justify-center rounded-full border border-[var(--app-line)] bg-[rgba(255,255,255,0.9)] text-[var(--app-ink)] shadow-[var(--app-shadow-soft)] md:hidden"
           aria-label="Abrir menú lateral"
         >
           {open ? "✕" : "☰"}
         </button>
+        <div
+          className={`fixed inset-0 z-10 bg-[rgba(24,24,23,0.2)] backdrop-blur-[1px] transition-opacity md:hidden ${
+            open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          }`}
+          onClick={close}
+        />
         <aside
-          className={`app-sidebar fixed inset-y-0 left-0 z-20 mt-18 w-72 overflow-y-auto px-4 py-5 shadow-[var(--app-shadow)] transition-all duration-300 sm:sticky sm:top-18 sm:mt-0 sm:h-[calc(100vh-4.5rem)] sm:translate-x-0 ${
+          className={`app-sidebar fixed inset-y-0 left-0 z-20 mt-[4.5rem] w-72 overflow-y-auto px-4 py-5 shadow-[var(--app-shadow)] transition-transform duration-300 md:sticky md:top-[4.5rem] md:mt-0 md:h-[calc(100vh-4.5rem)] md:w-[18rem] md:translate-x-0 md:shadow-none ${
             open ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -130,7 +136,7 @@ export default function AppLayout() {
           </nav>
         </aside>
 
-        <main className="app-main relative flex-1 px-4 pb-8 pt-6 sm:px-8">
+        <main className="app-main relative min-w-0 flex-1 px-4 pb-8 pt-6 sm:px-6 md:px-8">
           <div className="app-content">
             <Outlet />
           </div>

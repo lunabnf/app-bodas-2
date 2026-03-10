@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import { useAuth } from "./store/useAuth";
 import { applyAppearanceSettings, getAppearanceSettings } from "./services/appearanceService";
-import { eventSitePaths } from "./eventSite/paths";
 
 const AppLayout = lazy(() => import("./layouts/AppLayout"));
 const MarketingLayout = lazy(() => import("./layouts/MarketingLayout"));
@@ -11,15 +10,15 @@ const MarketingHome = lazy(() => import("./pages/MarketingHome"));
 const MarketingDemo = lazy(() => import("./pages/MarketingDemo"));
 const MarketingPricing = lazy(() => import("./pages/MarketingPricing"));
 const MarketingCreateEvent = lazy(() => import("./pages/MarketingCreateEvent"));
+const BuscarBoda = lazy(() => import("./pages/BuscarBoda"));
+const WeddingAccess = lazy(() => import("./pages/WeddingAccess"));
 const Home = lazy(() => import("./pages/Home"));
-const Login = lazy(() => import("./pages/Login"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Programa = lazy(() => import("./pages/Programa"));
 const ConfirmarAsistencia = lazy(() => import("./pages/ConfirmarAsistencia"));
 const Desplazamientos = lazy(() => import("./pages/Desplazamientos"));
 const Alojamientos = lazy(() => import("./pages/Alojamientos"));
 const Mesas = lazy(() => import("./pages/Mesas"));
-const AsientosCeremonia = lazy(() => import("./pages/AsientosCeremonia"));
 const CountdownPage = lazy(() => import("./pages/Countdown"));
 const Musica = lazy(() => import("./pages/Musica"));
 const Fotos = lazy(() => import("./pages/Fotos"));
@@ -44,6 +43,21 @@ const ChatAdmin = lazy(() => import("./admin/ChatAdmin"));
 const OwnerLayout = lazy(() => import("./owner/OwnerLayout"));
 const OwnerDashboard = lazy(() => import("./owner/OwnerDashboard"));
 
+// TEMP DEV: abrir panel de boda sin bloquear por roles/auth para revisión visual y de rutas.
+const DEV_OPEN_WEDDING_ADMIN = true;
+
+function PanelPlaceholder({ title }: { title: string }) {
+  return (
+    <div className="app-surface p-8 text-[var(--app-ink)]">
+      <p className="app-kicker">Temporal</p>
+      <h1 className="app-page-title mt-4">{title}</h1>
+      <p className="mt-3 text-[var(--app-muted)]">
+        Esta vista aún no tiene implementación específica y se mantiene como placeholder.
+      </p>
+    </div>
+  );
+}
+
 function RouteFallback() {
   return (
     <div className="min-h-screen bg-[var(--app-bg)] px-6 py-10 text-[var(--app-ink)]">
@@ -58,15 +72,16 @@ function RouteFallback() {
 }
 
 function ProtectedRoute({ children }: { children: ReactElement }) {
+  if (DEV_OPEN_WEDDING_ADMIN) return children;
   const esAdmin = useAuth((s) => s.esAdmin);
   const esOwner = useAuth((s) => s.esOwner);
-  if (!esAdmin && !esOwner) return <Navigate to="/acceso" replace />;
+  if (!esAdmin && !esOwner) return <Navigate to="/buscar-boda" replace />;
   return children;
 }
 
 function OwnerProtectedRoute({ children }: { children: ReactElement }) {
   const esOwner = useAuth((s) => s.esOwner);
-  if (!esOwner) return <Navigate to="/acceso" replace />;
+  if (!esOwner) return <Navigate to="/buscar-boda" replace />;
   return children;
 }
 
@@ -74,76 +89,119 @@ function Root() {
   return (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
+        {/* 1) Landing comercial */}
         <Route element={<MarketingLayout />}>
           <Route path="/" element={<MarketingHome />} />
           <Route path="/demo" element={<MarketingDemo />} />
           <Route path="/pricing" element={<MarketingPricing />} />
-          <Route path="/crear-evento" element={<MarketingCreateEvent />} />
+          <Route path="/crear-boda" element={<MarketingCreateEvent />} />
         </Route>
+        <Route path="/crear-evento" element={<Navigate to="/crear-boda" replace />} />
+        <Route path="/buscar-boda" element={<BuscarBoda />} />
+        <Route path="/acceso" element={<Navigate to="/buscar-boda" replace />} />
+        <Route path="/login" element={<Navigate to="/buscar-boda" replace />} />
+        <Route path="/w/:slug/acceso" element={<WeddingAccess />} />
 
+        {/* 2) Zona pública de boda */}
         <Route element={<AppLayout />}>
-          <Route path={eventSitePaths.home} element={<Home />} />
-          <Route path={eventSitePaths.contacto} element={<div>Contacto</div>} />
-
-          <Route path={eventSitePaths.programa} element={<Programa />} />
-          <Route path={eventSitePaths.confirmarAsistencia} element={<ConfirmarAsistencia />} />
-          <Route path={eventSitePaths.desplazamientos} element={<Desplazamientos />} />
-          <Route path={eventSitePaths.alojamientos} element={<Alojamientos />} />
-          <Route path={eventSitePaths.participaConfirmacion} element={<ConfirmarAsistencia />} />
-          <Route path={eventSitePaths.participaMesas} element={<Mesas />} />
-          <Route path={eventSitePaths.participaAsientos} element={<AsientosCeremonia />} />
-          <Route path={eventSitePaths.participaMusica} element={<Musica />} />
-          <Route path={eventSitePaths.participaChat} element={<ChatPage />} />
-          <Route path={eventSitePaths.participaFotos} element={<Fotos />} />
-          <Route path={eventSitePaths.countdown} element={<CountdownPage />} />
+          <Route path="/w/:slug" element={<Home />} />
+          <Route path="/w/:slug/programa" element={<Programa />} />
+          <Route path="/w/:slug/rsvp" element={<ConfirmarAsistencia />} />
+          <Route path="/w/:slug/rsvp/:token" element={<IdentificarInvitado />} />
+          <Route path="/w/:slug/alojamientos" element={<Alojamientos />} />
+          <Route path="/w/:slug/desplazamientos" element={<Desplazamientos />} />
+          <Route path="/w/:slug/mesas" element={<Mesas />} />
+          <Route path="/w/:slug/chat" element={<ChatPage />} />
+          <Route path="/w/:slug/musica" element={<Musica />} />
+          <Route path="/w/:slug/fotos" element={<Fotos />} />
+          <Route path="/w/:slug/contacto" element={<div>Contacto</div>} />
+          <Route path="/w/:slug/countdown" element={<CountdownPage />} />
           <Route path="/evento/:slug/rsvp/:token" element={<IdentificarInvitado />} />
         </Route>
 
-        <Route path="/contacto" element={<Navigate to={eventSitePaths.contacto} replace />} />
-        <Route path="/programa" element={<Navigate to={eventSitePaths.programa} replace />} />
+        {/* 3) Zona admin de boda */}
         <Route
-          path="/confirmar-asistencia"
-          element={<Navigate to={eventSitePaths.confirmarAsistencia} replace />}
-        />
-        <Route
-          path="/info/desplazamientos"
-          element={<Navigate to={eventSitePaths.desplazamientos} replace />}
-        />
-        <Route
-          path="/info/alojamientos"
-          element={<Navigate to={eventSitePaths.alojamientos} replace />}
-        />
-        <Route
-          path="/participa/confirmar-asistencia"
-          element={<Navigate to={eventSitePaths.participaConfirmacion} replace />}
-        />
-        <Route
-          path="/participa/mesas"
-          element={<Navigate to={eventSitePaths.participaMesas} replace />}
-        />
-        <Route
-          path="/participa/asientos-ceremonia"
-          element={<Navigate to={eventSitePaths.participaAsientos} replace />}
-        />
-        <Route
-          path="/participa/musica"
-          element={<Navigate to={eventSitePaths.participaMusica} replace />}
-        />
-        <Route
-          path="/participa/chat"
-          element={<Navigate to={eventSitePaths.participaChat} replace />}
-        />
-        <Route
-          path="/participa/fotos"
-          element={<Navigate to={eventSitePaths.participaFotos} replace />}
-        />
-        <Route path="/countdown" element={<Navigate to={eventSitePaths.countdown} replace />} />
-        <Route path="/evento/demo/rsvp/:token" element={<IdentificarInvitado />} />
-        <Route path="/rsvp/:token" element={<IdentificarInvitado />} />
+          path="/w/:slug/admin"
+          element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Resumen />} />
+          <Route path="invitados" element={<InvitadosAdmin />} />
+          <Route path="programa" element={<ProgramaAdmin />} />
+          <Route path="alojamientos" element={<AlojamientoAdmin />} />
+          <Route path="desplazamientos" element={<DesplazamientoAdmin />} />
+          <Route path="mesas" element={<MesasAdmin />} />
+          <Route path="chat" element={<ChatAdmin />} />
+          <Route path="musica" element={<PanelPlaceholder title="Música del Evento" />} />
+          <Route path="presupuesto" element={<PresupuestoAdmin />} />
+          <Route path="ajustes" element={<AjustesAdmin />} />
+          {/* Compat interna panel */}
+          <Route path="resumen" element={<Resumen />} />
+          <Route path="ceremonia" element={<CeremoniaAdmin />} />
+          <Route path="checklist" element={<ChecklistAdmin />} />
+          <Route path="agenda" element={<AgendaAdmin />} />
+          <Route path="archivos" element={<ArchivosAdmin />} />
+          <Route path="actividad" element={<ActividadAdmin />} />
+        </Route>
+
+        {/* Compat temporal con rutas antiguas públicas */}
+        <Route path="/evento/demo" element={<Navigate to="/w/demo" replace />} />
+        <Route path="/evento/demo/programa" element={<Navigate to="/w/demo/programa" replace />} />
+        <Route path="/evento/demo/confirmar-asistencia" element={<Navigate to="/w/demo/rsvp" replace />} />
+        <Route path="/evento/demo/info/alojamientos" element={<Navigate to="/w/demo/alojamientos" replace />} />
+        <Route path="/evento/demo/info/desplazamientos" element={<Navigate to="/w/demo/desplazamientos" replace />} />
+        <Route path="/evento/demo/participa/mesas" element={<Navigate to="/w/demo/mesas" replace />} />
+        <Route path="/evento/demo/participa/chat" element={<Navigate to="/w/demo/chat" replace />} />
+        <Route path="/evento/demo/participa/musica" element={<Navigate to="/w/demo/musica" replace />} />
+        <Route path="/evento/demo/participa/fotos" element={<Navigate to="/w/demo/fotos" replace />} />
+        <Route path="/evento/demo/rsvp/:token" element={<Navigate to="/w/demo/rsvp/:token" replace />} />
+        <Route path="/contacto" element={<Navigate to="/w/demo/contacto" replace />} />
+        <Route path="/programa" element={<Navigate to="/w/demo/programa" replace />} />
+        <Route path="/confirmar-asistencia" element={<Navigate to="/w/demo/rsvp" replace />} />
+        <Route path="/info/desplazamientos" element={<Navigate to="/w/demo/desplazamientos" replace />} />
+        <Route path="/info/alojamientos" element={<Navigate to="/w/demo/alojamientos" replace />} />
+        <Route path="/participa/confirmar-asistencia" element={<Navigate to="/w/demo/rsvp" replace />} />
+        <Route path="/participa/mesas" element={<Navigate to="/w/demo/mesas" replace />} />
+        <Route path="/participa/asientos-ceremonia" element={<Navigate to="/w/demo/mesas" replace />} />
+        <Route path="/participa/musica" element={<Navigate to="/w/demo/musica" replace />} />
+        <Route path="/participa/chat" element={<Navigate to="/w/demo/chat" replace />} />
+        <Route path="/participa/fotos" element={<Navigate to="/w/demo/fotos" replace />} />
+        <Route path="/countdown" element={<Navigate to="/w/demo/countdown" replace />} />
+        <Route path="/rsvp/:token" element={<Navigate to="/w/demo/rsvp/:token" replace />} />
         <Route path="/rsvp/:slug/:token" element={<IdentificarInvitado />} />
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/acceso" element={<Login />} />
+        {/* Compat temporal panel antiguo */}
+        <Route path="/app/eventos/:eventId" element={<Navigate to="/w/demo/admin" replace />} />
+        <Route path="/app/eventos/:eventId/invitados" element={<Navigate to="/w/demo/admin/invitados" replace />} />
+        <Route path="/app/eventos/:eventId/programa" element={<Navigate to="/w/demo/admin/programa" replace />} />
+        <Route path="/app/eventos/:eventId/alojamientos" element={<Navigate to="/w/demo/admin/alojamientos" replace />} />
+        <Route path="/app/eventos/:eventId/desplazamientos" element={<Navigate to="/w/demo/admin/desplazamientos" replace />} />
+        <Route path="/app/eventos/:eventId/mesas" element={<Navigate to="/w/demo/admin/mesas" replace />} />
+        <Route path="/app/eventos/:eventId/chat" element={<Navigate to="/w/demo/admin/chat" replace />} />
+        <Route path="/app/eventos/:eventId/musica" element={<Navigate to="/w/demo/admin/musica" replace />} />
+        <Route path="/app/eventos/:eventId/presupuesto" element={<Navigate to="/w/demo/admin/presupuesto" replace />} />
+        <Route path="/app/eventos/:eventId/ajustes" element={<Navigate to="/w/demo/admin/ajustes" replace />} />
+        <Route
+          path="/admin"
+          element={<Navigate to="/w/demo/admin" replace />}
+        />
+        <Route path="/admin/invitados" element={<Navigate to="/w/demo/admin/invitados" replace />} />
+        <Route path="/admin/programa" element={<Navigate to="/w/demo/admin/programa" replace />} />
+        <Route path="/admin/alojamiento" element={<Navigate to="/w/demo/admin/alojamientos" replace />} />
+        <Route path="/admin/desplazamiento" element={<Navigate to="/w/demo/admin/desplazamientos" replace />} />
+        <Route path="/admin/mesas" element={<Navigate to="/w/demo/admin/mesas" replace />} />
+        <Route path="/admin/chat" element={<Navigate to="/w/demo/admin/chat" replace />} />
+        <Route path="/admin/presupuesto" element={<Navigate to="/w/demo/admin/presupuesto" replace />} />
+        <Route path="/admin/ajustes" element={<Navigate to="/w/demo/admin/ajustes" replace />} />
+        <Route path="/admin/resumen" element={<Navigate to="/w/demo/admin" replace />} />
+        <Route
+          path="/admin/*"
+          element={<Navigate to="/w/demo/admin" replace />}
+        />
+
         <Route
           path="/owner"
           element={
@@ -153,30 +211,6 @@ function Root() {
           }
         >
           <Route index element={<OwnerDashboard />} />
-        </Route>
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="/admin/resumen" replace />} />
-          <Route path="resumen" element={<Resumen />} />
-          <Route path="invitados" element={<InvitadosAdmin />} />
-          <Route path="mesas" element={<MesasAdmin />} />
-          <Route path="ceremonia" element={<CeremoniaAdmin />} />
-          <Route path="presupuesto" element={<PresupuestoAdmin />} />
-          <Route path="checklist" element={<ChecklistAdmin />} />
-          <Route path="agenda" element={<AgendaAdmin />} />
-          <Route path="archivos" element={<ArchivosAdmin />} />
-          <Route path="ajustes" element={<AjustesAdmin />} />
-          <Route path="programa" element={<ProgramaAdmin />} />
-          <Route path="alojamiento" element={<AlojamientoAdmin />} />
-          <Route path="desplazamiento" element={<DesplazamientoAdmin />} />
-          <Route path="actividad" element={<ActividadAdmin />} />
-          <Route path="chat" element={<ChatAdmin />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

@@ -2,7 +2,7 @@ import { Link, Outlet } from "react-router-dom";
 
 export default function OwnerLayout() {
   return (
-    <div className="min-h-screen bg-[var(--app-bg)] text-[var(--app-ink)] px-6 py-8 sm:px-10">
+    <div className="min-h-screen bg-[var(--app-bg)] px-4 py-6 text-[var(--app-ink)] sm:px-6 sm:py-8 lg:px-10">
       <div className="mx-auto max-w-6xl space-y-6">
         <header className="app-surface p-6 sm:p-8">
           <p className="app-kicker">Owner</p>
@@ -15,7 +15,7 @@ export default function OwnerLayout() {
               <Link to="/" className="app-button-secondary inline-flex">
                 Marketing
               </Link>
-              <Link to="/acceso" className="app-button-secondary inline-flex">
+              <Link to="/buscar-boda" className="app-button-secondary inline-flex">
                 Acceso
               </Link>
             </div>

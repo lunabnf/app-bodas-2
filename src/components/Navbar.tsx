@@ -1,6 +1,6 @@
 // src/components/Navbar.tsx
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import { eventSitePaths } from "../eventSite/paths";
 import { getWeddingSettings } from "../services/weddingSettingsService";
 import { useAuth } from "../store/useAuth";
@@ -11,6 +11,7 @@ export default function Navbar() {
   const esOwner = useAuth((state) => state.esOwner);
   const invitado = useAuth((state) => state.invitado);
   const logout = useAuth((state) => state.logout);
+  const { slug } = useParams();
 
   const titulo =
     novio && novia ? `Boda de ${novio} y ${novia}` : "Momentos Únicos";
@@ -21,16 +22,25 @@ export default function Navbar() {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const adminPath = slug ? `/w/${slug}/admin` : "/w/demo/admin";
+  const guestPath = slug ? `/w/${slug}/rsvp` : eventSitePaths.participaConfirmacion;
+  const showWeddingAdminLink = Boolean(slug);
+  const showStandaloneWeddingAdminLink = showWeddingAdminLink && !esOwner && !esAdmin;
+
   return (
     <nav className="app-navbar text-[var(--app-ink)]">
-      <div className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 sm:px-8">
-        <div className="flex flex-col">
-          <span className="text-lg font-semibold tracking-[-0.03em] text-[var(--app-ink)] transition-colors sm:text-xl">
+      <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
+        <NavLink to="/" className="app-button-secondary hidden md:inline-flex">
+          Inicio
+        </NavLink>
+
+        <div className="min-w-0 flex-1 md:flex-none">
+          <span className="block truncate text-base font-semibold tracking-[-0.03em] text-[var(--app-ink)] transition-colors sm:text-lg lg:text-xl">
             {titulo}
           </span>
 
           {fechaTexto && (
-            <span className="mt-0.5 text-[10px] uppercase tracking-[0.22em] text-[var(--app-muted)] sm:text-xs">
+            <span className="mt-0.5 block truncate text-[10px] uppercase tracking-[0.2em] text-[var(--app-muted)] sm:text-xs">
               {fechaTexto}
             </span>
           )}
@@ -38,13 +48,21 @@ export default function Navbar() {
 
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--app-line)] bg-[rgba(255,255,255,0.9)] text-lg text-[var(--app-ink)] sm:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-[var(--app-line)] bg-[rgba(255,255,255,0.9)] text-lg text-[var(--app-ink)] md:hidden"
           aria-label="Abrir menú"
         >
           {menuOpen ? "✕" : "☰"}
         </button>
 
-        <div className="ml-auto hidden items-center gap-3 sm:flex">
+        <div className="ml-auto hidden max-w-[62%] flex-wrap items-center justify-end gap-2 md:flex">
+          {showStandaloneWeddingAdminLink ? (
+            <NavLink
+              to={adminPath}
+              className="app-button-secondary"
+            >
+              Panel de Novios
+            </NavLink>
+          ) : null}
           {esOwner ? (
             <>
               <NavLink
@@ -64,7 +82,7 @@ export default function Navbar() {
           ) : esAdmin ? (
             <>
               <NavLink
-                to="/admin/resumen"
+                to={adminPath}
                 className="app-button-secondary"
               >
                 Panel de Novios
@@ -80,7 +98,7 @@ export default function Navbar() {
           ) : invitado ? (
             <>
               <NavLink
-                to={eventSitePaths.participaConfirmacion}
+                to={guestPath}
                 className="app-button-secondary"
               >
                 Mi panel
@@ -95,7 +113,7 @@ export default function Navbar() {
             </>
           ) : (
             <NavLink
-              to="/acceso"
+              to="/buscar-boda"
               className="app-button-primary"
             >
               Acceder
@@ -105,10 +123,26 @@ export default function Navbar() {
       </div>
 
       <div
-        className={`mx-4 overflow-hidden rounded-[24px] border border-[var(--app-line)] bg-[rgba(255,255,255,0.92)] shadow-[var(--app-shadow-soft)] transition-all duration-300 sm:hidden ${
-          menuOpen ? "max-h-60 py-3 mb-3" : "max-h-0 py-0 mb-0 border-transparent"
+        className={`mx-4 overflow-hidden rounded-[24px] border border-[var(--app-line)] bg-[rgba(255,255,255,0.92)] shadow-[var(--app-shadow-soft)] transition-all duration-300 md:hidden ${
+          menuOpen ? "mb-3 max-h-80 py-3" : "mb-0 max-h-0 border-transparent py-0"
         }`}
       >
+        <NavLink
+          to="/"
+          onClick={() => setMenuOpen(false)}
+          className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
+        >
+          Inicio
+        </NavLink>
+        {showWeddingAdminLink ? (
+          <NavLink
+            to={adminPath}
+            onClick={() => setMenuOpen(false)}
+            className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
+          >
+            Panel de Novios
+          </NavLink>
+        ) : null}
         {esOwner ? (
           <>
             <NavLink
@@ -132,7 +166,7 @@ export default function Navbar() {
         ) : esAdmin ? (
           <>
             <NavLink
-              to="/admin/resumen"
+              to={adminPath}
               onClick={() => setMenuOpen(false)}
               className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
             >
@@ -152,7 +186,7 @@ export default function Navbar() {
         ) : invitado ? (
           <>
             <NavLink
-              to={eventSitePaths.participaConfirmacion}
+              to={guestPath}
               onClick={() => setMenuOpen(false)}
               className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
             >
@@ -171,7 +205,7 @@ export default function Navbar() {
           </>
         ) : (
           <NavLink
-            to="/acceso"
+            to="/buscar-boda"
             onClick={() => setMenuOpen(false)}
             className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
           >

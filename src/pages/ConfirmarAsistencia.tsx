@@ -165,8 +165,8 @@ export default function ConfirmarAsistencia() {
   }
 
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center text-white bg-black/50 backdrop-blur-md px-6 py-10">
-      <h1 className="text-4xl font-bold text-pink-300 mb-6">💌 Confirmar asistencia</h1>
+    <section className="flex min-h-screen flex-col items-center justify-center bg-black/50 px-4 py-8 text-white backdrop-blur-md sm:px-6 sm:py-10">
+      <h1 className="mb-6 text-center text-3xl font-bold text-pink-300 sm:text-4xl">💌 Confirmar asistencia</h1>
 
       {!invitado ? (
         <div className="w-full max-w-2xl rounded-lg border border-white/15 bg-white/10 p-6 text-center">
@@ -182,7 +182,7 @@ export default function ConfirmarAsistencia() {
           >
             <div>
               <span className="block text-sm text-white/70 mb-2">¿Asistirás a la boda?</span>
-              <div className="flex gap-6">
+              <div className="flex flex-wrap gap-6">
                 <label className="inline-flex items-center gap-2">
                   <input
                     type="radio"

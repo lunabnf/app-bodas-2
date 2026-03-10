@@ -26,7 +26,7 @@ const plans = [
 
 export default function MarketingPricing() {
   return (
-    <main className="min-h-screen bg-[var(--app-bg)] px-6 py-8 text-[var(--app-ink)] sm:px-8">
+    <main className="min-h-screen bg-[var(--app-bg)] px-4 py-6 text-[var(--app-ink)] sm:px-6 sm:py-8 lg:px-8">
       <section className="mx-auto max-w-6xl space-y-6">
         <div className="app-surface p-8 sm:p-12">
           <p className="app-kicker">Planes</p>
@@ -41,7 +41,7 @@ export default function MarketingPricing() {
           {plans.map((plan) => (
             <article key={plan.name} className="app-surface-soft p-7">
               <p className="app-kicker">{plan.name}</p>
-              <p className="mt-4 text-4xl font-semibold tracking-[-0.05em]">{plan.price}</p>
+              <p className="mt-4 text-3xl font-semibold tracking-[-0.05em] sm:text-4xl">{plan.price}</p>
               <p className="mt-4 app-prose">{plan.description}</p>
               <ul className="mt-5 space-y-2 text-sm text-[var(--app-muted)]">
                 {plan.items.map((item) => (
@@ -72,7 +72,7 @@ export default function MarketingPricing() {
               <Link to="/demo" className="app-button-secondary text-center">
                 Volver a demo
               </Link>
-              <Link to="/acceso" className="app-button-primary text-center">
+              <Link to="/buscar-boda" className="app-button-primary text-center">
                 Ya tengo acceso
               </Link>
             </div>

@@ -4,8 +4,8 @@ export default function Programa() {
   const eventos = getWeddingProgram();
 
   return (
-    <section className="text-white p-6 space-y-4">
-      <h1 className="text-2xl font-bold">Programa del día</h1>
+    <section className="space-y-4 px-4 py-4 text-white sm:px-6">
+      <h1 className="text-2xl font-bold sm:text-3xl">Programa del día</h1>
       {eventos.length === 0 ? (
         <p>No hay eventos configurados aún.</p>
       ) : (

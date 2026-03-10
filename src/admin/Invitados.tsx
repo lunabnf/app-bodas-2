@@ -52,9 +52,9 @@ export default function Invitados() {
   };
 
   return (
-    <div className="min-h-screen bg-black/40 text-white p-6 backdrop-blur-md">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-pink-400">Gestión de invitados</h1>
+    <div className="bg-black/40 px-4 py-4 text-white backdrop-blur-md sm:px-6">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold text-pink-400 sm:text-3xl">Gestión de invitados</h1>
         <button onClick={abrirModal} className="bg-pink-500 hover:bg-pink-400 text-white px-4 py-2 rounded-md transition">
           + Añadir invitado
         </button>
@@ -86,7 +86,7 @@ export default function Invitados() {
       </div>
 
       {/* Filtros */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center">
         <input
           type="text"
           placeholder="Buscar por nombre..."
@@ -95,7 +95,7 @@ export default function Invitados() {
           onChange={(e) => setBusqueda(e.target.value)}
         />
         <select
-          className="bg-white/10 border border-white/20 rounded-md p-2 text-white focus:ring-2 focus:ring-pink-400"
+          className="w-full bg-white/10 border border-white/20 rounded-md p-2 text-white focus:ring-2 focus:ring-pink-400 sm:w-auto"
           value={filtro}
           onChange={(e) => setFiltro(e.target.value)}
         >
@@ -108,7 +108,7 @@ export default function Invitados() {
 
       {/* Tabla de invitados */}
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+        <table className="min-w-[760px] w-full text-left border-collapse">
           <thead>
             <tr className="bg-white/10">
               <th className="p-3 border-b border-white/10">Nombre</th>
@@ -174,8 +174,8 @@ export default function Invitados() {
 
       {/* Modal */}
       {mostrarModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white bg-opacity-90 backdrop-blur-md rounded-lg p-6 w-full max-w-md text-black">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white bg-opacity-90 p-6 text-black backdrop-blur-md">
             <h2 className="text-2xl font-bold mb-4">Añadir nuevo invitado</h2>
             <form
               onSubmit={(e) => {
@@ -309,8 +309,8 @@ export default function Invitados() {
       )}
 
       {mostrarQR && invitadoQR && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50">
-          <div className="bg-white bg-opacity-90 backdrop-blur-md rounded-lg p-6 text-center text-black shadow-xl w-[320px]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4">
+          <div className="w-full max-w-[320px] rounded-lg bg-white bg-opacity-90 p-6 text-center text-black shadow-xl backdrop-blur-md">
             <h2 className="text-xl font-bold mb-3">QR de {invitadoQR.nombre}</h2>
             <QRCodeCanvas
               value={`https://bodaleticiayeric.com/rsvp/${invitadoQR.token}`}
