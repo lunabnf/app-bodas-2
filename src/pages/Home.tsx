@@ -12,7 +12,7 @@ export default function Home() {
     <section className="mx-auto max-w-6xl px-4 pb-12 pt-8 sm:px-6 md:pb-16 md:pt-10 lg:px-8">
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <div className="app-surface p-8 sm:p-12">
-          <p className="app-kicker">Wedding OS</p>
+          <p className="app-kicker">Lazo</p>
           <h1 className="app-title mt-4">
             La forma más clara de organizar una boda con calma.
           </h1>

@@ -12,6 +12,7 @@ import {
   syncChildForms,
 } from "../application/guestParticipationService";
 import { useAuth } from "../store/useAuth";
+import BrandMark from "../components/BrandMark";
 
 type RSVP = RsvpAttendance;
 
@@ -166,6 +167,7 @@ export default function ConfirmarAsistencia() {
 
   return (
     <section className="flex min-h-screen flex-col items-center justify-center bg-black/50 px-4 py-8 text-white backdrop-blur-md sm:px-6 sm:py-10">
+      <BrandMark variant="light" className="mb-5 h-9 w-auto" alt="Lazo" />
       <h1 className="mb-6 text-center text-3xl font-bold text-pink-300 sm:text-4xl">💌 Confirmar asistencia</h1>
 
       {!invitado ? (

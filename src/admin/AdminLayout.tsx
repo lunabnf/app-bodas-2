@@ -3,6 +3,7 @@ import { Outlet, Link, useParams } from "react-router-dom";
 import { eventSitePaths } from "../eventSite/paths";
 import { useAuth } from "../store/useAuth";
 import { getOwnerEventContext } from "../services/ownerEventContextService";
+import BrandMark from "../components/BrandMark";
 
 export default function AdminLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -37,10 +38,10 @@ export default function AdminLayout() {
             menuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
+          <Link to="/" onClick={closeMenu} className="inline-flex items-center rounded-xl px-1 py-1">
+            <BrandMark variant="main" className="h-8 w-auto" />
+          </Link>
           <div className="flex flex-wrap gap-2">
-            <Link to="/" onClick={closeMenu} className="app-button-secondary inline-flex">
-              Inicio
-            </Link>
             <Link
               to={publicWeddingPath}
               onClick={closeMenu}
@@ -98,7 +99,6 @@ export default function AdminLayout() {
         <main className="app-admin-main min-w-0 px-4 pb-6 pt-20 sm:px-6 sm:pb-8 sm:pt-24 md:px-6 md:py-8 lg:px-8">
           <div className="app-admin-content">
             <div className="app-surface-soft mb-4 flex flex-wrap items-center gap-2 p-3 md:hidden">
-              <Link to="/" className="app-button-secondary inline-flex">Inicio</Link>
               <Link to={publicWeddingPath} className="app-button-secondary inline-flex">Ver boda</Link>
             </div>
             <Outlet />

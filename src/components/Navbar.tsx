@@ -4,6 +4,7 @@ import { NavLink, useParams } from "react-router-dom";
 import { eventSitePaths } from "../eventSite/paths";
 import { getWeddingSettings } from "../services/weddingSettingsService";
 import { useAuth } from "../store/useAuth";
+import BrandMark from "./BrandMark";
 
 export default function Navbar() {
   const { novio, novia, fecha, hora } = getWeddingSettings();
@@ -14,7 +15,7 @@ export default function Navbar() {
   const { slug } = useParams();
 
   const titulo =
-    novio && novia ? `Boda de ${novio} y ${novia}` : "Momentos Únicos";
+    novio && novia ? `Boda de ${novio} y ${novia}` : "Lazo";
 
   const fechaTexto = fecha
     ? `${fecha}${hora ? " · " + hora : ""}`
@@ -30,8 +31,15 @@ export default function Navbar() {
   return (
     <nav className="app-navbar text-[var(--app-ink)]">
       <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
-        <NavLink to="/" className="app-button-secondary hidden md:inline-flex">
-          Inicio
+        <NavLink
+          to="/"
+          className="inline-flex items-center gap-2 rounded-full border border-[var(--app-line)] bg-[rgba(255,255,255,0.72)] px-2 py-1.5"
+          aria-label="Ir al inicio"
+        >
+          <BrandMark variant="icon" className="h-7 w-7 rounded-full object-cover" />
+          <span className="hidden text-sm font-semibold tracking-[-0.02em] text-[var(--app-ink)] lg:inline">
+            Lazo
+          </span>
         </NavLink>
 
         <div className="min-w-0 flex-1 md:flex-none">
@@ -127,13 +135,6 @@ export default function Navbar() {
           menuOpen ? "mb-3 max-h-80 py-3" : "mb-0 max-h-0 border-transparent py-0"
         }`}
       >
-        <NavLink
-          to="/"
-          onClick={() => setMenuOpen(false)}
-          className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
-        >
-          Inicio
-        </NavLink>
         {showWeddingAdminLink ? (
           <NavLink
             to={adminPath}

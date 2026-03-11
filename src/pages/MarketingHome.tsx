@@ -6,7 +6,7 @@ export default function MarketingHome() {
     <main className="min-h-screen bg-[var(--app-bg)] px-4 py-6 text-[var(--app-ink)] sm:px-6 sm:py-8 lg:px-8">
       <section className="mx-auto max-w-6xl space-y-6">
         <div className="app-surface p-8 sm:p-12">
-          <p className="app-kicker">Wedding SaaS</p>
+          <p className="app-kicker">Lazo</p>
           <h1 className="app-title mt-4 max-w-4xl">
             Cread vuestra web de boda, gestionad invitados y organizad todo el evento desde un
             mismo sitio.

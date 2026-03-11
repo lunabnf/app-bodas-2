@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ReactElement, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import { useAuth } from "./store/useAuth";
 import { applyAppearanceSettings, getAppearanceSettings } from "./services/appearanceService";
@@ -83,6 +83,16 @@ function OwnerProtectedRoute({ children }: { children: ReactElement }) {
   const esOwner = useAuth((s) => s.esOwner);
   if (!esOwner) return <Navigate to="/buscar-boda" replace />;
   return children;
+}
+
+function ScrollToTopOnRouteChange() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
+
+  return null;
 }
 
 function Root() {
@@ -225,6 +235,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <ScrollToTopOnRouteChange />
       <Root />
     </BrowserRouter>
   );

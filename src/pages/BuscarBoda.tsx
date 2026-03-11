@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { searchWeddings } from "../data/weddingsMock";
+import BrandMark from "../components/BrandMark";
 
 export default function BuscarBoda() {
   const [query, setQuery] = useState("");
@@ -10,6 +11,7 @@ export default function BuscarBoda() {
     <main className="min-h-screen bg-[var(--app-bg)] px-4 py-6 text-[var(--app-ink)] sm:px-6 sm:py-8 lg:px-8">
       <section className="mx-auto max-w-5xl space-y-6">
         <div className="app-surface p-8 sm:p-12">
+          <BrandMark variant="main" className="mb-4 h-10 w-auto" />
           <div className="mb-5">
             <Link to="/" className="app-button-secondary inline-flex">
               Inicio
