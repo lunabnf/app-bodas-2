@@ -2,7 +2,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import BrandMark from "../components/BrandMark";
 
 function linkClass({ isActive }: { isActive: boolean }) {
-  return `app-nav-link shrink-0 whitespace-nowrap text-sm sm:text-base ${isActive ? "app-nav-link-active" : ""}`;
+  return `app-nav-link shrink-0 whitespace-nowrap text-sm sm:text-base`;
 }
 
 export default function MarketingLayout() {
@@ -15,26 +15,26 @@ export default function MarketingLayout() {
           </NavLink>
 
           <nav className="hidden items-center gap-2 lg:flex">
-            <NavLink to="/demo" className={linkClass}>
-              Demo
+            <NavLink to="/" end className={linkClass}>
+              Inicio
             </NavLink>
             <NavLink to="/pricing" className={linkClass}>
               Planes
             </NavLink>
             <NavLink to="/buscar-boda" className="app-button-primary">
-              Empezar
+              Entrar
             </NavLink>
           </nav>
         </div>
         <div className="mx-auto flex w-full max-w-6xl gap-2 overflow-x-auto px-4 pb-4 sm:px-6 lg:hidden">
-          <NavLink to="/demo" className={linkClass}>
-            Demo
+          <NavLink to="/" end className={linkClass}>
+            Inicio
           </NavLink>
           <NavLink to="/pricing" className={linkClass}>
             Planes
           </NavLink>
           <NavLink to="/buscar-boda" className="app-button-primary">
-            Empezar
+            Entrar
           </NavLink>
         </div>
       </header>
@@ -42,22 +42,8 @@ export default function MarketingLayout() {
       <Outlet />
 
       <footer className="border-t border-[var(--app-line)] bg-[rgba(255,255,255,0.52)]">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-6 text-sm text-[var(--app-muted)] sm:px-8 md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto max-w-6xl px-6 py-6 text-sm text-[var(--app-muted)] sm:px-8">
           <p>Plataforma de bodas en evolución: marketing, onboarding y evento separados.</p>
-          <div className="flex flex-wrap gap-4">
-            <NavLink to="/" className="hover:text-[var(--app-ink)]">
-              Inicio
-            </NavLink>
-            <NavLink to="/demo" className="hover:text-[var(--app-ink)]">
-              Demo
-            </NavLink>
-            <NavLink to="/pricing" className="hover:text-[var(--app-ink)]">
-              Planes
-            </NavLink>
-            <NavLink to="/buscar-boda" className="hover:text-[var(--app-ink)]">
-              Acceso
-            </NavLink>
-          </div>
         </div>
       </footer>
     </div>

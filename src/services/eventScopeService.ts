@@ -6,6 +6,7 @@ const DEFAULT_EVENT_ID = "evt-demo";
 
 type StoredAuth = {
   esOwner?: boolean;
+  esSuperAdmin?: boolean;
   currentEventId?: string | null;
 };
 
@@ -30,7 +31,7 @@ export function getActiveEventId(): string {
   }
 
   const ownerContext = getOwnerEventContext();
-  if (auth?.esOwner && ownerContext?.eventId) {
+  if ((auth?.esOwner || auth?.esSuperAdmin) && ownerContext?.eventId) {
     return ownerContext.eventId;
   }
 

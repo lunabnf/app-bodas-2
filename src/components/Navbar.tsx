@@ -9,7 +9,7 @@ import BrandMark from "./BrandMark";
 export default function Navbar() {
   const { novio, novia, fecha, hora } = getWeddingSettings();
   const esAdmin = useAuth((state) => state.esAdmin);
-  const esOwner = useAuth((state) => state.esOwner);
+  const esSuperAdmin = useAuth((state) => state.esSuperAdmin);
   const invitado = useAuth((state) => state.invitado);
   const logout = useAuth((state) => state.logout);
   const { slug } = useParams();
@@ -26,7 +26,7 @@ export default function Navbar() {
   const adminPath = slug ? `/w/${slug}/admin` : "/w/demo/admin";
   const guestPath = slug ? `/w/${slug}/rsvp` : eventSitePaths.participaConfirmacion;
   const showWeddingAdminLink = Boolean(slug);
-  const showStandaloneWeddingAdminLink = showWeddingAdminLink && !esOwner && !esAdmin;
+  const showStandaloneWeddingAdminLink = showWeddingAdminLink && !esAdmin;
 
   return (
     <nav className="app-navbar text-[var(--app-ink)]">
@@ -71,14 +71,8 @@ export default function Navbar() {
               Panel de Novios
             </NavLink>
           ) : null}
-          {esOwner ? (
+          {esSuperAdmin ? (
             <>
-              <NavLink
-                to="/owner"
-                className="app-button-secondary"
-              >
-                Panel Owner
-              </NavLink>
               <button
                 type="button"
                 onClick={logout}
@@ -144,15 +138,8 @@ export default function Navbar() {
             Panel de Novios
           </NavLink>
         ) : null}
-        {esOwner ? (
+        {esSuperAdmin ? (
           <>
-            <NavLink
-              to="/owner"
-              onClick={() => setMenuOpen(false)}
-              className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
-            >
-              Panel Owner
-            </NavLink>
             <button
               type="button"
               onClick={() => {

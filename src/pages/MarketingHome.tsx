@@ -1,129 +1,84 @@
 import { Link } from "react-router-dom";
-import { eventSitePaths } from "../eventSite/paths";
+import { loadMarketingContent } from "../services/marketingContentService";
 
 export default function MarketingHome() {
+  const content = loadMarketingContent();
+
   return (
     <main className="min-h-screen bg-[var(--app-bg)] px-4 py-6 text-[var(--app-ink)] sm:px-6 sm:py-8 lg:px-8">
       <section className="mx-auto max-w-6xl space-y-6">
         <div className="app-surface p-8 sm:p-12">
           <p className="app-kicker">Lazo</p>
-          <h1 className="app-title mt-4 max-w-4xl">
-            Cread vuestra web de boda, gestionad invitados y organizad todo el evento desde un
-            mismo sitio.
-          </h1>
-          <p className="app-subtitle mt-6 max-w-3xl">
-            Una plataforma para registrar novios, activar su evento, compartir la web con los
-            invitados y centralizar RSVP, logística, música, chat y fotos en una experiencia
-            premium.
-          </p>
+          <h1 className="app-title mt-4 max-w-5xl">{content.hero.title}</h1>
+          <p className="app-subtitle mt-6 max-w-4xl">{content.hero.subtitle}</p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link to="/pricing" className="app-button-primary text-center">
-              Ver planes
+            <Link to={content.hero.primaryCtaHref} className="app-button-primary text-center">
+              {content.hero.primaryCtaLabel}
             </Link>
-            <Link to="/demo" className="app-button-secondary text-center">
-              Ver demo de boda
-            </Link>
-            <Link to="/buscar-boda" className="app-button-secondary text-center">
-              Ya tengo acceso
+            <Link to={content.hero.secondaryCtaHref} className="app-button-secondary text-center">
+              {content.hero.secondaryCtaLabel}
             </Link>
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <article className="app-surface-soft p-7">
-            <p className="app-kicker">Producto</p>
-            <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
-              Landing comercial, onboarding de novios y web de evento separada.
-            </h2>
-            <p className="mt-4 app-prose">
-              La idea es convertir la web actual de boda en la experiencia final del evento, y usar
-              esta portada para captar clientes, enseñar la demo y activar nuevas bodas sin mezclar
-              marketing con la experiencia de invitados.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link to={eventSitePaths.home} className="app-button-secondary">
-                Entrar en la web demo
-              </Link>
-              <Link to="/demo" className="app-button-secondary">
-                Ver demo
-              </Link>
-              <Link to="/pricing" className="app-button-secondary">
-                Ver planes
-              </Link>
-            </div>
-          </article>
+        <section className="app-surface-soft p-7 sm:p-8">
+          <p className="app-kicker">Cómo funciona</p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
+            {content.howItWorks.title}
+          </h2>
+          <p className="mt-3 app-prose max-w-4xl">{content.howItWorks.subtitle}</p>
 
-          <div className="app-grid-cards">
-            <article className="app-surface-soft p-7">
-              <p className="app-kicker">Demo</p>
-              <p className="mt-3 text-2xl font-semibold tracking-[-0.03em]">
-                Explora una boda ejemplo antes de contratar.
-              </p>
-              <p className="mt-4 app-prose">
-                Programa, participación, login de invitados y panel de novios sobre una boda demo.
-              </p>
-              <div className="mt-5">
-                <Link to="/demo" className="text-sm font-semibold text-[var(--app-ink)]">
-                  Abrir demo
-                </Link>
-              </div>
-            </article>
-            <article className="app-surface-soft p-7">
-              <p className="app-kicker">Escalado</p>
-              <p className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Multi-evento</p>
-              <p className="mt-3 app-prose">
-                Cada boda tendrá su propio espacio, sus propios datos y su propia configuración.
-              </p>
-              <div className="mt-5">
-                <Link to="/pricing" className="text-sm font-semibold text-[var(--app-ink)]">
-                  Ver planes
-                </Link>
-              </div>
-            </article>
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {content.howItWorks.phases.map((phase) => (
+              <article key={phase.id} className="app-surface p-5">
+                <h3 className="text-xl font-semibold tracking-[-0.02em]">{phase.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-[var(--app-muted)]">{phase.description}</p>
+              </article>
+            ))}
           </div>
-        </div>
+        </section>
 
-        <section className="grid gap-6 md:grid-cols-3">
-          <article className="app-surface-soft p-7">
-            <p className="app-kicker">1</p>
-            <h2 className="mt-3 text-xl font-semibold">Descubrir el producto</h2>
-            <p className="mt-3 app-prose">
-              Landing comercial, demo realista y explicación clara del servicio.
-            </p>
-          </article>
-          <article className="app-surface-soft p-7">
-            <p className="app-kicker">2</p>
-            <h2 className="mt-3 text-xl font-semibold">Activar la boda</h2>
-            <p className="mt-3 app-prose">
-              Registro de novios, pago y onboarding para crear el evento.
-            </p>
-          </article>
-          <article className="app-surface-soft p-7">
-            <p className="app-kicker">3</p>
-            <h2 className="mt-3 text-xl font-semibold">Gestionar invitados</h2>
-            <p className="mt-3 app-prose">
-              Panel privado para novios y experiencia guiada para invitados.
-            </p>
-          </article>
+        <section className="app-surface p-7 sm:p-8">
+          <p className="app-kicker">Valor</p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">{content.value.title}</h2>
+          <p className="mt-3 app-prose max-w-4xl">{content.value.subtitle}</p>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {content.value.items.map((item) => (
+              <article key={item.id} className="app-surface-soft p-5">
+                <h3 className="text-lg font-semibold">{item.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-[var(--app-muted)]">{item.description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="app-surface-soft p-7 sm:p-8">
+          <p className="app-kicker">Para quién es</p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">{content.audience.title}</h2>
+          <p className="mt-3 app-prose max-w-4xl">{content.audience.subtitle}</p>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {content.audience.segments.map((segment) => (
+              <article key={segment.id} className="app-surface p-5">
+                <h3 className="text-lg font-semibold">{segment.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-[var(--app-muted)]">{segment.description}</p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <section className="app-surface p-8 sm:p-10">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="app-kicker">Recorrido</p>
-              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">
-                Sigue el flujo: descubre la demo y revisa los planes.
-              </h2>
+              <p className="app-kicker">Cierre</p>
+              <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">{content.finalCta.title}</h2>
+              <p className="mt-3 app-prose max-w-3xl">{content.finalCta.subtitle}</p>
             </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link to="/demo" className="app-button-secondary text-center">
-                Siguiente: demo
-              </Link>
-              <Link to="/pricing" className="app-button-primary text-center">
-                Continuar a planes
-              </Link>
-            </div>
+            <Link to={content.finalCta.ctaHref} className="app-button-primary text-center">
+              {content.finalCta.ctaLabel}
+            </Link>
           </div>
         </section>
       </section>

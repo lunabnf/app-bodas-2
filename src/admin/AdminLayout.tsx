@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Outlet, Link, useParams } from "react-router-dom";
 import { eventSitePaths } from "../eventSite/paths";
-import { useAuth } from "../store/useAuth";
 import { getOwnerEventContext } from "../services/ownerEventContextService";
 import BrandMark from "../components/BrandMark";
 
@@ -9,7 +8,6 @@ export default function AdminLayout() {
   const [menuOpen, setMenuOpen] = useState(false);
   const closeMenu = () => setMenuOpen(false);
   const { slug } = useParams();
-  const esOwner = useAuth((state) => state.esOwner);
   const ownerEventContext = getOwnerEventContext();
   const adminBasePath = slug ? `/w/${slug}/admin` : "/admin";
   const publicWeddingPath = slug ? `/w/${slug}` : eventSitePaths.home;
@@ -53,15 +51,6 @@ export default function AdminLayout() {
               Buscar boda
             </Link>
           </div>
-          {esOwner ? (
-            <Link
-              to="/owner"
-              onClick={closeMenu}
-              className="app-button-secondary inline-flex"
-            >
-              Volver a Owner
-            </Link>
-          ) : null}
           <div className="app-surface-soft p-5">
             <p className="app-kicker">Admin</p>
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">Panel de Novios</h1>

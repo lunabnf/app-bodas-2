@@ -40,8 +40,14 @@ const AlojamientoAdmin = lazy(() => import("./admin/AlojamientoAdmin"));
 const DesplazamientoAdmin = lazy(() => import("./admin/DesplazamientoAdmin"));
 const ActividadAdmin = lazy(() => import("./admin/Actividad"));
 const ChatAdmin = lazy(() => import("./admin/ChatAdmin"));
-const OwnerLayout = lazy(() => import("./owner/OwnerLayout"));
-const OwnerDashboard = lazy(() => import("./owner/OwnerDashboard"));
+const BackofficeLayout = lazy(() => import("./backoffice/BackofficeLayout"));
+const BackofficeLogin = lazy(() => import("./backoffice/BackofficeLogin"));
+const BackofficeDashboard = lazy(() => import("./backoffice/BackofficeDashboard"));
+const BackofficeMarketing = lazy(() => import("./backoffice/BackofficeMarketing"));
+const BackofficePricing = lazy(() => import("./backoffice/BackofficePricing"));
+const BackofficeWeddings = lazy(() => import("./backoffice/BackofficeWeddings"));
+const BackofficeContent = lazy(() => import("./backoffice/BackofficeContent"));
+const BackofficeSettings = lazy(() => import("./backoffice/BackofficeSettings"));
 
 // TEMP DEV: abrir panel de boda sin bloquear por roles/auth para revisión visual y de rutas.
 const DEV_OPEN_WEDDING_ADMIN = true;
@@ -74,14 +80,14 @@ function RouteFallback() {
 function ProtectedRoute({ children }: { children: ReactElement }) {
   if (DEV_OPEN_WEDDING_ADMIN) return children;
   const esAdmin = useAuth((s) => s.esAdmin);
-  const esOwner = useAuth((s) => s.esOwner);
-  if (!esAdmin && !esOwner) return <Navigate to="/buscar-boda" replace />;
+  const esSuperAdmin = useAuth((s) => s.esSuperAdmin);
+  if (!esAdmin && !esSuperAdmin) return <Navigate to="/buscar-boda" replace />;
   return children;
 }
 
-function OwnerProtectedRoute({ children }: { children: ReactElement }) {
-  const esOwner = useAuth((s) => s.esOwner);
-  if (!esOwner) return <Navigate to="/buscar-boda" replace />;
+function SuperAdminRoute({ children }: { children: ReactElement }) {
+  const esSuperAdmin = useAuth((s) => s.esSuperAdmin);
+  if (!esSuperAdmin) return <Navigate to="/backoffice/login" replace />;
   return children;
 }
 
@@ -212,16 +218,23 @@ function Root() {
           element={<Navigate to="/w/demo/admin" replace />}
         />
 
+        <Route path="/backoffice/login" element={<BackofficeLogin />} />
         <Route
-          path="/owner"
+          path="/backoffice"
           element={
-            <OwnerProtectedRoute>
-              <OwnerLayout />
-            </OwnerProtectedRoute>
+            <SuperAdminRoute>
+              <BackofficeLayout />
+            </SuperAdminRoute>
           }
         >
-          <Route index element={<OwnerDashboard />} />
+          <Route index element={<BackofficeDashboard />} />
+          <Route path="marketing" element={<BackofficeMarketing />} />
+          <Route path="pricing" element={<BackofficePricing />} />
+          <Route path="weddings" element={<BackofficeWeddings />} />
+          <Route path="content" element={<BackofficeContent />} />
+          <Route path="settings" element={<BackofficeSettings />} />
         </Route>
+        <Route path="/owner" element={<Navigate to="/backoffice" replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
