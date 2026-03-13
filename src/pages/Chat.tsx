@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import type { ChatMessage, ChatRoom } from "../domain/chat";
 import {
   describeRoomAudience,
@@ -11,9 +12,12 @@ import {
   sendGuestChatMessage,
 } from "../application/chatApplicationService";
 import { useAuth } from "../store/useAuth";
+import { DEV_OPEN_PUBLIC_WEDDING, resolvePublicGuestSession } from "../services/devAccessService";
 
 export default function ChatPage() {
+  const { slug } = useParams();
   const invitado = useAuth((state) => state.invitado);
+  const effectiveGuest = useMemo(() => resolvePublicGuestSession(invitado, slug), [invitado, slug]);
   const esAdmin = useAuth((state) => state.esAdmin);
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState("");
@@ -22,8 +26,8 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(true);
 
   const availableRooms = useMemo(
-    () => filterAvailableChatRooms(rooms, { esAdmin, invitado }),
-    [rooms, esAdmin, invitado]
+    () => filterAvailableChatRooms(rooms, { esAdmin, invitado: effectiveGuest }),
+    [rooms, esAdmin, effectiveGuest]
   );
 
   useEffect(() => {
@@ -68,7 +72,7 @@ export default function ChatPage() {
       selectedRoomId,
       draft,
       esAdmin,
-      invitado,
+      invitado: effectiveGuest,
     });
     if (!sent) return;
 
@@ -76,7 +80,7 @@ export default function ChatPage() {
     await refreshRoomMessages(selectedRoomId);
   }
 
-  if (!esAdmin && !invitado) {
+  if (!esAdmin && !effectiveGuest) {
     return (
       <section className="app-surface mx-auto max-w-3xl p-8 sm:p-10">
         <p className="app-kicker">Chat</p>
@@ -91,13 +95,18 @@ export default function ChatPage() {
   const activeRoom = availableRooms.find((room) => room.id === selectedRoomId) ?? null;
 
   return (
-    <section className="space-y-6 px-1 py-2 sm:px-2">
+    <section className="space-y-6 px-4 py-4 sm:px-6">
       <div className="app-surface p-6 sm:p-8">
         <p className="app-kicker">Participación</p>
         <h1 className="app-page-title mt-4">Chat de la boda</h1>
         <p className="mt-3 app-subtitle">
-          Salas compartidas para invitados y novios, con acceso controlado desde el panel de administración.
+          Salas compartidas para invitados y novios, con conversación organizada por espacios.
         </p>
+        {DEV_OPEN_PUBLIC_WEDDING ? (
+          <p className="mt-3 text-sm text-[var(--app-muted)]">
+            Modo desarrollo activo: acceso abierto sin identificación.
+          </p>
+        ) : null}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
@@ -167,7 +176,7 @@ export default function ChatPage() {
                     {messages.map((message) => {
                       const ownMessage =
                         (esAdmin && message.authorType === "admin") ||
-                        (!!invitado && message.authorToken === invitado.token);
+                        (!!effectiveGuest && message.authorToken === effectiveGuest.token);
 
                       return (
                         <article

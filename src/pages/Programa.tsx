@@ -4,19 +4,27 @@ export default function Programa() {
   const eventos = getWeddingProgram();
 
   return (
-    <section className="space-y-4 px-4 py-4 text-white sm:px-6">
-      <h1 className="text-2xl font-bold sm:text-3xl">Programa del día</h1>
+    <section className="space-y-6 px-4 py-4 sm:px-6">
+      <div className="app-surface p-6 sm:p-8">
+        <p className="app-kicker">Programa</p>
+        <h1 className="app-page-title mt-4">Programa del día</h1>
+        <p className="mt-3 app-subtitle">
+          Horario principal del evento para que todos sepan qué ocurre y en qué momento.
+        </p>
+      </div>
+
       {eventos.length === 0 ? (
-        <p>No hay eventos configurados aún.</p>
+        <div className="app-surface-soft p-6">
+          <p className="text-sm text-[var(--app-muted)]">No hay eventos configurados aún.</p>
+        </div>
       ) : (
         <ul className="space-y-3">
           {eventos.map((ev) => (
-            <li
-              key={ev.id}
-              className="bg-white/10 p-4 rounded border border-white/10"
-            >
-              <p className="font-semibold">{ev.hora} — {ev.titulo}</p>
-              <p className="text-sm opacity-80">{ev.descripcion}</p>
+            <li key={ev.id} className="app-surface-soft p-5 sm:p-6">
+              <p className="text-base font-semibold text-[var(--app-ink)] sm:text-lg">
+                {ev.hora} · {ev.titulo}
+              </p>
+              <p className="mt-2 text-sm leading-7 text-[var(--app-muted)]">{ev.descripcion}</p>
             </li>
           ))}
         </ul>

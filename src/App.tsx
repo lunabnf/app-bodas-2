@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 
 import { useAuth } from "./store/useAuth";
 import { applyAppearanceSettings, getAppearanceSettings } from "./services/appearanceService";
+import { trackRouteView } from "./services/backofficeAnalyticsService";
 
 const AppLayout = lazy(() => import("./layouts/AppLayout"));
 const MarketingLayout = lazy(() => import("./layouts/MarketingLayout"));
@@ -92,11 +93,12 @@ function SuperAdminRoute({ children }: { children: ReactElement }) {
 }
 
 function ScrollToTopOnRouteChange() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, [pathname]);
+    trackRouteView(`${pathname}${search}`);
+  }, [pathname, search]);
 
   return null;
 }

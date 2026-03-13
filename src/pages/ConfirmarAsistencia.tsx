@@ -13,6 +13,8 @@ import {
 } from "../application/guestParticipationService";
 import { useAuth } from "../store/useAuth";
 import BrandMark from "../components/BrandMark";
+import { useParams } from "react-router-dom";
+import { DEV_OPEN_PUBLIC_WEDDING, resolvePublicGuestSession } from "../services/devAccessService";
 
 type RSVP = RsvpAttendance;
 
@@ -38,7 +40,9 @@ function uuid(): string {
 }
 
 export default function ConfirmarAsistencia() {
+  const { slug } = useParams();
   const invitado = useAuth((state) => state.invitado);
+  const effectiveGuest = useMemo(() => resolvePublicGuestSession(invitado, slug), [invitado, slug]);
   const [attending, setAttending] = useState<RSVP>("");
   const [numAdults, setNumAdults] = useState<number>(0);
   const [numChildren, setNumChildren] = useState<number>(0);
@@ -56,10 +60,10 @@ export default function ConfirmarAsistencia() {
   }, [numChildren]);
 
   useEffect(() => {
-    if (!invitado) return;
+    if (!effectiveGuest) return;
 
     void (async () => {
-      const existing = await loadGuestRsvpForm(invitado.token);
+      const existing = await loadGuestRsvpForm(effectiveGuest.token);
       if (!existing) return;
 
       setAttending(existing.attending);
@@ -69,7 +73,7 @@ export default function ConfirmarAsistencia() {
       setAdults(existing.adults);
       setChildren(existing.children);
     })();
-  }, [invitado]);
+  }, [effectiveGuest]);
 
   function onAdultChange<K extends keyof AdultForm>(idx: number, field: K, value: AdultForm[K]) {
     setAdults((prev) => {
@@ -150,9 +154,9 @@ export default function ConfirmarAsistencia() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!invitado) return;
+    if (!effectiveGuest) return;
     await submitGuestRsvp({
-      invitado,
+      invitado: effectiveGuest,
       attending,
       numAdults,
       numChildren,
@@ -166,24 +170,35 @@ export default function ConfirmarAsistencia() {
   }
 
   return (
-    <section className="flex min-h-screen flex-col items-center justify-center bg-black/50 px-4 py-8 text-white backdrop-blur-md sm:px-6 sm:py-10">
-      <BrandMark variant="light" className="mb-5 h-9 w-auto" alt="Lazo" />
-      <h1 className="mb-6 text-center text-3xl font-bold text-pink-300 sm:text-4xl">💌 Confirmar asistencia</h1>
+    <section className="space-y-6 px-4 py-4 sm:px-6">
+      <div className="app-surface p-6 sm:p-8">
+        <BrandMark variant="main" className="h-9 w-auto" alt="Lazo" />
+        <p className="app-kicker mt-4">Participación</p>
+        <h1 className="app-page-title mt-3">Confirmar asistencia</h1>
+        <p className="mt-3 app-subtitle">
+          Confirma quién asistirá y comparte datos clave para organizar el evento.
+        </p>
+      </div>
 
-      {!invitado ? (
-        <div className="w-full max-w-2xl rounded-lg border border-white/15 bg-white/10 p-6 text-center">
-          <p className="text-white/80">
+      {!effectiveGuest ? (
+        <div className="app-surface-soft w-full max-w-4xl p-6 text-center">
+          <p className="text-[var(--app-muted)]">
             Necesitas identificarte como invitado para guardar tu confirmación.
           </p>
         </div>
       ) : (
         <>
+          {DEV_OPEN_PUBLIC_WEDDING && !invitado ? (
+            <div className="w-full max-w-4xl rounded-[16px] border border-[var(--app-line)] bg-[rgba(255,255,255,0.72)] p-4 text-sm text-[var(--app-muted)]">
+              Modo desarrollo activo: formulario abierto sin identificación de invitado.
+            </div>
+          ) : null}
           <form
             onSubmit={onSubmit}
-            className="w-full max-w-2xl bg-white/10 p-6 rounded-lg shadow-lg border border-white/10 space-y-6"
+            className="app-panel w-full max-w-4xl space-y-6 p-5 sm:p-6"
           >
             <div>
-              <span className="block text-sm text-white/70 mb-2">¿Asistirás a la boda?</span>
+              <span className="block text-sm text-[var(--app-muted)] mb-2">¿Asistirás a la boda?</span>
               <div className="flex flex-wrap gap-6">
                 <label className="inline-flex items-center gap-2">
                   <input
@@ -213,24 +228,24 @@ export default function ConfirmarAsistencia() {
             {attending === "si" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm text-white/70 mb-1">Adultos</label>
+                  <label className="block text-sm text-[var(--app-muted)] mb-1">Adultos</label>
                   <input
                     type="number"
                     min={0}
                     value={numAdults}
                     onChange={(e) => setNumAdults(Math.max(0, Number(e.target.value || 0)))}
-                    className="w-full rounded-md bg-black/30 border border-white/20 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                    className="w-full p-3"
                     placeholder="0"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-white/70 mb-1">Niños</label>
+                  <label className="block text-sm text-[var(--app-muted)] mb-1">Niños</label>
                   <input
                     type="number"
                     min={0}
                     value={numChildren}
                     onChange={(e) => setNumChildren(Math.max(0, Number(e.target.value || 0)))}
-                    className="w-full rounded-md bg-black/30 border border-white/20 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                    className="w-full p-3"
                     placeholder="0"
                   />
                 </div>
@@ -244,15 +259,15 @@ export default function ConfirmarAsistencia() {
                     <h2 className="text-lg font-semibold mb-3">Datos de adultos</h2>
                     <div className="space-y-3">
                       {adults.map((adult, idx) => (
-                        <div key={`adult-${idx}`} className="rounded-lg border border-white/15 bg-black/20 p-4">
+                        <div key={`adult-${idx}`} className="rounded-[18px] border border-[var(--app-line)] bg-[rgba(255,255,255,0.72)] p-4">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div className="md:col-span-2">
-                              <label className="block text-sm text-white/70 mb-1">Nombre y apellidos</label>
+                              <label className="block text-sm text-[var(--app-muted)] mb-1">Nombre y apellidos</label>
                               <input
                                 type="text"
                                 value={adult.fullName}
                                 onChange={(e) => onAdultChange(idx, "fullName", e.target.value)}
-                                className="w-full rounded-md bg-black/30 border border-white/20 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                className="w-full p-3"
                                 placeholder={`Adulto ${idx + 1}`}
                               />
                             </div>
@@ -274,7 +289,7 @@ export default function ConfirmarAsistencia() {
                                 {ALLERGY_OPTIONS.map((opt) => (
                                   <label
                                     key={opt.value}
-                                    className="flex items-center gap-2 text-sm bg-black/20 px-2 py-1 rounded border border-white/10"
+                                    className="flex items-center gap-2 rounded-[12px] border border-[var(--app-line)] bg-[rgba(255,255,255,0.72)] px-2 py-1 text-sm"
                                   >
                                     <input
                                       type="checkbox"
@@ -289,7 +304,7 @@ export default function ConfirmarAsistencia() {
                               </div>
                               {(adult.allergies || []).includes("otro") ? (
                                 <input
-                                  className="w-full rounded-md bg-black/30 border border-white/20 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                  className="w-full p-3"
                                   placeholder="Especifica otras alergias o intolerancias"
                                   value={adult.customAllergy ?? ""}
                                   onChange={(e) =>
@@ -314,20 +329,20 @@ export default function ConfirmarAsistencia() {
                     <h2 className="text-lg font-semibold mb-3">Datos de niños</h2>
                     <div className="space-y-3">
                       {children.map((child, idx) => (
-                        <div key={`child-${idx}`} className="rounded-lg border border-white/15 bg-black/20 p-4">
+                        <div key={`child-${idx}`} className="rounded-[18px] border border-[var(--app-line)] bg-[rgba(255,255,255,0.72)] p-4">
                           <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                             <div className="md:col-span-2">
-                              <label className="block text-sm text-white/70 mb-1">Nombre</label>
+                              <label className="block text-sm text-[var(--app-muted)] mb-1">Nombre</label>
                               <input
                                 type="text"
                                 value={child.fullName}
                                 onChange={(e) => onChildChange(idx, "fullName", e.target.value)}
-                                className="w-full rounded-md bg-black/30 border border-white/20 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                className="w-full p-3"
                                 placeholder={`Niño/a ${idx + 1}`}
                               />
                             </div>
                             <div>
-                              <label className="block text-sm text-white/70 mb-1">Edad (opcional)</label>
+                              <label className="block text-sm text-[var(--app-muted)] mb-1">Edad (opcional)</label>
                               <input
                                 type="number"
                                 min={0}
@@ -339,7 +354,7 @@ export default function ConfirmarAsistencia() {
                                     e.target.value ? Number(e.target.value) : undefined
                                   )
                                 }
-                                className="w-full rounded-md bg-black/30 border border-white/20 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                className="w-full p-3"
                               />
                             </div>
                             <div className="flex items-center gap-2">
@@ -360,7 +375,7 @@ export default function ConfirmarAsistencia() {
                                 {ALLERGY_OPTIONS.map((opt) => (
                                   <label
                                     key={opt.value}
-                                    className="flex items-center gap-2 text-sm bg-black/20 px-2 py-1 rounded border border-white/10"
+                                    className="flex items-center gap-2 rounded-[12px] border border-[var(--app-line)] bg-[rgba(255,255,255,0.72)] px-2 py-1 text-sm"
                                   >
                                     <input
                                       type="checkbox"
@@ -375,7 +390,7 @@ export default function ConfirmarAsistencia() {
                               </div>
                               {(child.allergies || []).includes("otro") ? (
                                 <input
-                                  className="w-full rounded-md bg-black/30 border border-white/20 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                  className="w-full p-3"
                                   placeholder="Especifica otras alergias o intolerancias"
                                   value={child.customAllergy ?? ""}
                                   onChange={(e) =>
@@ -398,11 +413,11 @@ export default function ConfirmarAsistencia() {
             )}
 
             <div>
-              <label className="block text-sm text-white/70 mb-1">Nota adicional</label>
+              <label className="block text-sm text-[var(--app-muted)] mb-1">Nota adicional</label>
               <textarea
                 value={nota}
                 onChange={(e) => setNota(e.target.value)}
-                className="w-full rounded-md bg-black/30 border border-white/20 p-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-pink-400"
+                className="w-full p-3"
                 placeholder="Dietas, horarios, carrito de bebé, lo que necesitéis contarnos"
               />
             </div>
@@ -410,12 +425,12 @@ export default function ConfirmarAsistencia() {
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full py-2 rounded-md bg-pink-500 hover:bg-pink-400 font-semibold transition"
+                className="app-button-primary w-full text-center"
               >
                 Enviar confirmación
               </button>
               {submitted ? (
-                <p className="text-center text-sm text-green-400 mt-2">
+                <p className="text-center text-sm text-emerald-600 mt-2">
                   Respuesta guardada correctamente.
                 </p>
               ) : null}
@@ -423,11 +438,11 @@ export default function ConfirmarAsistencia() {
           </form>
 
           {attending === "si" && previewCards.length > 0 ? (
-            <div className="w-full max-w-2xl mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid w-full max-w-4xl grid-cols-1 gap-3 sm:grid-cols-2">
               {previewCards.map((card) => (
                 <article
                   key={card.id}
-                  className="rounded-xl border border-white/15 bg-white/5 backdrop-blur-md px-4 py-3 shadow"
+                  className="rounded-[18px] border border-[var(--app-line)] bg-[rgba(255,255,255,0.72)] px-4 py-3"
                 >
                   <header className="text-sm opacity-80">
                     {card.type === "adulto" ? "Adulto" : "Niño/a"}

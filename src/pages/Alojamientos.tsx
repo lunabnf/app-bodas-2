@@ -1,43 +1,47 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
 import type { LodgingOption } from "../domain/lodging";
+import { registrarActividad } from "../services/actividadService";
 import {
   guardarSolicitudAlojamiento,
   obtenerAlojamientos,
   obtenerSolicitudAlojamientoPorInvitado,
 } from "../services/alojamientosService";
-import { registrarActividad } from "../services/actividadService";
+import { DEV_OPEN_PUBLIC_WEDDING, resolvePublicGuestSession } from "../services/devAccessService";
 import { useAuth } from "../store/useAuth";
 
 export default function AlojamientosPage() {
+  const { slug } = useParams();
   const [alojamientos, setAlojamientos] = useState<LodgingOption[]>([]);
   const [needsLodging, setNeedsLodging] = useState<boolean>(false);
   const [selectedLodgingId, setSelectedLodgingId] = useState<string>("");
   const [notes, setNotes] = useState("");
   const [saved, setSaved] = useState(false);
   const { invitado } = useAuth();
+  const effectiveGuest = useMemo(() => resolvePublicGuestSession(invitado, slug), [invitado, slug]);
 
   useEffect(() => {
     void (async () => {
       const data = await obtenerAlojamientos();
       setAlojamientos(data || []);
 
-      if (!invitado) return;
-      const request = await obtenerSolicitudAlojamientoPorInvitado(invitado.token);
+      if (!effectiveGuest) return;
+      const request = await obtenerSolicitudAlojamientoPorInvitado(effectiveGuest.token);
       if (!request) return;
 
       setNeedsLodging(request.needsLodging);
       setSelectedLodgingId(request.lodgingId ?? "");
       setNotes(request.notes ?? "");
     })();
-  }, [invitado]);
+  }, [effectiveGuest]);
 
-  const guardarSolicitud = async () => {
-    if (!invitado) return;
+  async function guardarSolicitud() {
+    if (!effectiveGuest) return;
 
     await guardarSolicitudAlojamiento({
-      id: `${invitado.token}-lodging`,
-      guestToken: invitado.token,
-      guestName: invitado.nombre,
+      id: `${effectiveGuest.token}-lodging`,
+      guestToken: effectiveGuest.token,
+      guestName: effectiveGuest.nombre,
       lodgingId: needsLodging ? selectedLodgingId || null : null,
       needsLodging,
       ...(notes.trim() ? { notes: notes.trim() } : {}),
@@ -49,90 +53,84 @@ export default function AlojamientosPage() {
       id: crypto.randomUUID(),
       timestamp: Date.now(),
       tipo: "alojamiento_solicitud",
-      mensaje: `${invitado.nombre} ha actualizado su solicitud de alojamiento`,
-      tokenInvitado: invitado.token,
+      mensaje: `${effectiveGuest.nombre} ha actualizado su solicitud de alojamiento`,
+      tokenInvitado: effectiveGuest.token,
     });
 
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
-  };
+  }
 
   return (
-    <div className="space-y-6 px-4 py-4 text-white sm:px-6">
-      <h1 className="text-2xl font-bold sm:text-3xl">Alojamiento</h1>
-
-      {alojamientos.length === 0 && (
-        <p className="opacity-70">No hay alojamientos disponibles todavía.</p>
-      )}
-
-      <div className="space-y-4">
-        {alojamientos.map((item) => (
-          <div
-            key={item.id}
-            className="p-4 bg-white/10 border border-white/20 rounded-lg"
-          >
-            <p className="text-xl font-semibold">{item.nombre}</p>
-            {item.direccion ? <p className="opacity-80">{item.direccion}</p> : null}
-            {item.notas ? <p className="mt-1 opacity-70">{item.notas}</p> : null}
-            {item.link ? (
-              <a
-                href={item.link}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => {
-                  if (invitado) {
-                    void registrarActividad({
-                      id: crypto.randomUUID(),
-                      timestamp: Date.now(),
-                      tipo: "alojamiento_consulta",
-                      mensaje: `${invitado.nombre} ha abierto el alojamiento: ${item.nombre}`,
-                      tokenInvitado: invitado.token,
-                    });
-                  }
-                }}
-                className="text-blue-300 underline block mt-2"
-              >
-                Ver enlace
-              </a>
-            ) : null}
-          </div>
-        ))}
+    <section className="space-y-6 px-4 py-4 sm:px-6">
+      <div className="app-surface p-6 sm:p-8">
+        <p className="app-kicker">Información</p>
+        <h1 className="app-page-title mt-4">Alojamiento</h1>
+        <p className="mt-3 app-subtitle">Opciones recomendadas para reservar y organizar vuestra estancia.</p>
       </div>
 
-      {invitado ? (
-        <section className="space-y-4 rounded-lg border border-white/20 bg-white/10 p-4 sm:p-5">
-          <div>
-            <h2 className="text-xl font-semibold">Tu solicitud de alojamiento</h2>
-            <p className="opacity-70 text-sm">
-              Los novios verán esta respuesta en el panel de administración.
+      <div className="space-y-4">
+        {alojamientos.length === 0 ? (
+          <div className="app-surface-soft p-6">
+            <p className="text-sm text-[var(--app-muted)]">No hay alojamientos disponibles todavía.</p>
+          </div>
+        ) : (
+          alojamientos.map((item) => (
+            <article key={item.id} className="app-surface-soft p-5 sm:p-6">
+              <p className="text-lg font-semibold text-[var(--app-ink)]">{item.nombre}</p>
+              {item.direccion ? <p className="mt-1 text-sm text-[var(--app-muted)]">{item.direccion}</p> : null}
+              {item.notas ? <p className="mt-2 text-sm text-[var(--app-muted)]">{item.notas}</p> : null}
+              {item.link ? (
+                <a
+                  href={item.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={() => {
+                    if (effectiveGuest) {
+                      void registrarActividad({
+                        id: crypto.randomUUID(),
+                        timestamp: Date.now(),
+                        tipo: "alojamiento_consulta",
+                        mensaje: `${effectiveGuest.nombre} ha abierto el alojamiento: ${item.nombre}`,
+                        tokenInvitado: effectiveGuest.token,
+                      });
+                    }
+                  }}
+                  className="mt-3 inline-flex text-sm font-semibold text-[var(--app-ink)] underline"
+                >
+                  Ver enlace
+                </a>
+              ) : null}
+            </article>
+          ))
+        )}
+      </div>
+
+      {effectiveGuest ? (
+        <section className="app-panel space-y-4 p-5 sm:p-6">
+          {DEV_OPEN_PUBLIC_WEDDING && !invitado ? (
+            <p className="text-sm text-[var(--app-muted)]">
+              Modo desarrollo activo: módulo abierto sin identificación de invitado.
             </p>
+          ) : null}
+          <div>
+            <h2 className="app-section-heading">Tu solicitud de alojamiento</h2>
+            <p className="mt-1 text-sm text-[var(--app-muted)]">Los novios verán esta respuesta en su panel.</p>
           </div>
 
           <div className="flex flex-col gap-3">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                checked={needsLodging}
-                onChange={() => setNeedsLodging(true)}
-              />
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--app-ink)]">
+              <input type="radio" checked={needsLodging} onChange={() => setNeedsLodging(true)} />
               Necesito alojamiento
             </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                checked={!needsLodging}
-                onChange={() => setNeedsLodging(false)}
-              />
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--app-ink)]">
+              <input type="radio" checked={!needsLodging} onChange={() => setNeedsLodging(false)} />
               No necesito alojamiento
             </label>
           </div>
 
           {needsLodging ? (
-            <select
-              className="w-full rounded-md bg-black/30 border border-white/20 p-2"
-              value={selectedLodgingId}
-              onChange={(e) => setSelectedLodgingId(e.target.value)}
-            >
+            <select className="w-full p-3" value={selectedLodgingId} onChange={(e) => setSelectedLodgingId(e.target.value)}>
               <option value="">Sin preferencia concreta</option>
               {alojamientos.map((item) => (
                 <option key={item.id} value={item.id}>
@@ -143,27 +141,24 @@ export default function AlojamientosPage() {
           ) : null}
 
           <textarea
-            className="w-full rounded-md bg-black/30 border border-white/20 p-2"
+            className="w-full p-3"
             placeholder="Noches, presupuesto aproximado, tipo de habitación, etc."
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
 
-          {saved ? <p className="text-sm text-green-300">Solicitud guardada.</p> : null}
-
-          <button
-            type="button"
-            onClick={() => void guardarSolicitud()}
-            className="bg-pink-400 text-black px-4 py-2 rounded"
-          >
-            Guardar solicitud
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" onClick={() => void guardarSolicitud()} className="app-button-primary">
+              Guardar solicitud
+            </button>
+            {saved ? <p className="text-sm text-emerald-600">Solicitud guardada.</p> : null}
+          </div>
         </section>
       ) : (
-        <p className="text-sm opacity-70">
-          Identifícate como invitado para indicar si necesitas alojamiento.
-        </p>
+        <div className="app-surface-soft p-6">
+          <p className="text-sm text-[var(--app-muted)]">Identifícate como invitado para indicar si necesitas alojamiento.</p>
+        </div>
       )}
-    </div>
+    </section>
   );
 }

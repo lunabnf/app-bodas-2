@@ -10,10 +10,7 @@ export default function Mesas() {
 
   useEffect(() => {
     void (async () => {
-      const [storedGuests, storedTables] = await Promise.all([
-        obtenerInvitados(),
-        obtenerMesas(),
-      ]);
+      const [storedGuests, storedTables] = await Promise.all([obtenerInvitados(), obtenerMesas()]);
       setGuests(storedGuests);
       setTables(storedTables);
     })();
@@ -21,34 +18,45 @@ export default function Mesas() {
 
   if (tables.length === 0 || guests.length === 0) {
     return (
-      <section className="px-4 py-4 text-white sm:px-6">
-        <h1 className="mb-4 text-2xl font-semibold sm:text-3xl">Distribución de Mesas</h1>
-        <p className="text-white/70">Todavía no se ha publicado la organización de mesas.</p>
+      <section className="space-y-6 px-4 py-4 sm:px-6">
+        <div className="app-surface p-6 sm:p-8">
+          <p className="app-kicker">Participación</p>
+          <h1 className="app-page-title mt-4">Distribución de mesas</h1>
+          <p className="mt-3 app-subtitle">Todavía no se ha publicado la organización de mesas.</p>
+        </div>
       </section>
     );
   }
 
   return (
-    <section className="px-4 py-4 text-white sm:px-6">
-      <h1 className="mb-6 text-2xl font-semibold sm:text-3xl">Distribución de Mesas</h1>
+    <section className="space-y-6 px-4 py-4 sm:px-6">
+      <div className="app-surface p-6 sm:p-8">
+        <p className="app-kicker">Participación</p>
+        <h1 className="app-page-title mt-4">Distribución de mesas</h1>
+        <p className="mt-3 app-subtitle">Consulta la ubicación de invitados y responsables de cada mesa.</p>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {tables.map(t => {
-          const assigned = guests.filter(g => g.mesa === t.id);
-          const captain = assigned.find(g => g.token === t.captainToken);
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {tables.map((table) => {
+          const assigned = guests.filter((guest) => guest.mesa === table.id);
+          const captain = assigned.find((guest) => guest.token === table.captainToken);
+
           return (
-            <article key={t.id} className="rounded-xl border border-white/10 bg-white/10 backdrop-blur-md p-6">
-              <h2 className="text-xl font-semibold mb-4">{t.nombre}</h2>
+            <article key={table.id} className="app-surface-soft p-5 sm:p-6">
+              <h2 className="text-lg font-semibold text-[var(--app-ink)]">{table.nombre}</h2>
+
               {assigned.length === 0 ? (
-                <p className="text-white/70 italic">No hay invitados asignados.</p>
+                <p className="mt-3 text-sm italic text-[var(--app-muted)]">No hay invitados asignados.</p>
               ) : (
-                <ul className="space-y-2">
-                  {assigned.map(g => (
-                    <li key={g.token} className="flex items-center gap-2 text-sm opacity-90">
-                      {g.nombre}
-                      {captain && captain.token === g.token && (
-                        <span className="text-yellow-400 text-xs px-1.5 py-0.5 rounded bg-yellow-500/20 border border-yellow-500/30 select-none">⭐ Capitán</span>
-                      )}
+                <ul className="mt-3 space-y-2">
+                  {assigned.map((guest) => (
+                    <li key={guest.token} className="flex items-center gap-2 text-sm text-[var(--app-muted)]">
+                      <span>{guest.nombre}</span>
+                      {captain && captain.token === guest.token ? (
+                        <span className="rounded-full border border-[var(--app-line)] bg-[rgba(255,255,255,0.72)] px-2 py-0.5 text-xs font-medium text-[var(--app-ink)]">
+                          Capitán
+                        </span>
+                      ) : null}
                     </li>
                   ))}
                 </ul>
