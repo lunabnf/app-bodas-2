@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getGuestBudgetSnapshot } from "../services/guestBudgetService";
 
 type Gasto = {
   id: string;
@@ -23,6 +24,7 @@ function generateId() {
 }
 
 export default function Presupuesto() {
+  const [guestBudget, setGuestBudget] = useState(() => getGuestBudgetSnapshot());
   const [categorias, setCategorias] = useState<Categoria[]>([
     {
       id: "ceremonia",
@@ -332,6 +334,10 @@ export default function Presupuesto() {
   // Color for difference: green if real <= previsto, red if real > previsto
   const diferenciaColor = diferencia >= 0 ? "text-emerald-700" : "text-red-700";
 
+  useEffect(() => {
+    setGuestBudget(getGuestBudgetSnapshot());
+  }, []);
+
 
   // SVG circle parameters for progress ring
   const radius = 50;
@@ -395,6 +401,19 @@ export default function Presupuesto() {
             </text>
           </svg>
         </div>
+      </div>
+
+      <div className="app-surface-soft p-5 sm:p-6">
+        <p className="app-kicker">RSVP automático</p>
+        <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em]">Impacto por asistentes confirmados</h2>
+        <p className="mt-2 text-sm text-[var(--app-muted)]">
+          Adultos: {guestBudget.adultosConfirmados} ({guestBudget.costeAdulto.toLocaleString()} € c/u) ·
+          Niños: {guestBudget.ninosConfirmados} ({guestBudget.costeNino.toLocaleString()} € c/u)
+        </p>
+        <p className="mt-1 text-sm text-[var(--app-muted)]">
+          Total estimado dinámico: {guestBudget.totalEstimado.toLocaleString()} € ·
+          Actualizado: {new Date(guestBudget.updatedAt).toLocaleString()}
+        </p>
       </div>
 
       {categorias.map((cat) => {

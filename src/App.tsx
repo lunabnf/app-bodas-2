@@ -1,9 +1,10 @@
 import { lazy, Suspense, type ReactElement, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 
 import { useAuth } from "./store/useAuth";
 import { applyAppearanceSettings, getAppearanceSettings } from "./services/appearanceService";
 import { trackRouteView } from "./services/backofficeAnalyticsService";
+import { evaluateGuestPublicAccessByToken } from "./services/invitationWorkflowService";
 
 const AppLayout = lazy(() => import("./layouts/AppLayout"));
 const MarketingLayout = lazy(() => import("./layouts/MarketingLayout"));
@@ -92,6 +93,26 @@ function SuperAdminRoute({ children }: { children: ReactElement }) {
   return children;
 }
 
+function PublicWeddingRoute({ children }: { children: ReactElement }) {
+  const { pathname } = useLocation();
+  const { slug } = useParams();
+  const invitado = useAuth((state) => state.invitado);
+  const esAdmin = useAuth((state) => state.esAdmin);
+  const esSuperAdmin = useAuth((state) => state.esSuperAdmin);
+
+  if (!invitado || esAdmin || esSuperAdmin) return children;
+
+  const access = evaluateGuestPublicAccessByToken(invitado.token);
+  const rsvpPath = `/w/${slug ?? "demo"}/rsvp`;
+  const isRsvpRoute = pathname === rsvpPath || pathname.startsWith(`${rsvpPath}/`);
+
+  if ((access.requiresRsvp || !access.allowed) && !isRsvpRoute) {
+    return <Navigate to={rsvpPath} replace />;
+  }
+
+  return children;
+}
+
 function ScrollToTopOnRouteChange() {
   const { pathname, search } = useLocation();
 
@@ -121,7 +142,13 @@ function Root() {
         <Route path="/w/:slug/acceso" element={<WeddingAccess />} />
 
         {/* 2) Zona pública de boda */}
-        <Route element={<AppLayout />}>
+        <Route
+          element={
+            <PublicWeddingRoute>
+              <AppLayout />
+            </PublicWeddingRoute>
+          }
+        >
           <Route path="/w/:slug" element={<Home />} />
           <Route path="/w/:slug/programa" element={<Programa />} />
           <Route path="/w/:slug/rsvp" element={<ConfirmarAsistencia />} />

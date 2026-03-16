@@ -8,7 +8,8 @@ import {
   votarCancion,
   type Cancion,
 } from "../services/musicaService";
-import { guardarRSVP, obtenerRSVP } from "../services/rsvpService";
+import { obtenerRSVP } from "../services/rsvpService";
+import { processInvitationRsvp } from "../services/invitationWorkflowService";
 
 export type Allergy =
   | "gluten"
@@ -147,55 +148,51 @@ export async function submitGuestRsvp({
   adults,
   children,
   nota,
-}: SubmitGuestRsvpInput): Promise<void> {
-  if (attending === "si") {
-    await addLog(invitado.nombre, "Confirmó asistencia a la boda");
-  } else if (attending === "no") {
-    await addLog(invitado.nombre, "Rechazó la asistencia a la boda");
+}: SubmitGuestRsvpInput): Promise<{ status: "confirmed" | "rejected" }> {
+  const hasAttendees = adults.length + children.length > 0;
+  const isRejection = attending === "no" || !hasAttendees;
+
+  if (!attending) {
+    throw new Error("Debes indicar si asistirás o no.");
   }
 
-  const data: GuestRsvp = {
-    guestToken: invitado.token,
-    guestName: invitado.nombre,
+  if (isRejection && !nota.trim()) {
+    throw new Error("Indica el motivo de no asistencia.");
+  }
+
+  const result = await processInvitationRsvp({
+    holderToken: invitado.token,
+    holderName: invitado.nombre,
     attending,
-    adultos: numAdults,
-    ninos: numChildren,
-    detalles: [
-      ...adults.map((adult) => ({
-        nombre: adult.fullName,
-        alergias: adult.allergies,
-        ...(adult.customAllergy ? { intolerancias: adult.customAllergy } : {}),
-      })),
-      ...children.map((child) => ({
-        nombre: child.fullName,
-        alergias: child.allergies,
-        ...(typeof child.age === "number" ? { edad: child.age } : {}),
-        ...(child.customAllergy ? { intolerancias: child.customAllergy } : {}),
-      })),
-    ],
-    ...(nota.trim() ? { nota: nota.trim() } : {}),
-    timestamp: Date.now(),
-  };
+    adults,
+    children,
+    note: nota,
+  });
 
-  await guardarRSVP(data);
-
-  if (attending === "si") {
+  if (result.status === "confirmed") {
+    await addLog(
+      invitado.nombre,
+      `Confirmó asistencia a la boda (${numAdults} adultos, ${numChildren} niños)`
+    );
     await registrarActividad({
       id: uuid(),
       timestamp: Date.now(),
-      tipo: "rsvp",
-      mensaje: `${invitado.nombre} ha confirmado asistencia (${numAdults} adultos, ${numChildren} niños)`,
+      tipo: "rsvp_confirmado",
+      mensaje: `${invitado.nombre} completó el RSVP`,
       tokenInvitado: invitado.token,
     });
-  } else if (attending === "no") {
+  } else {
+    await addLog(invitado.nombre, "Rechazó la asistencia a la boda");
     await registrarActividad({
       id: uuid(),
       timestamp: Date.now(),
-      tipo: "rsvp",
-      mensaje: `${invitado.nombre} ha rechazado la asistencia`,
+      tipo: "rsvp_rechazado",
+      mensaje: `${invitado.nombre} rechazó la invitación`,
       tokenInvitado: invitado.token,
     });
   }
+
+  return { status: result.status };
 }
 
 export async function loadSongsSorted(): Promise<Cancion[]> {

@@ -13,6 +13,8 @@ export type WeddingSettings = {
   portada: string | null;
   mostrarPrograma: boolean;
   mostrarMesas: boolean;
+  mesasVisibilityMode: "hidden" | "visible" | "scheduled";
+  mesasPublishAt: string | null;
 };
 
 const SETTINGS_KEY = "wedding.settings";
@@ -34,6 +36,8 @@ export const defaultWeddingSettings: WeddingSettings = {
   portada: null,
   mostrarPrograma: true,
   mostrarMesas: true,
+  mesasVisibilityMode: "visible",
+  mesasPublishAt: null,
 };
 
 function migrateLegacySettings(): WeddingSettings {
@@ -59,7 +63,10 @@ export function getWeddingSettings(): WeddingSettings {
   );
 
   if (parsed) {
-    return parsed;
+    return {
+      ...defaultWeddingSettings,
+      ...parsed,
+    };
   }
 
   const legacyScoped = readStorageWithSchema<WeddingSettings | null>(
@@ -68,12 +75,23 @@ export function getWeddingSettings(): WeddingSettings {
     null
   );
   if (legacyScoped) {
-    writeStorage(scopedKey, legacyScoped);
+    const normalized = { ...defaultWeddingSettings, ...legacyScoped };
+    writeStorage(scopedKey, normalized);
     localStorage.removeItem(SETTINGS_KEY);
-    return legacyScoped;
+    return normalized;
   }
 
   return migrateLegacySettings();
+}
+
+export function isMesasPublishedForGuests(settings: WeddingSettings, now = Date.now()): boolean {
+  if (!settings.mostrarMesas) return false;
+  if (settings.mesasVisibilityMode === "hidden") return false;
+  if (settings.mesasVisibilityMode !== "scheduled") return true;
+  if (!settings.mesasPublishAt) return false;
+  const publishDate = new Date(settings.mesasPublishAt).getTime();
+  if (Number.isNaN(publishDate)) return false;
+  return now >= publishDate;
 }
 
 export function saveWeddingSettings(settings: WeddingSettings) {

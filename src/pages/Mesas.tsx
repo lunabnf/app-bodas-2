@@ -3,18 +3,36 @@ import type { Guest } from "../domain/guest";
 import type { Table } from "../domain/table";
 import { obtenerInvitados } from "../services/invitadosService";
 import { obtenerMesas } from "../services/mesasService";
+import { getWeddingSettings, isMesasPublishedForGuests } from "../services/weddingSettingsService";
 
 export default function Mesas() {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
+  const [mesasPublicadas, setMesasPublicadas] = useState(true);
 
   useEffect(() => {
     void (async () => {
       const [storedGuests, storedTables] = await Promise.all([obtenerInvitados(), obtenerMesas()]);
       setGuests(storedGuests);
       setTables(storedTables);
+      const settings = getWeddingSettings();
+      setMesasPublicadas(isMesasPublishedForGuests(settings));
     })();
   }, []);
+
+  if (!mesasPublicadas) {
+    return (
+      <section className="space-y-6 px-4 py-4 sm:px-6">
+        <div className="app-surface p-6 sm:p-8">
+          <p className="app-kicker">Participación</p>
+          <h1 className="app-page-title mt-4">Distribución de mesas</h1>
+          <p className="mt-3 app-subtitle">
+            Los novios todavía no han publicado la organización de mesas.
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   if (tables.length === 0 || guests.length === 0) {
     return (

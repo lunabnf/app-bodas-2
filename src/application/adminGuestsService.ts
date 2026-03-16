@@ -2,7 +2,6 @@ import type { Guest } from "../domain/guest";
 import type { Table } from "../domain/table";
 import { invitadosDemo, mesasDemo } from "../admin/data/mesasDemo";
 import {
-  borrarInvitado as deleteGuestByToken,
   guardarInvitado,
   guardarInvitados,
   obtenerInvitados,
@@ -10,6 +9,13 @@ import {
 import { addLog } from "../services/logsService";
 import { guardarMesas, obtenerMesas } from "../services/mesasService";
 import { getUsuarioActual } from "../services/userService";
+import {
+  buildInvitationSummaryByGuestTokens,
+  createBaseInvitationForHolderGuest,
+  reconcileInvitationIntegrity,
+  safeRemoveGuestFromInvitation,
+  type InvitationAdminSummary,
+} from "../services/invitationWorkflowService";
 
 export type GuestDraft = {
   nombre: string;
@@ -49,7 +55,8 @@ export async function loadGuestsAdminData(): Promise<{ invitados: Guest[]; mesas
     await guardarMesas(mesas);
   }
 
-  return { invitados, mesas };
+  const reconciled = await reconcileInvitationIntegrity(invitados);
+  return { invitados: reconciled.guests, mesas };
 }
 
 export async function createGuest(
@@ -79,13 +86,25 @@ export async function createGuest(
     estado: draft.estado,
     token: crypto.randomUUID(),
     esAdulto: draft.tipo !== "Niño",
+    invitationRole: draft.tipo === "Niño" ? "acompanante" : "titular",
+    personaEstado: draft.estado === "confirmado" ? "confirmada" : "creada",
+    accessState: draft.tipo === "Niño" ? "no_permitido" : "codigo_disponible",
+    assignmentState: draft.mesa.trim() ? "asignada" : "sin_asignar",
+    menuEstado: draft.tipo === "Niño" ? "infantil" : "adulto",
     ...(draft.mesa.trim() ? { mesa: draft.mesa.trim() } : {}),
     ...(typeof draft.edad === "number" && Number.isFinite(draft.edad)
       ? { edad: draft.edad }
       : {}),
   };
 
+  if (invitado.invitationRole === "titular") {
+    invitado.invitationToken = invitado.token;
+  }
+
   await guardarInvitado(invitado);
+  if (invitado.invitationRole === "titular") {
+    await createBaseInvitationForHolderGuest(invitado);
+  }
 
   const usuario = getUsuarioActual();
   if (usuario) {
@@ -96,11 +115,16 @@ export async function createGuest(
 }
 
 export async function removeGuest(token: string, nombre: string): Promise<void> {
-  await deleteGuestByToken(token);
+  const result = await safeRemoveGuestFromInvitation(token);
 
   const usuario = getUsuarioActual();
   if (usuario) {
-    await addLog(usuario.nombre, `Eliminó invitado: ${nombre}`);
+    await addLog(
+      usuario.nombre,
+      result.mode === "cancelled"
+        ? `Canceló invitación vinculada a: ${nombre}`
+        : `Eliminó invitado: ${nombre}`
+    );
   }
 }
 
@@ -146,4 +170,10 @@ export async function assignGuestToTable(
     invitados: invitadosActualizados,
     mesas: mesasActualizadas,
   };
+}
+
+export function mapInvitationSummaryByGuest(
+  invitados: Guest[]
+): Record<string, InvitationAdminSummary> {
+  return buildInvitationSummaryByGuestTokens(invitados);
 }

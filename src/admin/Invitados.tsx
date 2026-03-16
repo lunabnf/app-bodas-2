@@ -1,15 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
+import { useParams } from "react-router-dom";
 import type { Guest, GuestStatus, GuestType } from "../domain/guest";
 import {
   createEmptyGuestDraft,
   createGuest,
+  mapInvitationSummaryByGuest,
   type GuestDraft,
   loadGuestsAdminData,
   removeGuest,
 } from "../application/adminGuestsService";
 
 export default function Invitados() {
+  const { slug } = useParams();
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState("todos");
   const [invitados, setInvitados] = useState<Guest[]>([]);
@@ -18,12 +21,22 @@ export default function Invitados() {
 
   const [mostrarQR, setMostrarQR] = useState(false);
   const [invitadoQR, setInvitadoQR] = useState<Guest | null>(null);
+  const [invitationSummaryByGuest, setInvitationSummaryByGuest] = useState<
+    Record<string, { invitationStatus: string; activeAttendees: number; responseCount: number }>
+  >({});
 
   useEffect(() => {
     void loadGuestsAdminData().then(({ invitados: loadedInvitados }) => {
       setInvitados(loadedInvitados);
+      setInvitationSummaryByGuest(mapInvitationSummaryByGuest(loadedInvitados));
     });
   }, []);
+
+  const rsvpBaseUrl = useMemo(() => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const resolvedSlug = slug ?? "demo";
+    return `${origin}/w/${resolvedSlug}/rsvp`;
+  }, [slug]);
 
   const invitadosFiltrados = invitados.filter(
     (i) =>
@@ -46,7 +59,9 @@ export default function Invitados() {
     if (!invitadoAGuardar) {
       return;
     }
-    setInvitados((current) => [...current, invitadoAGuardar]);
+    const updated = [...invitados, invitadoAGuardar];
+    setInvitados(updated);
+    setInvitationSummaryByGuest(mapInvitationSummaryByGuest(updated));
     setMostrarModal(false);
     setNuevoInvitado(createEmptyGuestDraft());
   };
@@ -115,6 +130,8 @@ export default function Invitados() {
               <th className="p-3 border-b border-white/10">Tipo</th>
               <th className="p-3 border-b border-white/10">Grupo</th>
               <th className="p-3 border-b border-white/10">Estado</th>
+              <th className="p-3 border-b border-white/10">Invitación</th>
+              <th className="p-3 border-b border-white/10">Asistentes</th>
               <th className="p-3 border-b border-white/10">Mesa</th>
               <th className="p-3 border-b border-white/10">QR</th>
               <th className="p-3 border-b border-white/10">Acciones</th>
@@ -127,6 +144,13 @@ export default function Invitados() {
                 <td className="p-3 border-b border-white/10">{inv.tipo}</td>
                 <td className="p-3 border-b border-white/10">{inv.grupo}</td>
                 <td className="p-3 border-b border-white/10 capitalize">{inv.estado}</td>
+                <td className="p-3 border-b border-white/10 capitalize">
+                  {invitationSummaryByGuest[inv.token]?.invitationStatus ?? "pendiente"}
+                </td>
+                <td className="p-3 border-b border-white/10">
+                  {invitationSummaryByGuest[inv.token]?.activeAttendees ??
+                    (inv.estado === "confirmado" ? 1 : 0)}
+                </td>
                 <td className="p-3 border-b border-white/10">{inv.mesa || "-"}</td>
                 <td className="p-3 border-b border-white/10">
                   <button
@@ -146,11 +170,13 @@ export default function Invitados() {
                   <button
                     onClick={async () => {
                       await removeGuest(inv.token, inv.nombre);
-                      setInvitados((current) => current.filter((i) => i.token !== inv.token));
+                      const { invitados: loadedInvitados } = await loadGuestsAdminData();
+                      setInvitados(loadedInvitados);
+                      setInvitationSummaryByGuest(mapInvitationSummaryByGuest(loadedInvitados));
                     }}
                     className="bg-red-500 hover:bg-red-400 text-white px-2 py-1 rounded text-sm"
                   >
-                    Eliminar
+                    {inv.invitationRole !== "acompanante" ? "Cancelar" : "Eliminar"}
                   </button>
                 </td>
               </tr>
@@ -313,14 +339,14 @@ export default function Invitados() {
           <div className="w-full max-w-[320px] rounded-lg bg-white bg-opacity-90 p-6 text-center text-black shadow-xl backdrop-blur-md">
             <h2 className="text-xl font-bold mb-3">QR de {invitadoQR.nombre}</h2>
             <QRCodeCanvas
-              value={`https://bodaleticiayeric.com/rsvp/${invitadoQR.token}`}
+              value={`${rsvpBaseUrl}/${encodeURIComponent(invitadoQR.token)}`}
               size={200}
               bgColor="#ffffff"
               fgColor="#000000"
               includeMargin={true}
             />
             <p className="text-sm text-gray-700 mt-3 break-all">
-              https://bodaleticiayeric.com/rsvp/{invitadoQR.token}
+              {rsvpBaseUrl}/{invitadoQR.token}
             </p>
             <button
               onClick={() => setMostrarQR(false)}

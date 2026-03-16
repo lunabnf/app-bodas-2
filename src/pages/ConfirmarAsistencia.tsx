@@ -14,7 +14,17 @@ import {
 import { useAuth } from "../store/useAuth";
 import BrandMark from "../components/BrandMark";
 import { useParams } from "react-router-dom";
-import { DEV_OPEN_PUBLIC_WEDDING, resolvePublicGuestSession } from "../services/devAccessService";
+import {
+  DEV_OPEN_PUBLIC_WEDDING,
+  resolveDevGuestRole,
+  resolvePublicGuestSession,
+} from "../services/devAccessService";
+import {
+  canGuestManageInvitation,
+  getInvitationRecordByGuestToken,
+  updateCompanionPersonalData,
+} from "../services/invitationWorkflowService";
+import { obtenerInvitadoPorTokenSync } from "../services/invitadosService";
 
 type RSVP = RsvpAttendance;
 
@@ -50,6 +60,23 @@ export default function ConfirmarAsistencia() {
   const [children, setChildren] = useState<ChildForm[]>([]);
   const [nota, setNota] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [finalStatus, setFinalStatus] = useState<"confirmed" | "rejected" | null>(null);
+  const [companionName, setCompanionName] = useState("");
+  const [companionIntolerancias, setCompanionIntolerancias] = useState("");
+  const [companionSaved, setCompanionSaved] = useState(false);
+
+  const canManageGroupRsvp = useMemo(() => {
+    if (!effectiveGuest) return false;
+    const storedGuest = obtenerInvitadoPorTokenSync(effectiveGuest.token);
+    if (storedGuest) {
+      return canGuestManageInvitation(effectiveGuest.token);
+    }
+    if (DEV_OPEN_PUBLIC_WEDDING) {
+      return resolveDevGuestRole() !== "companion";
+    }
+    return false;
+  }, [effectiveGuest]);
 
   useEffect(() => {
     setAdults((prev) => syncAdultForms(numAdults, prev));
@@ -74,6 +101,22 @@ export default function ConfirmarAsistencia() {
       setChildren(existing.children);
     })();
   }, [effectiveGuest]);
+
+  useEffect(() => {
+    if (!effectiveGuest) return;
+    const invitation = getInvitationRecordByGuestToken(effectiveGuest.token);
+    if (invitation?.status === "rechazada") {
+      setFinalStatus("rejected");
+    }
+  }, [effectiveGuest]);
+
+  useEffect(() => {
+    if (!effectiveGuest || canManageGroupRsvp) return;
+    const guest = obtenerInvitadoPorTokenSync(effectiveGuest.token);
+    if (!guest) return;
+    setCompanionName(guest.nombre);
+    setCompanionIntolerancias(guest.intolerancias ?? "");
+  }, [effectiveGuest, canManageGroupRsvp]);
 
   function onAdultChange<K extends keyof AdultForm>(idx: number, field: K, value: AdultForm[K]) {
     setAdults((prev) => {
@@ -155,18 +198,36 @@ export default function ConfirmarAsistencia() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!effectiveGuest) return;
-    await submitGuestRsvp({
-      invitado: effectiveGuest,
-      attending,
-      numAdults,
-      numChildren,
-      adults,
-      children,
-      nota,
-    });
+    setSubmitError("");
+    try {
+      const result = await submitGuestRsvp({
+        invitado: effectiveGuest,
+        attending,
+        numAdults,
+        numChildren,
+        adults,
+        children,
+        nota,
+      });
+      setSubmitted(true);
+      setFinalStatus(result.status);
+      setTimeout(() => setSubmitted(false), 3000);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "No se pudo enviar el RSVP.");
+    }
+  }
 
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+  async function onSubmitCompanionData(event: React.FormEvent) {
+    event.preventDefault();
+    if (!effectiveGuest) return;
+    await updateCompanionPersonalData({
+      guestToken: effectiveGuest.token,
+      nombre: companionName,
+      alergias: [],
+      intolerancias: companionIntolerancias,
+    });
+    setCompanionSaved(true);
+    setTimeout(() => setCompanionSaved(false), 2500);
   }
 
   return (
@@ -184,6 +245,51 @@ export default function ConfirmarAsistencia() {
         <div className="app-surface-soft w-full max-w-4xl p-6 text-center">
           <p className="text-[var(--app-muted)]">
             Necesitas identificarte como invitado para guardar tu confirmación.
+          </p>
+        </div>
+      ) : !canManageGroupRsvp ? (
+        <div className="app-surface-soft w-full max-w-4xl p-6">
+          <p className="app-kicker">Acceso de acompañante</p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[var(--app-ink)]">
+            Tu RSVP lo gestiona el titular de la invitación
+          </h2>
+          <p className="mt-3 text-sm text-[var(--app-muted)]">
+            Puedes usar la app con tu acceso individual, pero la configuración del grupo se realiza
+            desde la invitación principal.
+          </p>
+          <form onSubmit={onSubmitCompanionData} className="mt-5 space-y-3">
+            <label className="block space-y-1">
+              <span className="text-sm text-[var(--app-muted)]">Tu nombre</span>
+              <input
+                className="w-full p-3"
+                value={companionName}
+                onChange={(e) => setCompanionName(e.target.value)}
+              />
+            </label>
+            <label className="block space-y-1">
+              <span className="text-sm text-[var(--app-muted)]">Intolerancias (opcional)</span>
+              <textarea
+                className="w-full p-3"
+                value={companionIntolerancias}
+                onChange={(e) => setCompanionIntolerancias(e.target.value)}
+              />
+            </label>
+            <button type="submit" className="app-button-secondary">
+              Guardar mis datos
+            </button>
+            {companionSaved ? (
+              <p className="text-sm text-emerald-600">Tus datos se han actualizado.</p>
+            ) : null}
+          </form>
+        </div>
+      ) : finalStatus === "rejected" ? (
+        <div className="app-surface-soft w-full max-w-4xl p-6">
+          <p className="app-kicker">Confirmación recibida</p>
+          <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-[var(--app-ink)]">
+            Gracias por avisar
+          </h2>
+          <p className="mt-3 text-sm text-[var(--app-muted)]">
+            Hemos guardado vuestra respuesta. Esta invitación queda cerrada y no tendrá acceso a la app.
           </p>
         </div>
       ) : (
@@ -418,7 +524,11 @@ export default function ConfirmarAsistencia() {
                 value={nota}
                 onChange={(e) => setNota(e.target.value)}
                 className="w-full p-3"
-                placeholder="Dietas, horarios, carrito de bebé, lo que necesitéis contarnos"
+                placeholder={
+                  attending === "no"
+                    ? "Motivo de no asistencia (obligatorio)"
+                    : "Dietas, horarios, carrito de bebé, lo que necesitéis contarnos"
+                }
               />
             </div>
 
@@ -433,6 +543,9 @@ export default function ConfirmarAsistencia() {
                 <p className="text-center text-sm text-emerald-600 mt-2">
                   Respuesta guardada correctamente.
                 </p>
+              ) : null}
+              {submitError ? (
+                <p className="mt-2 text-center text-sm text-red-500">{submitError}</p>
               ) : null}
             </div>
           </form>

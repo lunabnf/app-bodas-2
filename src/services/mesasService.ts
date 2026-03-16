@@ -15,7 +15,21 @@ function normalizeTable(raw: unknown, index: number): Table {
   return {
     id: source.id ?? String(index + 1),
     nombre: source.nombre?.trim() || `Mesa ${index + 1}`,
+    tipoMesa: source.tipoMesa === "rectangular" ? "rectangular" : "redonda",
     capacidad: typeof source.capacidad === "number" ? source.capacidad : 10,
+    orden: typeof source.orden === "number" ? source.orden : index,
+    templateCategory:
+      source.templateCategory === "fiesta" ||
+      source.templateCategory === "naturaleza" ||
+      source.templateCategory === "musica_pop" ||
+      source.templateCategory === "musica_rock" ||
+      source.templateCategory === "ciudades" ||
+      source.templateCategory === "peliculas" ||
+      source.templateCategory === "romantico" ||
+      source.templateCategory === "personalizado"
+        ? source.templateCategory
+        : "personalizado",
+    collapsed: typeof source.collapsed === "boolean" ? source.collapsed : false,
     invitadosTokens: Array.isArray(source.invitadosTokens) ? source.invitadosTokens : [],
     captainToken: source.captainToken ?? null,
   };

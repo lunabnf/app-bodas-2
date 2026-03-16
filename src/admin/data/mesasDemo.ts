@@ -37,7 +37,37 @@ export const invitadosDemo: Guest[] = [
 ];
 
 export const mesasDemo: Table[] = [
-  { id: "1", nombre: "Mesa 1", capacidad: 10, invitadosTokens: ["demo-ana-luna"], captainToken: null },
-  { id: "2", nombre: "Mesa 2", capacidad: 10, invitadosTokens: ["demo-carlos-ruiz"], captainToken: null },
-  { id: "3", nombre: "Mesa 3", capacidad: 10, invitadosTokens: [], captainToken: null },
+  {
+    id: "1",
+    nombre: "Mesa 1",
+    tipoMesa: "redonda",
+    capacidad: 10,
+    orden: 0,
+    templateCategory: "personalizado",
+    collapsed: false,
+    invitadosTokens: ["demo-ana-luna"],
+    captainToken: null,
+  },
+  {
+    id: "2",
+    nombre: "Mesa 2",
+    tipoMesa: "redonda",
+    capacidad: 10,
+    orden: 1,
+    templateCategory: "personalizado",
+    collapsed: false,
+    invitadosTokens: ["demo-carlos-ruiz"],
+    captainToken: null,
+  },
+  {
+    id: "3",
+    nombre: "Mesa 3",
+    tipoMesa: "rectangular",
+    capacidad: 10,
+    orden: 2,
+    templateCategory: "personalizado",
+    collapsed: false,
+    invitadosTokens: [],
+    captainToken: null,
+  },
 ];

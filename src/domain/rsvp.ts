@@ -5,6 +5,9 @@ export interface RsvpPersonDetail {
   edad?: number;
   alergias: string[];
   intolerancias?: string;
+  tipo?: "Adulto" | "Niño";
+  guestToken?: string;
+  accessEnabled?: boolean;
 }
 
 export interface GuestRsvp {
@@ -15,5 +18,8 @@ export interface GuestRsvp {
   ninos: number;
   detalles: RsvpPersonDetail[];
   nota?: string;
+  invitationToken?: string;
+  invitationStatus?: "pendiente" | "respondida" | "confirmada" | "rechazada" | "modificada";
+  rejectionReason?: string;
   timestamp: number;
 }

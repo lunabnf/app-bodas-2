@@ -1,9 +1,12 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { GuestSession } from "../domain/guest";
-import { eventSitePaths } from "../eventSite/paths";
 import { registrarActividad } from "../services/actividadService";
 import { obtenerInvitadoPorToken } from "../services/invitadosService";
+import {
+  activateGuestAccess,
+  evaluateGuestPublicAccessByToken,
+} from "../services/invitationWorkflowService";
 import { findOwnerEventBySlug } from "../services/ownerEventsService";
 import { setAccessEventContext } from "../services/accessEventContextService";
 import { useAuth } from "../store/useAuth";
@@ -15,7 +18,7 @@ export default function IdentificarInvitado() {
 
   useEffect(() => {
     if (!token) {
-      navigate(eventSitePaths.home);
+      navigate("/");
       return;
     }
 
@@ -63,7 +66,15 @@ export default function IdentificarInvitado() {
         slug: event.slug,
         coupleLabel: event.coupleLabel,
       });
-      navigate(eventSitePaths.participaConfirmacion);
+
+      await activateGuestAccess(invitado.token);
+      const access = evaluateGuestPublicAccessByToken(invitado.token);
+      if (access.requiresRsvp || !access.allowed) {
+        navigate(`/w/${event.slug}/rsvp`);
+        return;
+      }
+
+      navigate(`/w/${event.slug}`);
     })();
   }, [token, slug, navigate, loginAsGuestForEvent]);
 

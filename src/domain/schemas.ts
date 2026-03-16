@@ -14,6 +14,17 @@ export const guestGroupTypeSchema = z.enum([
 
 export const guestStatusSchema = z.enum(["confirmado", "pendiente", "rechazado"]);
 export const guestTypeSchema = z.enum(["Adulto", "Niño"]);
+export const invitationRoleSchema = z.enum(["titular", "acompanante"]);
+export const personStatusSchema = z.enum(["creada", "confirmada", "cancelada", "incompleta"]);
+export const guestAccessStateSchema = z.enum([
+  "no_permitido",
+  "permitido",
+  "codigo_disponible",
+  "activado",
+  "bloqueado",
+]);
+export const assignmentStateSchema = z.enum(["sin_asignar", "asignada"]);
+export const menuStateSchema = z.enum(["sin_definir", "adulto", "infantil", "especial"]);
 
 export const guestSchema = z.object({
   id: z.string(),
@@ -26,6 +37,15 @@ export const guestSchema = z.object({
   mesa: z.string().optional(),
   esAdulto: z.boolean().optional(),
   edad: z.number().int().nonnegative().optional(),
+  invitationToken: z.string().optional(),
+  invitationRole: invitationRoleSchema.optional(),
+  personaEstado: personStatusSchema.optional(),
+  accessState: guestAccessStateSchema.optional(),
+  assignmentState: assignmentStateSchema.optional(),
+  menuEstado: menuStateSchema.optional(),
+  alergias: z.array(z.string()).optional(),
+  intolerancias: z.string().optional(),
+  notaPrivada: z.string().optional(),
 });
 
 export const guestSessionSchema = z.object({
@@ -41,7 +61,21 @@ export const guestSessionSchema = z.object({
 export const tableSchema = z.object({
   id: z.string(),
   nombre: z.string(),
+  tipoMesa: z.enum(["redonda", "rectangular"]),
   capacidad: z.number(),
+  orden: z.number().int().nonnegative(),
+  templateCategory: z
+    .enum([
+      "fiesta",
+      "naturaleza",
+      "musica_pop",
+      "musica_rock",
+      "ciudades",
+      "peliculas",
+      "romantico",
+      "personalizado",
+    ]),
+  collapsed: z.boolean(),
   invitadosTokens: z.array(z.string()),
   captainToken: z.string().nullable(),
 });
@@ -93,6 +127,9 @@ export const rsvpPersonDetailSchema = z.object({
   edad: z.number().optional(),
   alergias: z.array(z.string()),
   intolerancias: z.string().optional(),
+  tipo: guestTypeSchema.optional(),
+  guestToken: z.string().optional(),
+  accessEnabled: z.boolean().optional(),
 });
 
 export const guestRsvpSchema = z.object({
@@ -103,6 +140,11 @@ export const guestRsvpSchema = z.object({
   ninos: z.number(),
   detalles: z.array(rsvpPersonDetailSchema),
   nota: z.string().optional(),
+  invitationToken: z.string().optional(),
+  invitationStatus: z
+    .enum(["pendiente", "respondida", "confirmada", "rechazada", "modificada"])
+    .optional(),
+  rejectionReason: z.string().optional(),
   timestamp: z.number(),
 });
 
@@ -173,4 +215,6 @@ export const weddingSettingsSchema = z.object({
   portada: z.string().nullable(),
   mostrarPrograma: z.boolean(),
   mostrarMesas: z.boolean(),
+  mesasVisibilityMode: z.enum(["hidden", "visible", "scheduled"]).optional(),
+  mesasPublishAt: z.string().nullable().optional(),
 });

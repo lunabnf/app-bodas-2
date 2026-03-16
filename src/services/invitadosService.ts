@@ -75,6 +75,14 @@ function readLocalGuests(): Guest[] {
   return [];
 }
 
+export function obtenerInvitadosSync(): Guest[] {
+  if (typeof window === "undefined") return [];
+  if (!supabaseConfig.enabled) {
+    return readLocalGuests();
+  }
+  return [];
+}
+
 // Obtener todos los invitados
 export async function obtenerInvitados(): Promise<Guest[]> {
   if (!supabaseConfig.enabled) {
@@ -92,6 +100,11 @@ export async function obtenerInvitados(): Promise<Guest[]> {
 
 export async function obtenerInvitadoPorToken(token: string): Promise<Guest | null> {
   const invitados = await obtenerInvitados();
+  return invitados.find((invitado) => invitado.token === token) ?? null;
+}
+
+export function obtenerInvitadoPorTokenSync(token: string): Guest | null {
+  const invitados = obtenerInvitadosSync();
   return invitados.find((invitado) => invitado.token === token) ?? null;
 }
 

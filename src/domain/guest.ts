@@ -11,6 +11,16 @@ export type GuestGroupType =
 
 export type GuestStatus = "confirmado" | "pendiente" | "rechazado";
 export type GuestType = "Adulto" | "Niño";
+export type InvitationRole = "titular" | "acompanante";
+export type PersonStatus = "creada" | "confirmada" | "cancelada" | "incompleta";
+export type GuestAccessState =
+  | "no_permitido"
+  | "permitido"
+  | "codigo_disponible"
+  | "activado"
+  | "bloqueado";
+export type AssignmentState = "sin_asignar" | "asignada";
+export type MenuState = "sin_definir" | "adulto" | "infantil" | "especial";
 
 export interface Guest {
   id: string;
@@ -23,6 +33,15 @@ export interface Guest {
   mesa?: string;
   esAdulto?: boolean;
   edad?: number;
+  invitationToken?: string;
+  invitationRole?: InvitationRole;
+  personaEstado?: PersonStatus;
+  accessState?: GuestAccessState;
+  assignmentState?: AssignmentState;
+  menuEstado?: MenuState;
+  alergias?: string[];
+  intolerancias?: string;
+  notaPrivada?: string;
 }
 
 export type GuestSession = Pick<
