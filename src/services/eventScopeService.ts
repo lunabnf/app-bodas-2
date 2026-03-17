@@ -1,5 +1,6 @@
 import { getOwnerEventContext } from "./ownerEventContextService";
 import { getAccessEventContext } from "./accessEventContextService";
+import { findOwnerEventBySlug } from "./ownerEventsService";
 
 const AUTH_STORAGE_KEY = "wedding.auth";
 const DEFAULT_EVENT_ID = "evt-demo";
@@ -22,6 +23,17 @@ function readStoredAuth(): StoredAuth | null {
   }
 }
 
+function resolveEventIdFromRoute(): string | null {
+  if (typeof window === "undefined") return null;
+
+  const match = window.location.pathname.match(/^\/(?:w|evento)\/([^/]+)/);
+  const slug = match?.[1]?.trim().toLowerCase();
+  if (!slug) return null;
+
+  const event = findOwnerEventBySlug(slug);
+  return event?.id ?? null;
+}
+
 export function getActiveEventId(): string {
   if (typeof window === "undefined") return DEFAULT_EVENT_ID;
   const auth = readStoredAuth();
@@ -39,6 +51,12 @@ export function getActiveEventId(): string {
   if (accessContext?.eventId) {
     return accessContext.eventId;
   }
+
+  const routeEventId = resolveEventIdFromRoute();
+  if (routeEventId) {
+    return routeEventId;
+  }
+
   return DEFAULT_EVENT_ID;
 }
 

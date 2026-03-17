@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { guestSchema } from "../domain/schemas";
+import { ceremonySeatAssignmentSchema, guestSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { Guest } from "../domain/guest";
 import { supabaseConfig } from "./supabaseConfig";
@@ -41,6 +41,9 @@ function normalizeGuest(raw: unknown, index: number): Guest {
     esAdulto: typeof source.esAdulto === "boolean" ? source.esAdulto : source.tipo !== "Niño",
     ...(source.mesa ? { mesa: source.mesa } : {}),
     ...(typeof source.edad === "number" ? { edad: source.edad } : {}),
+    ...(ceremonySeatAssignmentSchema.safeParse(source.ceremonySeat).success
+      ? { ceremonySeat: source.ceremonySeat }
+      : {}),
   };
 }
 

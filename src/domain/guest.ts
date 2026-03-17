@@ -21,6 +21,13 @@ export type GuestAccessState =
   | "bloqueado";
 export type AssignmentState = "sin_asignar" | "asignada";
 export type MenuState = "sin_definir" | "adulto" | "infantil" | "especial";
+export type CeremonySeatSide = "left" | "right";
+
+export interface CeremonySeatAssignment {
+  side: CeremonySeatSide;
+  row: number;
+  seat: number;
+}
 
 export interface Guest {
   id: string;
@@ -42,6 +49,7 @@ export interface Guest {
   alergias?: string[];
   intolerancias?: string;
   notaPrivada?: string;
+  ceremonySeat?: CeremonySeatAssignment;
 }
 
 export type GuestSession = Pick<

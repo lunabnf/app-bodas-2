@@ -322,7 +322,7 @@ export async function safeRemoveGuestFromInvitation(guestToken: string): Promise
   const linkedTokens = new Set(record?.linkedGuestTokens ?? [guest.token]);
   const updatedGuests = guests.map((item) => {
     if (!linkedTokens.has(item.token)) return item;
-    const { mesa: _mesa, ...rest } = item;
+    const { mesa: _mesa, ceremonySeat: _ceremonySeat, ...rest } = item;
     return {
       ...rest,
       estado: "rechazado" as const,
@@ -628,6 +628,7 @@ export async function processInvitationRsvp(
       ...(attendee.alergias.length > 0 ? { alergias: attendee.alergias } : {}),
       ...(attendee.intolerancias ? { intolerancias: attendee.intolerancias } : {}),
       ...(existingGuest?.mesa ? { mesa: existingGuest.mesa } : {}),
+      ...(existingGuest?.ceremonySeat ? { ceremonySeat: existingGuest.ceremonySeat } : {}),
     };
 
     if (guestIndex === -1) {
@@ -660,7 +661,7 @@ export async function processInvitationRsvp(
 
     const guest = nextGuests[guestIndex];
     if (!guest) continue;
-    const { mesa: _mesa, ...guestWithoutMesa } = guest;
+    const { mesa: _mesa, ceremonySeat: _ceremonySeat, ...guestWithoutMesa } = guest;
     nextGuests[guestIndex] = {
       ...guestWithoutMesa,
       estado: "rechazado",

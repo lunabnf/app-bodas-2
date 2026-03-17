@@ -25,6 +25,12 @@ export const guestAccessStateSchema = z.enum([
 ]);
 export const assignmentStateSchema = z.enum(["sin_asignar", "asignada"]);
 export const menuStateSchema = z.enum(["sin_definir", "adulto", "infantil", "especial"]);
+export const ceremonySeatSideSchema = z.enum(["left", "right"]);
+export const ceremonySeatAssignmentSchema = z.object({
+  side: ceremonySeatSideSchema,
+  row: z.number().int().positive(),
+  seat: z.number().int().positive(),
+});
 
 export const guestSchema = z.object({
   id: z.string(),
@@ -46,6 +52,7 @@ export const guestSchema = z.object({
   alergias: z.array(z.string()).optional(),
   intolerancias: z.string().optional(),
   notaPrivada: z.string().optional(),
+  ceremonySeat: ceremonySeatAssignmentSchema.optional(),
 });
 
 export const guestSessionSchema = z.object({
@@ -80,33 +87,85 @@ export const tableSchema = z.object({
   captainToken: z.string().nullable(),
 });
 
+export const lodgingTypeSchema = z.enum(["hotel", "hostal", "apartamento", "casa_rural", "otro"]);
+
 export const lodgingOptionSchema = z.object({
   id: z.string(),
   nombre: z.string(),
+  tipo: lodgingTypeSchema.optional(),
+  descripcion: z.string().optional(),
   direccion: z.string(),
-  link: z.string(),
+  municipio: z.string().optional(),
+  distanciaKm: z.number().nonnegative().optional(),
+  telefono: z.string().optional(),
+  email: z.string().optional(),
+  webUrl: z.string().optional(),
+  bookingUrl: z.string().optional(),
+  precioDesde: z.number().nonnegative().optional(),
+  images: z.array(z.string()).optional(),
+  visible: z.boolean().optional(),
+  destacado: z.boolean().optional(),
+  sourceUrl: z.string().optional(),
   notas: z.string().optional(),
+  notasPrivadas: z.string().optional(),
+  link: z.string().optional(),
 });
 
 export const lodgingRequestSchema = z.object({
   id: z.string(),
   guestToken: z.string(),
   guestName: z.string(),
-  lodgingId: z.string().nullable(),
+  accommodationId: z.string().nullable().optional(),
+  lodgingId: z.string().nullable().optional(),
+  interested: z.boolean().optional(),
   needsLodging: z.boolean(),
+  persons: z.number().int().positive().optional(),
+  comment: z.string().optional(),
   notes: z.string().optional(),
   createdAt: z.number(),
   updatedAt: z.number(),
 });
 
+export const transportTypeSchema = z.enum([
+  "bus",
+  "microbus",
+  "transfer",
+  "coche_compartido",
+  "otro",
+]);
+export const transportTripStateSchema = z.enum(["borrador", "activo", "completo", "cancelado"]);
+export const tripDirectionSchema = z.enum(["ida", "vuelta", "ambas"]);
+export const guestTransportStateSchema = z.enum([
+  "pendiente",
+  "solicitado",
+  "asignado",
+  "resuelto",
+  "sin_solucion",
+]);
+export const transportNoticeTypeSchema = z.enum(["info", "importante", "urgente"]);
+
 export const transportOptionSchema = z.object({
   id: z.string(),
+  titulo: z.string().optional(),
   nombre: z.string(),
   origen: z.string(),
   destino: z.string(),
+  fecha: z.string().optional(),
+  horaSalida: z.string().optional(),
+  horaLlegadaEstimada: z.string().optional(),
   hora: z.string(),
+  tipoTransporte: transportTypeSchema.optional(),
+  plazasDisponibles: z.number().optional(),
+  plazasOcupadas: z.number().optional(),
   capacidad: z.number(),
+  requiereReserva: z.boolean().optional(),
+  precioOpcional: z.number().optional(),
+  puntoEncuentro: z.string().optional(),
+  responsable: z.string().optional(),
+  contacto: z.string().optional(),
+  observaciones: z.string().optional(),
   notas: z.string(),
+  estado: transportTripStateSchema.optional(),
 });
 
 export const transportRequestSchema = z.object({
@@ -116,8 +175,47 @@ export const transportRequestSchema = z.object({
   transportId: z.string(),
   seats: z.number(),
   notes: z.string().optional(),
+  needsTransport: z.boolean().optional(),
+  direction: tripDirectionSchema.optional(),
+  origin: z.string().optional(),
+  peopleCount: z.number().int().positive().optional(),
+  reducedMobility: z.boolean().optional(),
+  childSeat: z.boolean().optional(),
+  comments: z.string().optional(),
+  status: guestTransportStateSchema.optional(),
+  assignedTripId: z.string().optional(),
+  hasCarOffer: z.boolean().optional(),
+  offeredSeats: z.number().int().nonnegative().optional(),
+  approximateSchedule: z.string().optional(),
   createdAt: z.number(),
   updatedAt: z.number(),
+});
+
+export const transportNoticeSchema = z.object({
+  id: z.string(),
+  titulo: z.string(),
+  mensaje: z.string(),
+  tipo: transportNoticeTypeSchema,
+  fechaHora: z.string(),
+  trayectoRelacionado: z.string().optional(),
+});
+
+export const songProposalSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  artist: z.string(),
+  url: z.string().optional(),
+  proposerGuestToken: z.string(),
+  visible: z.boolean(),
+  createdAt: z.number(),
+  legacyVotesBase: z.number().int().nonnegative().optional(),
+});
+
+export const songVoteSchema = z.object({
+  id: z.string(),
+  proposalId: z.string(),
+  guestToken: z.string(),
+  createdAt: z.number(),
 });
 
 export const rsvpAttendanceSchema = z.enum(["", "si", "no"]);
@@ -199,10 +297,27 @@ export const weddingProgramEventSchema = z.object({
   id: z.string(),
   hora: z.string(),
   titulo: z.string(),
-  descripcion: z.string(),
+  subtitulo: z.string().optional(),
+  descripcion: z.string().optional(),
+  ubicacion: z.string().optional(),
+  visible: z.boolean().optional(),
+  orden: z.number().int().nonnegative().optional(),
+  categoria: z
+    .enum(["general", "recepcion", "ceremonia", "cocktail", "banquete", "baile", "fiesta", "traslado"])
+    .optional(),
 });
 
 export const weddingProgramSchema = z.array(weddingProgramEventSchema);
+
+export const weddingProgramConfigSchema = z.object({
+  tituloSeccion: z.string(),
+  subtituloSeccion: z.string(),
+});
+
+export const weddingProgramDocumentSchema = z.object({
+  config: weddingProgramConfigSchema,
+  items: weddingProgramSchema,
+});
 
 export const weddingSettingsSchema = z.object({
   novio: z.string(),
@@ -217,4 +332,15 @@ export const weddingSettingsSchema = z.object({
   mostrarMesas: z.boolean(),
   mesasVisibilityMode: z.enum(["hidden", "visible", "scheduled"]).optional(),
   mesasPublishAt: z.string().nullable().optional(),
+});
+
+export const ceremonyLayoutTypeSchema = z.enum(["two_blocks_center_aisle"]);
+
+export const ceremonyLayoutSchema = z.object({
+  layoutType: ceremonyLayoutTypeSchema,
+  leftRows: z.number().int().positive(),
+  rightRows: z.number().int().positive(),
+  seatsPerRow: z.number().int().positive(),
+  centerAisleLabel: z.string().optional(),
+  updatedAt: z.number(),
 });

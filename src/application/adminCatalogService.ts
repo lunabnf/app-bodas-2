@@ -3,6 +3,7 @@ import type { TransportOption, TransportRequest } from "../domain/transport";
 import {
   borrarAlojamiento,
   guardarAlojamientos,
+  hydrateLodgingDraftFromUrl,
   obtenerAlojamientos,
   obtenerSolicitudesAlojamiento,
 } from "../services/alojamientosService";
@@ -28,9 +29,26 @@ export function createEmptyLodgingDraft(): LodgingOption {
   return {
     id: crypto.randomUUID(),
     nombre: "",
+    tipo: "hotel",
+    descripcion: "",
     direccion: "",
-    link: "",
+    municipio: "",
+    telefono: "",
+    email: "",
+    webUrl: "",
+    bookingUrl: "",
+    images: [],
+    visible: true,
+    destacado: false,
     notas: "",
+    notasPrivadas: "",
+  };
+}
+
+export function createLodgingDraftFromUrl(url: string): LodgingOption {
+  return {
+    ...createEmptyLodgingDraft(),
+    ...hydrateLodgingDraftFromUrl(url),
   };
 }
 
@@ -78,11 +96,25 @@ export async function createLodgingOption(
   if (!draft.nombre.trim()) return null;
 
   const lodging: LodgingOption = {
-    id: draft.id,
+    id: draft.id || crypto.randomUUID(),
     nombre: draft.nombre.trim(),
+    tipo: draft.tipo,
+    descripcion: draft.descripcion.trim(),
     direccion: draft.direccion.trim(),
-    link: draft.link.trim(),
+    municipio: draft.municipio.trim(),
+    telefono: draft.telefono.trim(),
+    email: draft.email.trim(),
+    webUrl: draft.webUrl.trim(),
+    bookingUrl: draft.bookingUrl.trim(),
+    images: draft.images,
+    visible: draft.visible,
+    destacado: draft.destacado,
+    ...(typeof draft.distanciaKm === "number" ? { distanciaKm: draft.distanciaKm } : {}),
+    ...(typeof draft.precioDesde === "number" ? { precioDesde: draft.precioDesde } : {}),
+    ...(draft.sourceUrl?.trim() ? { sourceUrl: draft.sourceUrl.trim() } : {}),
     ...(draft.notas?.trim() ? { notas: draft.notas.trim() } : {}),
+    ...(draft.notasPrivadas?.trim() ? { notasPrivadas: draft.notasPrivadas.trim() } : {}),
+    ...(draft.bookingUrl?.trim() ? { link: draft.bookingUrl.trim() } : {}),
   };
 
   await guardarAlojamientos([...alojamientos, lodging]);
@@ -118,12 +150,25 @@ export async function createTransportOption(
 
   const entry: TransportOption = {
     id: createTransportId(),
+    titulo: draft.nombre.trim(),
     nombre: draft.nombre.trim(),
     origen: draft.origen.trim(),
     destino: draft.destino.trim(),
+    fecha: "",
+    horaSalida: draft.hora.trim(),
+    horaLlegadaEstimada: "",
     hora: draft.hora.trim(),
+    tipoTransporte: "otro",
+    plazasDisponibles: Number(draft.capacidad) || 0,
+    plazasOcupadas: 0,
     capacidad: Number(draft.capacidad) || 0,
+    requiereReserva: true,
+    puntoEncuentro: "",
+    responsable: "",
+    contacto: "",
+    observaciones: draft.notas.trim(),
     notas: draft.notas.trim(),
+    estado: "activo",
   };
 
   await guardarTransportes([...transportes, entry]);

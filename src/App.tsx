@@ -40,6 +40,7 @@ const ArchivosAdmin = lazy(() => import("./admin/Archivos"));
 const AjustesAdmin = lazy(() => import("./admin/Ajustes"));
 const AlojamientoAdmin = lazy(() => import("./admin/AlojamientoAdmin"));
 const DesplazamientoAdmin = lazy(() => import("./admin/DesplazamientoAdmin"));
+const MusicaAdmin = lazy(() => import("./admin/MusicaAdmin"));
 const ActividadAdmin = lazy(() => import("./admin/Actividad"));
 const ChatAdmin = lazy(() => import("./admin/ChatAdmin"));
 const BackofficeLayout = lazy(() => import("./backoffice/BackofficeLayout"));
@@ -53,18 +54,6 @@ const BackofficeSettings = lazy(() => import("./backoffice/BackofficeSettings"))
 
 // TEMP DEV: abrir panel de boda sin bloquear por roles/auth para revisión visual y de rutas.
 const DEV_OPEN_WEDDING_ADMIN = true;
-
-function PanelPlaceholder({ title }: { title: string }) {
-  return (
-    <div className="app-surface p-8 text-[var(--app-ink)]">
-      <p className="app-kicker">Temporal</p>
-      <h1 className="app-page-title mt-4">{title}</h1>
-      <p className="mt-3 text-[var(--app-muted)]">
-        Esta vista aún no tiene implementación específica y se mantiene como placeholder.
-      </p>
-    </div>
-  );
-}
 
 function RouteFallback() {
   return (
@@ -180,7 +169,7 @@ function Root() {
           <Route path="desplazamientos" element={<DesplazamientoAdmin />} />
           <Route path="mesas" element={<MesasAdmin />} />
           <Route path="chat" element={<ChatAdmin />} />
-          <Route path="musica" element={<PanelPlaceholder title="Música del Evento" />} />
+          <Route path="musica" element={<MusicaAdmin />} />
           <Route path="presupuesto" element={<PresupuestoAdmin />} />
           <Route path="ajustes" element={<AjustesAdmin />} />
           {/* Compat interna panel */}
