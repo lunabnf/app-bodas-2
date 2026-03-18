@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { eventSitePaths } from "../eventSite/paths";
+import { buildEventSitePaths } from "../eventSite/paths";
 
 export default function AppLayout() {
+  const { slug } = useParams();
+  const paths = buildEventSitePaths(slug);
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -34,11 +36,19 @@ export default function AppLayout() {
         >
           <nav className="app-surface-soft p-4 space-y-3">
             <NavLink
-              to={eventSitePaths.home}
+              to={paths.home}
               onClick={close}
               className={linkClass}
             >
               Inicio
+            </NavLink>
+
+            <NavLink
+              to={paths.miResumen}
+              onClick={close}
+              className={linkClass}
+            >
+              Mi resumen
             </NavLink>
 
             <details className="group rounded-[20px] border border-[var(--app-line)] bg-[rgba(248,247,243,0.72)] px-2 py-2">
@@ -47,35 +57,35 @@ export default function AppLayout() {
               </summary>
               <div className="ml-2 mt-2 space-y-1 border-l border-[var(--app-line)] pl-3">
                 <NavLink
-                  to={eventSitePaths.programa}
+                  to={paths.programa}
                   onClick={close}
                   className={linkClass}
                 >
                   Programa
                 </NavLink>
                 <NavLink
-                  to={eventSitePaths.alojamientos}
+                  to={paths.alojamientos}
                   onClick={close}
                   className={linkClass}
                 >
                   Alojamiento
                 </NavLink>
                 <NavLink
-                  to={eventSitePaths.desplazamientos}
+                  to={paths.desplazamientos}
                   onClick={close}
                   className={linkClass}
                 >
                   Desplazamiento
                 </NavLink>
                 <NavLink
-                  to={eventSitePaths.countdown}
+                  to={paths.countdown}
                   onClick={close}
                   className={linkClass}
                 >
                   Cuenta atrás
                 </NavLink>
                 <NavLink
-                  to={eventSitePaths.contacto}
+                  to={paths.contacto}
                   onClick={close}
                   className={linkClass}
                 >
@@ -90,42 +100,42 @@ export default function AppLayout() {
               </summary>
               <div className="ml-2 mt-2 space-y-1 border-l border-[var(--app-line)] pl-3">
                 <NavLink
-                  to={eventSitePaths.participaConfirmacion}
+                  to={paths.participaConfirmacion}
                   onClick={close}
                   className={linkClass}
                 >
                   Confirmar asistencia
                 </NavLink>
                 <NavLink
-                  to={eventSitePaths.participaMesas}
+                  to={paths.participaMesas}
                   onClick={close}
                   className={linkClass}
                 >
                   Mesas
                 </NavLink>
                 <NavLink
-                  to={eventSitePaths.participaAsientos}
+                  to={paths.participaAsientos}
                   onClick={close}
                   className={linkClass}
                 >
                   Asientos ceremonia
                 </NavLink>
                 <NavLink
-                  to={eventSitePaths.participaMusica}
+                  to={paths.participaMusica}
                   onClick={close}
                   className={linkClass}
                 >
                   Música
                 </NavLink>
                 <NavLink
-                  to={eventSitePaths.participaChat}
+                  to={paths.participaChat}
                   onClick={close}
                   className={linkClass}
                 >
                   Chat
                 </NavLink>
                 <NavLink
-                  to={eventSitePaths.participaFotos}
+                  to={paths.participaFotos}
                   onClick={close}
                   className={linkClass}
                 >

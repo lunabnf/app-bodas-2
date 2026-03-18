@@ -15,6 +15,7 @@ const MarketingCreateEvent = lazy(() => import("./pages/MarketingCreateEvent"));
 const BuscarBoda = lazy(() => import("./pages/BuscarBoda"));
 const WeddingAccess = lazy(() => import("./pages/WeddingAccess"));
 const Home = lazy(() => import("./pages/Home"));
+const MiResumen = lazy(() => import("./pages/MiResumen"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Programa = lazy(() => import("./pages/Programa"));
 const ConfirmarAsistencia = lazy(() => import("./pages/ConfirmarAsistencia"));
@@ -28,6 +29,7 @@ const ChatPage = lazy(() => import("./pages/Chat"));
 const IdentificarInvitado = lazy(() => import("./pages/IdentificarInvitado"));
 
 const AdminLayout = lazy(() => import("./admin/AdminLayout"));
+const GestionAdmin = lazy(() => import("./admin/Gestion"));
 const Resumen = lazy(() => import("./admin/Resumen"));
 const InvitadosAdmin = lazy(() => import("./admin/Invitados"));
 const MesasAdmin = lazy(() => import("./admin/Mesas"));
@@ -139,6 +141,7 @@ function Root() {
           }
         >
           <Route path="/w/:slug" element={<Home />} />
+          <Route path="/w/:slug/mi-resumen" element={<MiResumen />} />
           <Route path="/w/:slug/programa" element={<Programa />} />
           <Route path="/w/:slug/rsvp" element={<ConfirmarAsistencia />} />
           <Route path="/w/:slug/rsvp/:token" element={<IdentificarInvitado />} />
@@ -162,7 +165,7 @@ function Root() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<Resumen />} />
+          <Route index element={<GestionAdmin />} />
           <Route path="invitados" element={<InvitadosAdmin />} />
           <Route path="programa" element={<ProgramaAdmin />} />
           <Route path="alojamientos" element={<AlojamientoAdmin />} />
@@ -172,6 +175,7 @@ function Root() {
           <Route path="musica" element={<MusicaAdmin />} />
           <Route path="presupuesto" element={<PresupuestoAdmin />} />
           <Route path="ajustes" element={<AjustesAdmin />} />
+          <Route path="gestion" element={<GestionAdmin />} />
           {/* Compat interna panel */}
           <Route path="resumen" element={<Resumen />} />
           <Route path="ceremonia" element={<CeremoniaAdmin />} />

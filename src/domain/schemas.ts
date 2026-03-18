@@ -218,6 +218,17 @@ export const songVoteSchema = z.object({
   createdAt: z.number(),
 });
 
+export const guestPhotoSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+  size: z.number().nonnegative(),
+  dataUrl: z.string(),
+  uploadedByName: z.string(),
+  uploadedByToken: z.string().optional(),
+  createdAt: z.number(),
+});
+
 export const rsvpAttendanceSchema = z.enum(["", "si", "no"]);
 
 export const rsvpPersonDetailSchema = z.object({
@@ -319,6 +330,34 @@ export const weddingProgramDocumentSchema = z.object({
   items: weddingProgramSchema,
 });
 
+export const guestHomeButtonTargetSchema = z.enum([
+  "mi_resumen",
+  "rsvp",
+  "programa",
+  "alojamientos",
+  "desplazamientos",
+  "mesas",
+  "musica",
+  "chat",
+  "buscar_boda",
+]);
+
+export const guestHomeSettingsSchema = z.object({
+  imagenPrincipal: z.string().nullable().optional(),
+  tituloPrincipal: z.string().optional(),
+  subtituloBienvenida: z.string().optional(),
+  textoSecundario: z.string().optional(),
+  mensajeDestacado: z.string().optional(),
+  botonPrincipalTexto: z.string().optional(),
+  botonPrincipalDestino: guestHomeButtonTargetSchema.optional(),
+  botonSecundarioTexto: z.string().optional(),
+  botonSecundarioDestino: guestHomeButtonTargetSchema.optional(),
+  bloqueSecundarioTitulo: z.string().optional(),
+  bloqueSecundarioTexto: z.string().optional(),
+  mostrarBloqueSecundario: z.boolean().optional(),
+  mostrarInstalacionApp: z.boolean().optional(),
+});
+
 export const weddingSettingsSchema = z.object({
   novio: z.string(),
   novia: z.string(),
@@ -332,6 +371,58 @@ export const weddingSettingsSchema = z.object({
   mostrarMesas: z.boolean(),
   mesasVisibilityMode: z.enum(["hidden", "visible", "scheduled"]).optional(),
   mesasPublishAt: z.string().nullable().optional(),
+  guestHome: guestHomeSettingsSchema.optional(),
+});
+
+export const budgetItemCategorySchema = z.enum([
+  "espacio",
+  "catering",
+  "bebidas",
+  "tarta",
+  "decoracion",
+  "foto_video",
+  "musica",
+  "transporte",
+  "alojamiento",
+  "papeleria",
+  "regalos",
+  "vestuario",
+  "belleza",
+  "alianzas",
+  "imprevistos",
+  "otro",
+]);
+
+export const budgetItemTypeSchema = z.enum(["fixed", "variable"]);
+export const budgetVariableSourceSchema = z.enum([
+  "confirmedAdults",
+  "confirmedChildren",
+  "confirmedGuests",
+  "requestedTransportSeats",
+]);
+
+export const budgetVariableConfigSchema = z.object({
+  sourceType: budgetVariableSourceSchema,
+  unitPrice: z.number().nonnegative(),
+  plannedQuantity: z.number().int().nonnegative(),
+});
+
+export const budgetItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  category: budgetItemCategorySchema,
+  type: budgetItemTypeSchema,
+  plannedAmount: z.number().nonnegative(),
+  paidAmount: z.number().nonnegative(),
+  notes: z.string().optional(),
+  active: z.boolean(),
+  order: z.number().int().nonnegative(),
+  variableConfig: budgetVariableConfigSchema.optional(),
+});
+
+export const budgetDocumentSchema = z.object({
+  items: z.array(budgetItemSchema),
+  updatedAt: z.number(),
 });
 
 export const ceremonyLayoutTypeSchema = z.enum(["two_blocks_center_aisle"]);
@@ -342,5 +433,61 @@ export const ceremonyLayoutSchema = z.object({
   rightRows: z.number().int().positive(),
   seatsPerRow: z.number().int().positive(),
   centerAisleLabel: z.string().optional(),
+  updatedAt: z.number(),
+});
+
+export const gestionTaskCategorySchema = z.enum([
+  "planificacion",
+  "invitados",
+  "programa",
+  "logistica",
+  "presupuesto",
+  "proveedores",
+  "ceremonia",
+  "otros",
+]);
+
+export const gestionTaskPhaseSchema = z.enum([
+  "pre_apertura",
+  "apertura",
+  "post_apertura",
+  "recta_final",
+]);
+
+export const gestionTaskPrioritySchema = z.enum(["alta", "media", "baja"]);
+
+export const gestionRelatedModuleSchema = z.enum([
+  "invitados",
+  "mesas",
+  "ceremonia",
+  "programa",
+  "alojamientos",
+  "desplazamientos",
+  "presupuesto",
+  "actividad",
+  "ajustes",
+  "musica",
+  "chat",
+  "archivos",
+]);
+
+export const gestionTaskSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  category: gestionTaskCategorySchema,
+  phase: gestionTaskPhaseSchema,
+  priority: gestionTaskPrioritySchema,
+  dueDate: z.string().optional(),
+  completed: z.boolean(),
+  completedAt: z.number().optional(),
+  notes: z.string().optional(),
+  relatedModule: gestionRelatedModuleSchema.optional(),
+  source: z.enum(["template", "manual"]),
+  order: z.number().int().nonnegative(),
+});
+
+export const gestionDocumentSchema = z.object({
+  guestOpeningDate: z.string().optional(),
+  tasks: z.array(gestionTaskSchema),
   updatedAt: z.number(),
 });

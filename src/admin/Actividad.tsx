@@ -1,320 +1,305 @@
-import { useEffect, useState } from "react";
-import type { LodgingRequest } from "../domain/lodging";
-import type { GuestRsvp } from "../domain/rsvp";
-import type { TransportRequest } from "../domain/transport";
+import { useEffect, useMemo, useState } from "react";
 import {
   clearAdminActivityHistory,
+  filterTimelineItems,
   formatActivityDate,
   loadActivityDashboardData,
+  type ActivityBlockSummary,
+  type ActivityCategory,
+  type ActivityPeriodFilter,
   type TimelineItem,
 } from "../application/adminActivityService";
-import type { EventoActividad } from "../services/actividadService";
-import type { LogItem } from "../services/logsService";
+
+type Notice = {
+  type: "success" | "error";
+  text: string;
+} | null;
+
+const COLLAPSE_STORAGE_KEY = "wedding.admin.activity.collapsed";
+
+const categoryOptions: Array<{ value: "todas" | ActivityCategory; label: string }> = [
+  { value: "todas", label: "Todas" },
+  { value: "confirmaciones", label: "Confirmaciones" },
+  { value: "alojamiento", label: "Alojamiento" },
+  { value: "transporte", label: "Transporte" },
+  { value: "musica", label: "Música" },
+  { value: "chat", label: "Chat" },
+  { value: "invitados", label: "Invitados" },
+  { value: "mesas_ceremonia", label: "Mesas / ceremonia" },
+  { value: "admin", label: "Admin" },
+  { value: "otros", label: "Otros" },
+];
+
+function loadCollapsedState(): Record<string, boolean> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = localStorage.getItem(COLLAPSE_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveCollapsedState(next: Record<string, boolean>) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(COLLAPSE_STORAGE_KEY, JSON.stringify(next));
+}
+
+function getBlockTone(block: ActivityCategory) {
+  if (block === "confirmaciones") return "bg-emerald-100 text-emerald-800";
+  if (block === "transporte" || block === "alojamiento") return "bg-amber-100 text-amber-800";
+  if (block === "musica" || block === "chat") return "bg-sky-100 text-sky-800";
+  if (block === "admin") return "bg-slate-200 text-slate-700";
+  return "bg-[rgba(24,24,23,0.08)] text-[var(--app-ink)]";
+}
+
+function renderTimelineTable(items: TimelineItem[]) {
+  if (items.length === 0) {
+    return <p className="text-sm text-[var(--app-muted)]">No hay eventos en este bloque con los filtros actuales.</p>;
+  }
+
+  return (
+    <div className="overflow-auto rounded-[22px] border border-[var(--app-line)] bg-[rgba(255,255,255,0.72)]">
+      <table className="w-full text-sm">
+        <thead className="bg-[rgba(24,24,23,0.06)] text-left text-[var(--app-muted)]">
+          <tr>
+            <th className="px-4 py-3">Fecha</th>
+            <th className="px-4 py-3">Actor</th>
+            <th className="px-4 py-3">Categoría</th>
+            <th className="px-4 py-3">Detalle</th>
+            <th className="px-4 py-3">Origen</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item) => (
+            <tr key={item.id} className="border-t border-[var(--app-line)] align-top">
+              <td className="px-4 py-3 whitespace-nowrap">{formatActivityDate(item.timestamp)}</td>
+              <td className="px-4 py-3">{item.actor}</td>
+              <td className="px-4 py-3 capitalize">{item.category.replace(/_/g, " ")}</td>
+              <td className="px-4 py-3">{item.detail}</td>
+              <td className="px-4 py-3 capitalize">{item.source}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export default function ActividadAdmin() {
   const [loading, setLoading] = useState(true);
   const [timeline, setTimeline] = useState<TimelineItem[]>([]);
-  const [rsvps, setRsvps] = useState<GuestRsvp[]>([]);
-  const [lodgingRequests, setLodgingRequests] = useState<LodgingRequest[]>([]);
-  const [transportRequests, setTransportRequests] = useState<TransportRequest[]>([]);
-  const [rawActivity, setRawActivity] = useState<EventoActividad[]>([]);
-  const [adminLogs, setAdminLogs] = useState<LogItem[]>([]);
-  const [lodgingNames, setLodgingNames] = useState<Record<string, string>>({});
-  const [transportNames, setTransportNames] = useState<Record<string, string>>({});
-  const [confirmados, setConfirmados] = useState(0);
-  const [rechazados, setRechazados] = useState(0);
-  const [totalPlazasTransporte, setTotalPlazasTransporte] = useState(0);
-  const [totalConAlergias, setTotalConAlergias] = useState(0);
+  const [blocks, setBlocks] = useState<ActivityBlockSummary[]>([]);
+  const [notice, setNotice] = useState<Notice>(null);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => loadCollapsedState());
+  const [categoryFilter, setCategoryFilter] = useState<"todas" | ActivityCategory>("todas");
+  const [periodFilter, setPeriodFilter] = useState<ActivityPeriodFilter>("todo");
+  const [onlyImportant, setOnlyImportant] = useState(false);
+  const [metrics, setMetrics] = useState({
+    confirmados: 0,
+    rechazados: 0,
+    totalPlazasTransporte: 0,
+    totalConAlergias: 0,
+  });
 
-  const cargarActividad = async () => {
+  async function loadData() {
     setLoading(true);
-
     const data = await loadActivityDashboardData();
-    setRawActivity(data.rawActivity);
-    setAdminLogs(data.adminLogs);
-    setRsvps(data.rsvps);
-    setLodgingRequests(data.lodgingRequests);
-    setTransportRequests(data.transportRequests);
-    setLodgingNames(data.lodgingNames);
-    setTransportNames(data.transportNames);
     setTimeline(data.timeline);
-    setConfirmados(data.metrics.confirmados);
-    setRechazados(data.metrics.rechazados);
-    setTotalPlazasTransporte(data.metrics.totalPlazasTransporte);
-    setTotalConAlergias(data.metrics.totalConAlergias);
+    setBlocks(data.blocks);
+    setMetrics(data.metrics);
     setLoading(false);
-  };
+  }
 
   useEffect(() => {
-    void cargarActividad();
+    void loadData();
   }, []);
 
-  const handleLimpiar = async () => {
+  function updateCollapsed(next: Record<string, boolean>) {
+    setCollapsed(next);
+    saveCollapsedState(next);
+  }
+
+  function toggleBlock(blockId: string) {
+    updateCollapsed({
+      ...collapsed,
+      [blockId]: !collapsed[blockId],
+    });
+  }
+
+  function expandAll() {
+    updateCollapsed(Object.fromEntries(blocks.map((block) => [block.id, false])));
+  }
+
+  function collapseAll() {
+    updateCollapsed(Object.fromEntries(blocks.map((block) => [block.id, true])));
+  }
+
+  const filteredBlocks = useMemo(() => {
+    return blocks
+      .map((block) => {
+        const items = filterTimelineItems(block.items, {
+          category: categoryFilter,
+          period: periodFilter,
+          onlyImportant,
+        });
+
+        return {
+          ...block,
+          items,
+          count: items.length,
+          lastEvent: items[0],
+          collapsedHint: items[0]
+            ? `${items[0].detail} · ${formatActivityDate(items[0].timestamp)}`
+            : "Sin actividad con los filtros actuales",
+        };
+      })
+      .filter((block) => block.id === "timeline" || block.count > 0);
+  }, [blocks, categoryFilter, onlyImportant, periodFilter]);
+
+  async function handleLimpiar() {
     const confirmar = window.confirm(
       "Se borrará el historial de eventos y logs, pero no las respuestas ni solicitudes de invitados. ¿Continuar?"
     );
     if (!confirmar) return;
 
     await clearAdminActivityHistory();
-    await cargarActividad();
-  };
+    setNotice({ type: "success", text: "Historial de actividad y logs limpiado." });
+    await loadData();
+  }
 
   return (
-    <div className="p-6 space-y-8 text-white">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">Actividad</h1>
-          <p className="text-sm opacity-70 mt-1">
-            Panel de control de todo lo que hacen invitados y novios dentro de la aplicación.
-          </p>
+    <section className="space-y-6 px-4 py-6 text-[var(--app-ink)] sm:px-6">
+      <div className="app-surface p-8">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className="app-kicker">Actividad</p>
+            <h1 className="app-page-title mt-4">Centro de control de actividad</h1>
+            <p className="mt-3 max-w-3xl text-[var(--app-muted)]">
+              Sigue confirmaciones, logística, música, chat y otros cambios relevantes sin perderte en una pantalla infinita.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void handleLimpiar()}
+            className="rounded-full border border-red-300/70 px-4 py-2 text-sm text-red-700"
+          >
+            Borrar historial
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => void handleLimpiar()}
-          className="rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-red-50 hover:text-red-700"
-        >
-          Borrar historial
-        </button>
       </div>
 
+      {notice ? (
+        <div
+          className={`app-panel p-4 text-sm ${
+            notice.type === "error" ? "border-red-300/60 text-red-700" : "border-emerald-300/60 text-emerald-700"
+          }`}
+        >
+          {notice.text}
+        </div>
+      ) : null}
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <article className="app-surface-soft p-4">
+          <p className="text-sm text-[var(--app-muted)]">Confirmaciones</p>
+          <p className="mt-2 text-3xl font-semibold">{metrics.confirmados}</p>
+          <p className="mt-1 text-xs text-[var(--app-muted)]">Invitados que asistirán</p>
+        </article>
+        <article className="app-surface-soft p-4">
+          <p className="text-sm text-[var(--app-muted)]">Rechazos</p>
+          <p className="mt-2 text-3xl font-semibold">{metrics.rechazados}</p>
+          <p className="mt-1 text-xs text-[var(--app-muted)]">Invitados que no asistirán</p>
+        </article>
+        <article className="app-surface-soft p-4">
+          <p className="text-sm text-[var(--app-muted)]">Plazas transporte</p>
+          <p className="mt-2 text-3xl font-semibold">{metrics.totalPlazasTransporte}</p>
+          <p className="mt-1 text-xs text-[var(--app-muted)]">Solicitadas por invitados</p>
+        </article>
+        <article className="app-surface-soft p-4">
+          <p className="text-sm text-[var(--app-muted)]">RSVP con alergias</p>
+          <p className="mt-2 text-3xl font-semibold">{metrics.totalConAlergias}</p>
+          <p className="mt-1 text-xs text-[var(--app-muted)]">Dietas e intolerancias</p>
+        </article>
+      </section>
+
+      <section className="app-panel space-y-4 p-5 sm:p-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="button" onClick={expandAll} className="app-button-secondary">
+            Expandir todo
+          </button>
+          <button type="button" onClick={collapseAll} className="app-button-secondary">
+            Contraer todo
+          </button>
+          <select
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value as "todas" | ActivityCategory)}
+            className="rounded-xl border border-[var(--app-line)] bg-[rgba(255,255,255,0.86)] px-3 py-2"
+          >
+            {categoryOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <select
+            value={periodFilter}
+            onChange={(event) => setPeriodFilter(event.target.value as ActivityPeriodFilter)}
+            className="rounded-xl border border-[var(--app-line)] bg-[rgba(255,255,255,0.86)] px-3 py-2"
+          >
+            <option value="hoy">Hoy</option>
+            <option value="ultimos_7_dias">Últimos 7 días</option>
+            <option value="todo">Todo</option>
+          </select>
+          <label className="inline-flex items-center gap-2 rounded-xl border border-[var(--app-line)] bg-[rgba(255,255,255,0.72)] px-4 py-3 text-sm">
+            <input
+              type="checkbox"
+              checked={onlyImportant}
+              onChange={(event) => setOnlyImportant(event.target.checked)}
+            />
+            Solo importante
+          </label>
+        </div>
+      </section>
+
       {loading ? (
-        <p className="text-sm opacity-60">Cargando actividad...</p>
+        <div className="app-surface-soft p-6 text-sm text-[var(--app-muted)]">Cargando actividad…</div>
       ) : (
-        <>
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <article className="rounded-xl border border-white/15 bg-white/10 p-4">
-              <p className="text-sm opacity-70">Confirmaciones</p>
-              <p className="mt-2 text-3xl font-semibold">{confirmados}</p>
-              <p className="text-xs opacity-60 mt-1">Invitados que asistirán</p>
-            </article>
-            <article className="rounded-xl border border-white/15 bg-white/10 p-4">
-              <p className="text-sm opacity-70">Rechazos</p>
-              <p className="mt-2 text-3xl font-semibold">{rechazados}</p>
-              <p className="text-xs opacity-60 mt-1">Invitados que no asistirán</p>
-            </article>
-            <article className="rounded-xl border border-white/15 bg-white/10 p-4">
-              <p className="text-sm opacity-70">Solicitudes transporte</p>
-              <p className="mt-2 text-3xl font-semibold">{totalPlazasTransporte}</p>
-              <p className="text-xs opacity-60 mt-1">Plazas pedidas por invitados</p>
-            </article>
-            <article className="rounded-xl border border-white/15 bg-white/10 p-4">
-              <p className="text-sm opacity-70">RSVP con alergias</p>
-              <p className="mt-2 text-3xl font-semibold">{totalConAlergias}</p>
-              <p className="text-xs opacity-60 mt-1">Respuestas con dietas/intolerancias</p>
-            </article>
-          </section>
+        <div className="space-y-4">
+          {filteredBlocks.map((block) => {
+            const isCollapsed = collapsed[block.id] ?? block.id !== "timeline";
+            return (
+              <section key={block.id} className="app-panel p-5 sm:p-6">
+                <button
+                  type="button"
+                  onClick={() => toggleBlock(block.id)}
+                  className="flex w-full items-center justify-between gap-4 text-left"
+                >
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-xl font-semibold">{block.title}</h2>
+                      <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${getBlockTone(block.id)}`}>
+                        {block.count}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-[var(--app-muted)]">
+                      {isCollapsed ? block.collapsedHint : "Abierto para revisar el detalle."}
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-[var(--app-line)] px-3 py-1 text-xs">
+                    {isCollapsed ? "Abrir" : "Cerrar"}
+                  </span>
+                </button>
 
-          <section className="space-y-3">
-            <h2 className="text-xl font-semibold">Timeline global</h2>
-            {timeline.length === 0 ? (
-              <p className="text-sm opacity-60">Todavía no hay actividad registrada.</p>
-            ) : (
-              <div className="overflow-auto rounded-lg border border-white/20 bg-white/5">
-                <table className="w-full text-sm">
-                  <thead className="bg-white/10 text-left">
-                    <tr>
-                      <th className="px-3 py-2">Fecha</th>
-                      <th className="px-3 py-2">Actor</th>
-                      <th className="px-3 py-2">Categoría</th>
-                      <th className="px-3 py-2">Detalle</th>
-                      <th className="px-3 py-2">Origen</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {timeline.map((item) => (
-                      <tr key={item.id} className="border-t border-white/10">
-                        <td className="px-3 py-2 whitespace-nowrap">{formatActivityDate(item.timestamp)}</td>
-                        <td className="px-3 py-2">{item.actor}</td>
-                        <td className="px-3 py-2 capitalize">{item.category.split("_").join(" ")}</td>
-                        <td className="px-3 py-2">{item.detail}</td>
-                        <td className="px-3 py-2 capitalize">{item.source}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-
-          <section className="space-y-3">
-            <h2 className="text-xl font-semibold">Confirmaciones y datos de RSVP</h2>
-            {rsvps.length === 0 ? (
-              <p className="text-sm opacity-60">Todavía no hay respuestas de asistencia.</p>
-            ) : (
-              <div className="overflow-auto rounded-lg border border-white/20 bg-white/5">
-                <table className="w-full text-sm">
-                  <thead className="bg-white/10 text-left">
-                    <tr>
-                      <th className="px-3 py-2">Invitado</th>
-                      <th className="px-3 py-2">Estado</th>
-                      <th className="px-3 py-2">Asistentes</th>
-                      <th className="px-3 py-2">Alergias / intolerancias</th>
-                      <th className="px-3 py-2">Nota</th>
-                      <th className="px-3 py-2">Fecha</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rsvps.map((item) => {
-                      const alergias = item.detalles
-                        .flatMap((detail) => [
-                          ...detail.alergias,
-                          detail.intolerancias?.trim() || "",
-                        ])
-                        .filter(Boolean)
-                        .join(", ");
-
-                      return (
-                        <tr key={item.guestToken} className="border-t border-white/10 align-top">
-                          <td className="px-3 py-2">{item.guestName || item.guestToken}</td>
-                          <td className="px-3 py-2 capitalize">{item.attending || "pendiente"}</td>
-                          <td className="px-3 py-2">
-                            {item.adultos} adulto(s), {item.ninos} niño(s)
-                          </td>
-                          <td className="px-3 py-2">{alergias || "-"}</td>
-                          <td className="px-3 py-2">{item.nota || "-"}</td>
-                          <td className="px-3 py-2 whitespace-nowrap">{formatActivityDate(item.timestamp)}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-
-          <section className="grid gap-6 xl:grid-cols-2">
-            <div className="space-y-3">
-              <h2 className="text-xl font-semibold">Solicitudes de alojamiento</h2>
-              {lodgingRequests.length === 0 ? (
-                <p className="text-sm opacity-60">Todavía no hay solicitudes de alojamiento.</p>
-              ) : (
-                <div className="overflow-auto rounded-lg border border-white/20 bg-white/5">
-                  <table className="w-full text-sm">
-                    <thead className="bg-white/10 text-left">
-                      <tr>
-                        <th className="px-3 py-2">Invitado</th>
-                        <th className="px-3 py-2">Respuesta</th>
-                        <th className="px-3 py-2">Preferencia</th>
-                        <th className="px-3 py-2">Notas</th>
-                        <th className="px-3 py-2">Fecha</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {lodgingRequests.map((item) => (
-                        <tr key={item.id} className="border-t border-white/10">
-                          <td className="px-3 py-2">{item.guestName}</td>
-                          <td className="px-3 py-2">
-                            {item.needsLodging ? "Necesita alojamiento" : "No necesita"}
-                          </td>
-                          <td className="px-3 py-2">
-                            {item.lodgingId ? lodgingNames[item.lodgingId] || item.lodgingId : "-"}
-                          </td>
-                          <td className="px-3 py-2">{item.notes || "-"}</td>
-                          <td className="px-3 py-2 whitespace-nowrap">{formatActivityDate(item.updatedAt)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              <h2 className="text-xl font-semibold">Solicitudes de transporte</h2>
-              {transportRequests.length === 0 ? (
-                <p className="text-sm opacity-60">Todavía no hay solicitudes de transporte.</p>
-              ) : (
-                <div className="overflow-auto rounded-lg border border-white/20 bg-white/5">
-                  <table className="w-full text-sm">
-                    <thead className="bg-white/10 text-left">
-                      <tr>
-                        <th className="px-3 py-2">Invitado</th>
-                        <th className="px-3 py-2">Transporte</th>
-                        <th className="px-3 py-2">Plazas</th>
-                        <th className="px-3 py-2">Notas</th>
-                        <th className="px-3 py-2">Fecha</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {transportRequests.map((item) => (
-                        <tr key={item.id} className="border-t border-white/10">
-                          <td className="px-3 py-2">{item.guestName}</td>
-                          <td className="px-3 py-2">
-                            {transportNames[item.transportId] || item.transportId}
-                          </td>
-                          <td className="px-3 py-2">{item.seats}</td>
-                          <td className="px-3 py-2">{item.notes || "-"}</td>
-                          <td className="px-3 py-2 whitespace-nowrap">{formatActivityDate(item.updatedAt)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </section>
-
-          <section className="grid gap-6 xl:grid-cols-2">
-            <div className="space-y-3">
-              <h2 className="text-xl font-semibold">Eventos registrados</h2>
-              {rawActivity.length === 0 ? (
-                <p className="text-sm opacity-60">No hay eventos registrados.</p>
-              ) : (
-                <div className="overflow-auto rounded-lg border border-white/20 bg-white/5">
-                  <table className="w-full text-sm">
-                    <thead className="bg-white/10 text-left">
-                      <tr>
-                        <th className="px-3 py-2">Fecha</th>
-                        <th className="px-3 py-2">Tipo</th>
-                        <th className="px-3 py-2">Invitado</th>
-                        <th className="px-3 py-2">Detalle</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rawActivity.map((item) => (
-                        <tr key={item.id} className="border-t border-white/10">
-                          <td className="px-3 py-2 whitespace-nowrap">{formatActivityDate(item.timestamp)}</td>
-                          <td className="px-3 py-2">{item.tipo}</td>
-                          <td className="px-3 py-2">{item.tokenInvitado || "-"}</td>
-                          <td className="px-3 py-2">{item.mensaje}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              <h2 className="text-xl font-semibold">Acciones de administración</h2>
-              {adminLogs.length === 0 ? (
-                <p className="text-sm opacity-60">No hay logs de administración.</p>
-              ) : (
-                <div className="overflow-auto rounded-lg border border-white/20 bg-white/5">
-                  <table className="w-full text-sm">
-                    <thead className="bg-white/10 text-left">
-                      <tr>
-                        <th className="px-3 py-2">Fecha</th>
-                        <th className="px-3 py-2">Usuario</th>
-                        <th className="px-3 py-2">Acción</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {adminLogs.map((item) => (
-                        <tr key={item.id} className="border-t border-white/10">
-                          <td className="px-3 py-2 whitespace-nowrap">{formatActivityDate(item.timestamp)}</td>
-                          <td className="px-3 py-2">{item.user}</td>
-                          <td className="px-3 py-2">{item.action}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </section>
-        </>
+                {!isCollapsed ? (
+                  <div className="mt-5">
+                    {renderTimelineTable(block.id === "timeline" ? block.items : block.items.slice(0, 50))}
+                  </div>
+                ) : null}
+              </section>
+            );
+          })}
+        </div>
       )}
-    </div>
+    </section>
   );
 }

@@ -1,7 +1,7 @@
 // src/components/Navbar.tsx
 import { useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
-import { eventSitePaths } from "../eventSite/paths";
+import { buildEventSitePaths } from "../eventSite/paths";
 import { getWeddingSettings } from "../services/weddingSettingsService";
 import { useAuth } from "../store/useAuth";
 import BrandMark from "./BrandMark";
@@ -13,6 +13,7 @@ export default function Navbar() {
   const invitado = useAuth((state) => state.invitado);
   const logout = useAuth((state) => state.logout);
   const { slug } = useParams();
+  const paths = buildEventSitePaths(slug);
 
   const titulo =
     novio && novia ? `Boda de ${novio} y ${novia}` : "Lazo";
@@ -24,7 +25,6 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const adminPath = slug ? `/w/${slug}/admin` : "/w/demo/admin";
-  const guestPath = slug ? `/w/${slug}/rsvp` : eventSitePaths.participaConfirmacion;
   const showWeddingAdminLink = Boolean(slug);
   const showStandaloneWeddingAdminLink = showWeddingAdminLink && !esAdmin;
 
@@ -100,10 +100,18 @@ export default function Navbar() {
           ) : invitado ? (
             <>
               <NavLink
-                to={guestPath}
+                to={paths.miResumen}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[var(--app-line)] bg-[rgba(255,255,255,0.9)] text-sm font-semibold text-[var(--app-ink)]"
+                aria-label="Abrir mi resumen"
+                title="Mi resumen"
+              >
+                i
+              </NavLink>
+              <NavLink
+                to={paths.miResumen}
                 className="app-button-secondary"
               >
-                Mi panel
+                Mi resumen
               </NavLink>
               <button
                 type="button"
@@ -174,11 +182,11 @@ export default function Navbar() {
         ) : invitado ? (
           <>
             <NavLink
-              to={guestPath}
+              to={paths.miResumen}
               onClick={() => setMenuOpen(false)}
               className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
             >
-              Mi panel
+              Mi resumen
             </NavLink>
             <button
               type="button"

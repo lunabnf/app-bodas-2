@@ -1,18 +1,24 @@
-const EVENT_BASE = "/w/demo";
+export function buildEventSitePaths(slug = "demo") {
+  const safeSlug = slug.trim() || "demo";
+  const eventBase = `/w/${safeSlug}`;
 
-export const eventSitePaths = {
-  home: EVENT_BASE,
-  programa: `${EVENT_BASE}/programa`,
-  confirmarAsistencia: `${EVENT_BASE}/rsvp`,
-  alojamientos: `${EVENT_BASE}/alojamientos`,
-  desplazamientos: `${EVENT_BASE}/desplazamientos`,
-  countdown: `${EVENT_BASE}/countdown`,
-  contacto: `${EVENT_BASE}/contacto`,
-  participaConfirmacion: `${EVENT_BASE}/rsvp`,
-  participaMesas: `${EVENT_BASE}/mesas`,
-  participaAsientos: `${EVENT_BASE}/mesas`,
-  participaMusica: `${EVENT_BASE}/musica`,
-  participaChat: `${EVENT_BASE}/chat`,
-  participaFotos: `${EVENT_BASE}/fotos`,
-  guestAccess: (token: string) => `${EVENT_BASE}/rsvp/${encodeURIComponent(token)}`,
-};
+  return {
+    home: eventBase,
+    programa: `${eventBase}/programa`,
+    confirmarAsistencia: `${eventBase}/rsvp`,
+    alojamientos: `${eventBase}/alojamientos`,
+    desplazamientos: `${eventBase}/desplazamientos`,
+    countdown: `${eventBase}/countdown`,
+    contacto: `${eventBase}/contacto`,
+    miResumen: `${eventBase}/mi-resumen`,
+    participaConfirmacion: `${eventBase}/rsvp`,
+    participaMesas: `${eventBase}/mesas`,
+    participaAsientos: `${eventBase}/mesas`,
+    participaMusica: `${eventBase}/musica`,
+    participaChat: `${eventBase}/chat`,
+    participaFotos: `${eventBase}/fotos`,
+    guestAccess: (token: string) => `${eventBase}/rsvp/${encodeURIComponent(token)}`,
+  };
+}
+
+export const eventSitePaths = buildEventSitePaths();
