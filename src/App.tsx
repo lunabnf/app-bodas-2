@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "
 import { useAuth } from "./store/useAuth";
 import { applyAppearanceSettings, getAppearanceSettings } from "./services/appearanceService";
 import { trackRouteView } from "./services/backofficeAnalyticsService";
+import { DEV_OPEN_WEDDING_ADMIN } from "./services/devAccessService";
 import { evaluateGuestPublicAccessByToken } from "./services/invitationWorkflowService";
 
 const AppLayout = lazy(() => import("./layouts/AppLayout"));
@@ -53,9 +54,6 @@ const BackofficePricing = lazy(() => import("./backoffice/BackofficePricing"));
 const BackofficeWeddings = lazy(() => import("./backoffice/BackofficeWeddings"));
 const BackofficeContent = lazy(() => import("./backoffice/BackofficeContent"));
 const BackofficeSettings = lazy(() => import("./backoffice/BackofficeSettings"));
-
-// TEMP DEV: abrir panel de boda sin bloquear por roles/auth para revisión visual y de rutas.
-const DEV_OPEN_WEDDING_ADMIN = true;
 
 function RouteFallback() {
   return (

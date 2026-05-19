@@ -30,6 +30,14 @@ function resolveDevPublicAccessFlag() {
 
 export const DEV_OPEN_PUBLIC_WEDDING = resolveDevPublicAccessFlag();
 
+function resolveDevAdminAccessFlag() {
+  if (typeof window === "undefined") return false;
+  if (import.meta.env.DEV) return true;
+  return isLocalhostHost(window.location.hostname);
+}
+
+export const DEV_OPEN_WEDDING_ADMIN = resolveDevAdminAccessFlag();
+
 export type DevGuestRole = "holder" | "companion";
 
 export function resolveDevGuestRole(): DevGuestRole {
