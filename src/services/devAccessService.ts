@@ -32,8 +32,8 @@ export const DEV_OPEN_PUBLIC_WEDDING = resolveDevPublicAccessFlag();
 
 function resolveDevAdminAccessFlag() {
   if (typeof window === "undefined") return false;
-  if (import.meta.env.DEV) return true;
-  return isLocalhostHost(window.location.hostname);
+  if (import.meta.env["VITE_ENABLE_DEV_ADMIN_BYPASS"] !== "true") return false;
+  return import.meta.env.DEV || isLocalhostHost(window.location.hostname);
 }
 
 export const DEV_OPEN_WEDDING_ADMIN = resolveDevAdminAccessFlag();
