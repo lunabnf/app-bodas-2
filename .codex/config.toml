@@ -1,0 +1,16 @@
+# Configuración local de Codex para App Bodas
+
+model = "gpt-5.5"
+
+approval_policy = "on-request"
+
+sandbox_mode = "workspace-write"
+
+[project]
+name = "App Bodas"
+description = "Aplicación web Vite + React + TypeScript para gestión de bodas, invitados, RSVP, mesas, música, alojamientos y backoffice."
+
+[commands]
+build = "npm run build"
+dev = "npm run dev"
+test = "npm test"
