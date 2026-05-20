@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { TransportNotice, TransportOption, TransportRequest, TransportTrip, TransportType } from "../domain/transport";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
-import { supabaseConfig } from "./supabaseConfig";
+import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
 import {
   transportNoticesMock,
@@ -113,7 +113,7 @@ export async function obtenerTransportes(): Promise<TransportOption[]> {
     );
   }
 
-  return [];
+  return throwSupabaseFeatureNotImplemented("transporte.obtenerTransportes");
 }
 
 export async function guardarTransportes(lista: TransportOption[]) {
@@ -122,7 +122,7 @@ export async function guardarTransportes(lista: TransportOption[]) {
     return true;
   }
 
-  return true;
+  return throwSupabaseFeatureNotImplemented("transporte.guardarTransportes");
 }
 
 export async function guardarTransporte(item: TransportTrip) {
@@ -143,7 +143,7 @@ export async function borrarTransporte(id: string) {
     return true;
   }
 
-  return true;
+  return throwSupabaseFeatureNotImplemented("transporte.borrarTransporte");
 }
 
 export async function obtenerSolicitudesTransporte(): Promise<TransportRequest[]> {
@@ -155,7 +155,7 @@ export async function obtenerSolicitudesTransporte(): Promise<TransportRequest[]
     ).filter((request) => request.guestToken.length > 0);
   }
 
-  return [];
+  return throwSupabaseFeatureNotImplemented("transporte.obtenerSolicitudesTransporte");
 }
 
 export async function obtenerSolicitudesTransportePorInvitado(
@@ -182,7 +182,7 @@ export async function guardarSolicitudTransporte(request: TransportRequest) {
     return true;
   }
 
-  return true;
+  return throwSupabaseFeatureNotImplemented("transporte.guardarSolicitudTransporte");
 }
 
 export async function borrarSolicitudTransporte(guestToken: string, transportId?: string) {
@@ -198,7 +198,7 @@ export async function borrarSolicitudTransporte(guestToken: string, transportId?
     return true;
   }
 
-  return true;
+  return throwSupabaseFeatureNotImplemented("transporte.borrarSolicitudTransporte");
 }
 
 export async function obtenerAvisosTransporte(): Promise<TransportNotice[]> {
@@ -210,7 +210,7 @@ export async function obtenerAvisosTransporte(): Promise<TransportNotice[]> {
     );
   }
 
-  return [];
+  return throwSupabaseFeatureNotImplemented("transporte.obtenerAvisosTransporte");
 }
 
 export async function guardarAvisosTransporte(lista: TransportNotice[]) {
@@ -219,7 +219,7 @@ export async function guardarAvisosTransporte(lista: TransportNotice[]) {
     return true;
   }
 
-  return true;
+  return throwSupabaseFeatureNotImplemented("transporte.guardarAvisosTransporte");
 }
 
 export async function guardarAvisoTransporte(item: TransportNotice) {

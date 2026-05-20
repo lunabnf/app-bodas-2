@@ -4,7 +4,7 @@ import { songProposalSchema, songVoteSchema } from "../domain/schemas";
 import { createId } from "../lib/id";
 import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
 import { scopedStorageKey } from "./eventScopeService";
-import { supabaseConfig } from "./supabaseConfig";
+import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 
 export interface Cancion {
   id: string;
@@ -149,8 +149,7 @@ export async function obtenerSongProposals(): Promise<SongProposal[]> {
     return sortByRecentThenTitle(readProposalCandidates());
   }
 
-  // FUTURO: Supabase/Firebase
-  return [];
+  return throwSupabaseFeatureNotImplemented("musica.obtenerSongProposals");
 }
 
 export async function obtenerSongVotes(): Promise<SongVote[]> {
@@ -158,8 +157,7 @@ export async function obtenerSongVotes(): Promise<SongVote[]> {
     return readVoteCandidates();
   }
 
-  // FUTURO: Supabase/Firebase
-  return [];
+  return throwSupabaseFeatureNotImplemented("musica.obtenerSongVotes");
 }
 
 export async function obtenerMusicSongSummaries(includeHidden = true): Promise<MusicSongSummary[]> {
@@ -192,8 +190,7 @@ export async function guardarSongProposal(proposal: SongProposal): Promise<boole
     return true;
   }
 
-  // FUTURO: Supabase/Firebase
-  return true;
+  return throwSupabaseFeatureNotImplemented("musica.guardarSongProposal");
 }
 
 export async function guardarCancion(cancion: Cancion): Promise<boolean> {
@@ -263,8 +260,7 @@ export async function toggleSongVote(
     return { ok: true, voted: !existing };
   }
 
-  // FUTURO: Supabase/Firebase
-  return { ok: true, voted: !existing };
+  return throwSupabaseFeatureNotImplemented("musica.toggleSongVote");
 }
 
 export async function votarCancion(id: string): Promise<boolean> {
@@ -299,6 +295,5 @@ export async function borrarCancion(id: string): Promise<boolean> {
     return true;
   }
 
-  // FUTURO: Supabase/Firebase
-  return true;
+  return throwSupabaseFeatureNotImplemented("musica.borrarCancion");
 }

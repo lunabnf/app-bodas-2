@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { LodgingOption, LodgingRequest, LodgingType } from "../domain/lodging";
 import { createId } from "../lib/id";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
-import { supabaseConfig } from "./supabaseConfig";
+import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
 
 const LODGING_OPTIONS_KEY = "wedding.alojamientos";
@@ -138,7 +138,7 @@ export async function obtenerAlojamientos(): Promise<LodgingOption[]> {
     return readLocalOptions();
   }
 
-  return [];
+  return throwSupabaseFeatureNotImplemented("alojamientos.obtenerAlojamientos");
 }
 
 export async function guardarAlojamientos(lista: LodgingOption[]) {
@@ -148,7 +148,7 @@ export async function guardarAlojamientos(lista: LodgingOption[]) {
     return true;
   }
 
-  return true;
+  return throwSupabaseFeatureNotImplemented("alojamientos.guardarAlojamientos");
 }
 
 export async function guardarAlojamiento(item: LodgingOption) {
@@ -171,7 +171,7 @@ export async function borrarAlojamiento(id: string) {
     return true;
   }
 
-  return true;
+  return throwSupabaseFeatureNotImplemented("alojamientos.borrarAlojamiento");
 }
 
 export async function obtenerSolicitudesAlojamiento(): Promise<LodgingRequest[]> {
@@ -179,7 +179,7 @@ export async function obtenerSolicitudesAlojamiento(): Promise<LodgingRequest[]>
     return readLocalRequests();
   }
 
-  return [];
+  return throwSupabaseFeatureNotImplemented("alojamientos.obtenerSolicitudesAlojamiento");
 }
 
 export async function obtenerSolicitudAlojamientoPorInvitado(
@@ -213,7 +213,7 @@ export async function guardarSolicitudAlojamiento(request: LodgingRequest) {
     return true;
   }
 
-  return true;
+  return throwSupabaseFeatureNotImplemented("alojamientos.guardarSolicitudAlojamiento");
 }
 
 export async function borrarInteresAlojamiento(id: string) {
@@ -225,5 +225,5 @@ export async function borrarInteresAlojamiento(id: string) {
     return true;
   }
 
-  return true;
+  return throwSupabaseFeatureNotImplemented("alojamientos.borrarInteresAlojamiento");
 }

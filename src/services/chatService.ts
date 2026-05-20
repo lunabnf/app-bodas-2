@@ -8,7 +8,7 @@ import { chatMessageSchema, chatRoomSchema } from "../domain/schemas";
 import type { GuestGroupType } from "../domain/guest";
 import { createId } from "../lib/id";
 import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
-import { supabaseConfig } from "./supabaseConfig";
+import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
 
 const ROOMS_KEY = "wedding.chat.rooms";
@@ -134,7 +134,7 @@ export async function getChatRooms(): Promise<ChatRoom[]> {
     return readLocalRooms().sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  return [];
+  return throwSupabaseFeatureNotImplemented("chat.getChatRooms");
 }
 
 export async function saveChatRoom(
@@ -160,9 +160,10 @@ export async function saveChatRoom(
 
   if (!supabaseConfig.enabled) {
     saveLocalRooms(nextRooms);
+    return nextRoom;
   }
 
-  return nextRoom;
+  return throwSupabaseFeatureNotImplemented("chat.saveChatRoom");
 }
 
 export async function deleteChatRoom(roomId: string): Promise<void> {
@@ -175,7 +176,10 @@ export async function deleteChatRoom(roomId: string): Promise<void> {
   if (!supabaseConfig.enabled) {
     saveLocalRooms(nextRooms.length > 0 ? nextRooms : [DEFAULT_ROOM]);
     saveLocalMessages(nextMessages);
+    return;
   }
+
+  return throwSupabaseFeatureNotImplemented("chat.deleteChatRoom");
 }
 
 export async function getChatMessages(roomId?: string): Promise<ChatMessage[]> {
@@ -184,7 +188,7 @@ export async function getChatMessages(roomId?: string): Promise<ChatMessage[]> {
     return roomId ? messages.filter((message) => message.roomId === roomId) : messages;
   }
 
-  return [];
+  return throwSupabaseFeatureNotImplemented("chat.getChatMessages");
 }
 
 export async function sendChatMessage(
@@ -205,9 +209,10 @@ export async function sendChatMessage(
 
   if (!supabaseConfig.enabled) {
     saveLocalMessages(nextMessages);
+    return message;
   }
 
-  return message;
+  return throwSupabaseFeatureNotImplemented("chat.sendChatMessage");
 }
 
 export function canAccessChatRoom(room: ChatRoom, viewer: ChatViewer): boolean {

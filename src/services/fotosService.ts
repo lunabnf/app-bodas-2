@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { GuestPhoto } from "../domain/photo";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { scopedStorageKey } from "./eventScopeService";
-import { supabaseConfig } from "./supabaseConfig";
+import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 
 const GUEST_PHOTOS_KEY = "wedding.fotos.invitados";
 
@@ -42,7 +42,7 @@ export async function obtenerFotosInvitados(): Promise<GuestPhoto[]> {
     return readLocalPhotos();
   }
 
-  return [];
+  return throwSupabaseFeatureNotImplemented("fotos.obtenerFotosInvitados");
 }
 
 export async function guardarFotoInvitado(photo: GuestPhoto): Promise<boolean> {
@@ -55,7 +55,7 @@ export async function guardarFotoInvitado(photo: GuestPhoto): Promise<boolean> {
     return true;
   }
 
-  return true;
+  return throwSupabaseFeatureNotImplemented("fotos.guardarFotoInvitado");
 }
 
 export async function borrarFotoInvitado(photoId: string): Promise<boolean> {
@@ -67,5 +67,5 @@ export async function borrarFotoInvitado(photoId: string): Promise<boolean> {
     return true;
   }
 
-  return true;
+  return throwSupabaseFeatureNotImplemented("fotos.borrarFotoInvitado");
 }

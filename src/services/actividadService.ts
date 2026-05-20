@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { activityEventSchema } from "../domain/schemas";
 import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
-import { supabaseConfig } from "./supabaseConfig";
+import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
 
 export interface EventoActividad {
@@ -22,8 +22,7 @@ export async function obtenerActividad(): Promise<EventoActividad[]> {
     return readStorageWithSchema<EventoActividad[]>(scopedKey, activitySchema, []);
   }
 
-  // FUTURO Supabase
-  return [];
+  return throwSupabaseFeatureNotImplemented("actividad.obtenerActividad");
 }
 
 // Registrar evento
@@ -37,8 +36,7 @@ export async function registrarActividad(evento: EventoActividad): Promise<boole
     return true;
   }
 
-  // FUTURO Supabase insert
-  return true;
+  return throwSupabaseFeatureNotImplemented("actividad.registrarActividad");
 }
 
 // Borrar actividad completa
@@ -49,6 +47,5 @@ export async function limpiarActividad(): Promise<boolean> {
     return true;
   }
 
-  // FUTURO supabase delete
-  return true;
+  return throwSupabaseFeatureNotImplemented("actividad.limpiarActividad");
 }
