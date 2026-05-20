@@ -2,7 +2,7 @@ import { z } from "zod";
 import { tableSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { Table } from "../domain/table";
-import { supabaseConfig } from "./supabaseConfig";
+import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
 
 const STORAGE_KEY = "wedding.tables";
@@ -74,13 +74,7 @@ export async function obtenerMesas(): Promise<Table[]> {
     return readLocalTables();
   }
 
-  // FUTURO: Supabase
-  // const { data } = await supabaseConfig.client
-  //   .from("mesas")
-  //   .select("*");
-  // return (data as Mesa[]) ?? [];
-
-  return [];
+  return throwSupabaseFeatureNotImplemented("mesas.obtenerMesas");
 }
 
 // -------------------------
@@ -94,14 +88,17 @@ export async function guardarMesas(mesas: Table[]): Promise<boolean> {
     return true;
   }
 
-  // FUTURO: Supabase insert/update masivo
-  return true;
+  return throwSupabaseFeatureNotImplemented("mesas.guardarMesas");
 }
 
 // -------------------------
 // Guardar/actualizar UNA mesa
 // -------------------------
 export async function guardarMesa(mesa: Table): Promise<boolean> {
+  if (supabaseConfig.enabled) {
+    return throwSupabaseFeatureNotImplemented("mesas.guardarMesa");
+  }
+
   const mesas = await obtenerMesas();
   const index = mesas.findIndex((m) => m.id === mesa.id);
 
@@ -118,6 +115,10 @@ export async function guardarMesa(mesa: Table): Promise<boolean> {
 // Borrar mesa por id
 // -------------------------
 export async function borrarMesa(id: string): Promise<boolean> {
+  if (supabaseConfig.enabled) {
+    return throwSupabaseFeatureNotImplemented("mesas.borrarMesa");
+  }
+
   const mesas = await obtenerMesas();
   const filtradas = mesas.filter((m) => m.id !== id);
   return guardarMesas(filtradas);

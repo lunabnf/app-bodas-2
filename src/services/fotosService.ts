@@ -1,12 +1,10 @@
 import { z } from "zod";
 import type { GuestPhoto } from "../domain/photo";
-import { guestPhotoSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { scopedStorageKey } from "./eventScopeService";
 import { supabaseConfig } from "./supabaseConfig";
 
 const GUEST_PHOTOS_KEY = "wedding.fotos.invitados";
-const guestPhotoListSchema = z.array(guestPhotoSchema);
 
 function normalizePhoto(raw: Partial<GuestPhoto>, index: number): GuestPhoto | null {
   if (!raw.dataUrl?.trim()) return null;

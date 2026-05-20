@@ -1,6 +1,7 @@
 import { weddingSettingsSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { scopedStorageKey } from "./eventScopeService";
+import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 
 export type GuestHomeButtonTarget =
   | "mi_resumen"
@@ -102,6 +103,10 @@ function migrateLegacySettings(): WeddingSettings {
 }
 
 export function getWeddingSettings(): WeddingSettings {
+  if (supabaseConfig.enabled) {
+    return throwSupabaseFeatureNotImplemented("weddingSettings.getWeddingSettings");
+  }
+
   const scopedKey = scopedStorageKey(SETTINGS_KEY);
   const parsed = readStorageWithSchema<WeddingSettings | null>(
     scopedKey,
@@ -153,6 +158,10 @@ export function isMesasPublishedForGuests(settings: WeddingSettings, now = Date.
 }
 
 export function saveWeddingSettings(settings: WeddingSettings) {
+  if (supabaseConfig.enabled) {
+    return throwSupabaseFeatureNotImplemented("weddingSettings.saveWeddingSettings");
+  }
+
   const scopedKey = scopedStorageKey(SETTINGS_KEY);
   writeStorage(scopedKey, settings);
 }

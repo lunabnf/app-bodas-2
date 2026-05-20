@@ -34,8 +34,9 @@ function serializeSeat(seat: CeremonySeatAssignment) {
 }
 
 function removeCeremonySeat(guest: Guest): Guest {
-  const { ceremonySeat: _ceremonySeat, ...rest } = guest;
-  return rest;
+  const nextGuest = { ...guest };
+  delete nextGuest.ceremonySeat;
+  return nextGuest;
 }
 
 function sanitizeCeremonyAssignments(

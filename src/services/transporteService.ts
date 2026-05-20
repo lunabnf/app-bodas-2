@@ -1,7 +1,4 @@
 import { z } from "zod";
-import {
-  transportNoticeSchema,
-} from "../domain/schemas";
 import type { TransportNotice, TransportOption, TransportRequest, TransportTrip, TransportType } from "../domain/transport";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { supabaseConfig } from "./supabaseConfig";

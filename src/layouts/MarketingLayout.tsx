@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import BrandMark from "../components/BrandMark";
 
-function linkClass({ isActive }: { isActive: boolean }) {
+function linkClass() {
   return `app-nav-link shrink-0 whitespace-nowrap text-sm sm:text-base`;
 }
 

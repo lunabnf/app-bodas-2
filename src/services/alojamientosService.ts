@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { lodgingOptionSchema, lodgingRequestSchema } from "../domain/schemas";
 import type { LodgingOption, LodgingRequest, LodgingType } from "../domain/lodging";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { supabaseConfig } from "./supabaseConfig";
@@ -7,8 +6,6 @@ import { scopedStorageKey } from "./eventScopeService";
 
 const LODGING_OPTIONS_KEY = "wedding.alojamientos";
 const LODGING_REQUESTS_KEY = "wedding.alojamientos.requests";
-const lodgingOptionsSchema = z.array(lodgingOptionSchema);
-const lodgingRequestsSchema = z.array(lodgingRequestSchema);
 
 const lodgingTypeOptions: LodgingType[] = ["hotel", "hostal", "apartamento", "casa_rural", "otro"];
 

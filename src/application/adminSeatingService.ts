@@ -94,7 +94,8 @@ function normalizeGuestsAndTables(
 
   const invitados = guests.map((guest) => {
     const mesa = guest.mesa && tableIds.has(guest.mesa) ? guest.mesa : undefined;
-    const { mesa: _mesa, ...baseGuest } = guest;
+    const baseGuest = { ...guest };
+    delete baseGuest.mesa;
     return {
       ...baseGuest,
       ...(mesa ? { mesa } : {}),
@@ -295,7 +296,8 @@ export async function deleteTable(
 
   const nextGuests = invitados.map((guest) => {
     if (guest.mesa !== tableId) return guest;
-    const { mesa: _mesa, ...rest } = guest;
+    const rest = { ...guest };
+    delete rest.mesa;
     return {
       ...rest,
       assignmentState: "sin_asignar" as const,
@@ -342,7 +344,8 @@ export async function assignGuestToTable(
     if (entry.token !== guestToken) return entry;
 
     if (!tableId) {
-      const { mesa: _mesa, ...rest } = entry;
+      const rest = { ...entry };
+      delete rest.mesa;
       return {
         ...rest,
         assignmentState: "sin_asignar" as const,

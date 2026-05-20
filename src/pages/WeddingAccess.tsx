@@ -11,7 +11,6 @@ type WeddingAccessViewModel = {
 };
 
 function buildWeddingAccessViewModel(
-  slug: string,
   bundle: WeddingBundle | null,
   fallbackWedding: WeddingMock | null
 ): WeddingAccessViewModel | null {
@@ -54,7 +53,7 @@ export default function WeddingAccess() {
 
       if (!supabaseConfig.enabled) {
         // TODO phase 1.1 remove mock fallback once seeded
-        setWedding(buildWeddingAccessViewModel(normalizedSlug, null, fallbackWedding));
+        setWedding(buildWeddingAccessViewModel(null, fallbackWedding));
         setLoading(false);
         return;
       }
@@ -70,13 +69,13 @@ export default function WeddingAccess() {
           return;
         }
 
-        setWedding(buildWeddingAccessViewModel(normalizedSlug, bundle, null));
+        setWedding(buildWeddingAccessViewModel(bundle, null));
         setLoading(false);
       } catch (error) {
         // TODO phase 1.1 remove mock fallback once seeded
         console.warn("[WeddingAccess] Supabase lookup failed, using mock fallback.", error);
         if (cancelled) return;
-        setWedding(buildWeddingAccessViewModel(normalizedSlug, null, fallbackWedding));
+        setWedding(buildWeddingAccessViewModel(null, fallbackWedding));
         setLoading(false);
       }
     }

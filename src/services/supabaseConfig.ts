@@ -9,3 +9,9 @@ export const supabaseConfig = {
   key: anonKey ?? "",
   client: url && anonKey ? createClient(url, anonKey) : null,
 };
+
+export function throwSupabaseFeatureNotImplemented(feature: string): never {
+  throw new Error(
+    `Supabase activo, pero "${feature}" aún no tiene implementación. Evita usar este módulo en staging hasta conectarlo.`
+  );
+}

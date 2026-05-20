@@ -2,7 +2,7 @@ import { z } from "zod";
 import { guestRsvpSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { GuestRsvp } from "../domain/rsvp";
-import { supabaseConfig } from "./supabaseConfig";
+import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
 
 const RSVP_COLLECTION_KEY = "wedding.rsvps";
@@ -63,6 +63,10 @@ function readAllLocalRsvps(): GuestRsvp[] {
 }
 
 export async function guardarRSVP(data: GuestRsvp) {
+  if (supabaseConfig.enabled) {
+    return throwSupabaseFeatureNotImplemented("rsvp.guardarRSVP");
+  }
+
   const all = await obtenerTodosLosRSVP();
   const index = all.findIndex((item) => item.guestToken === data.guestToken);
   const updated = [...all];
@@ -73,11 +77,7 @@ export async function guardarRSVP(data: GuestRsvp) {
     updated[index] = data;
   }
 
-  if (!supabaseConfig.enabled) {
-    writeStorage(scopedStorageKey(RSVP_COLLECTION_KEY), updated);
-    return true;
-  }
-
+  writeStorage(scopedStorageKey(RSVP_COLLECTION_KEY), updated);
   return true;
 }
 
@@ -87,7 +87,7 @@ export async function obtenerRSVP(guestToken: string) {
     return all.find((item) => item.guestToken === guestToken) ?? null;
   }
 
-  return null;
+  return throwSupabaseFeatureNotImplemented("rsvp.obtenerRSVP");
 }
 
 export async function obtenerTodosLosRSVP(): Promise<GuestRsvp[]> {
@@ -95,7 +95,7 @@ export async function obtenerTodosLosRSVP(): Promise<GuestRsvp[]> {
     return readAllLocalRsvps();
   }
 
-  return [];
+  return throwSupabaseFeatureNotImplemented("rsvp.obtenerTodosLosRSVP");
 }
 
 export async function borrarRSVP(guestToken: string) {
@@ -106,5 +106,5 @@ export async function borrarRSVP(guestToken: string) {
     return true;
   }
 
-  return true;
+  return throwSupabaseFeatureNotImplemented("rsvp.borrarRSVP");
 }

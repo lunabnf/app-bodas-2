@@ -11,7 +11,10 @@ function formatDate(value: string) {
 export default function BackofficeDashboard() {
   const [refreshToken, setRefreshToken] = useState(0);
 
-  const snapshot = useMemo(() => getAnalyticsSnapshot(), [refreshToken]);
+  const snapshot = useMemo(() => {
+    void refreshToken;
+    return getAnalyticsSnapshot();
+  }, [refreshToken]);
   const latestVisit = snapshot.sessions[0];
   const actionsInLatestHour = snapshot.sessions.reduce((sum, session) => {
     return (

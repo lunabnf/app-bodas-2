@@ -199,8 +199,9 @@ export default function Gestion({ initialTab = "general" }: GestionProps) {
     const nextTasks = tasks.map((task) => {
       if (task.id !== taskId) return task;
       if (!value) {
-        const { relatedModule: _relatedModule, ...rest } = task;
-        return rest;
+        const nextTask = { ...task };
+        delete nextTask.relatedModule;
+        return nextTask;
       }
       return {
         ...task,

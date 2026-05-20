@@ -69,12 +69,12 @@ function RouteFallback() {
 }
 
 function ProtectedRoute({ children }: { children: ReactElement }) {
-  if (DEV_OPEN_WEDDING_ADMIN) return children;
   const { slug } = useParams();
   const esAdmin = useAuth((s) => s.esAdmin);
   const esSuperAdmin = useAuth((s) => s.esSuperAdmin);
   const currentEventSlug = useAuth((s) => s.currentEventSlug);
 
+  if (DEV_OPEN_WEDDING_ADMIN) return children;
   if (esSuperAdmin) return children;
   if (!esAdmin || !slug || currentEventSlug !== slug) {
     return <Navigate to="/buscar-boda" replace />;

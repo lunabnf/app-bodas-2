@@ -33,8 +33,9 @@ function applyOptionalNumber<K extends "distanciaKm" | "precioDesde">(
 ): LodgingOption {
   const parsed = normalizeNumber(value);
   if (parsed === undefined) {
-    const { [key]: _removed, ...rest } = current;
-    return rest as LodgingOption;
+    const next = { ...current };
+    delete next[key];
+    return next;
   }
   return {
     ...current,

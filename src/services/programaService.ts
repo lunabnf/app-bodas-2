@@ -10,6 +10,7 @@ import type {
 } from "../domain/program";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { scopedStorageKey } from "./eventScopeService";
+import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 
 const PROGRAM_KEY = "wedding.programa";
 
@@ -110,6 +111,10 @@ function normalizeDocument(source: ProgramStorageShape): WeddingProgramDocument 
 export type WeddingProgramEvent = WeddingProgramItem;
 
 export function getWeddingProgramDocument(): WeddingProgramDocument {
+  if (supabaseConfig.enabled) {
+    return throwSupabaseFeatureNotImplemented("programa.getWeddingProgramDocument");
+  }
+
   const scopedKey = scopedStorageKey(PROGRAM_KEY);
   const parsed = readStorageWithSchema<ProgramStorageShape | null>(
     scopedKey,
@@ -135,11 +140,19 @@ export function getVisibleWeddingProgram(): WeddingProgramItem[] {
 }
 
 export function saveWeddingProgramDocument(document: WeddingProgramDocument) {
+  if (supabaseConfig.enabled) {
+    return throwSupabaseFeatureNotImplemented("programa.saveWeddingProgramDocument");
+  }
+
   const normalized = normalizeDocument(document);
   writeStorage(scopedStorageKey(PROGRAM_KEY), normalized);
 }
 
 export function saveWeddingProgram(events: WeddingProgramItem[]) {
+  if (supabaseConfig.enabled) {
+    return throwSupabaseFeatureNotImplemented("programa.saveWeddingProgram");
+  }
+
   const current = getWeddingProgramDocument();
   saveWeddingProgramDocument({
     ...current,

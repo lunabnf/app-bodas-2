@@ -2,7 +2,7 @@ import { z } from "zod";
 import { ceremonySeatAssignmentSchema, guestSchema } from "../domain/schemas";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { Guest } from "../domain/guest";
-import { supabaseConfig } from "./supabaseConfig";
+import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
 
 const STORAGE_KEY = "wedding.invitados";
@@ -83,7 +83,7 @@ export function obtenerInvitadosSync(): Guest[] {
   if (!supabaseConfig.enabled) {
     return readLocalGuests();
   }
-  return [];
+  return throwSupabaseFeatureNotImplemented("invitados.obtenerInvitadosSync");
 }
 
 // Obtener todos los invitados
@@ -92,13 +92,7 @@ export async function obtenerInvitados(): Promise<Guest[]> {
     return readLocalGuests();
   }
 
-  // FUTURO: Supabase
-  // const { data } = await supabaseConfig.client
-  //   .from("invitados")
-  //   .select("*");
-  // return data ?? [];
-
-  return [];
+  return throwSupabaseFeatureNotImplemented("invitados.obtenerInvitados");
 }
 
 export async function obtenerInvitadoPorToken(token: string): Promise<Guest | null> {
@@ -120,11 +114,14 @@ export async function guardarInvitados(lista: Guest[]): Promise<boolean> {
     return true;
   }
 
-  // FUTURO: Supabase insert/update
-  return true;
+  return throwSupabaseFeatureNotImplemented("invitados.guardarInvitados");
 }
 
 export async function guardarInvitado(invitado: Guest): Promise<boolean> {
+  if (supabaseConfig.enabled) {
+    return throwSupabaseFeatureNotImplemented("invitados.guardarInvitado");
+  }
+
   const invitados = await obtenerInvitados();
   const index = invitados.findIndex((item) => item.token === invitado.token);
   const updated = [...invitados];
@@ -149,6 +146,5 @@ export async function borrarInvitado(token: string): Promise<boolean> {
     return true;
   }
 
-  // FUTURO: Supabase delete
-  return true;
+  return throwSupabaseFeatureNotImplemented("invitados.borrarInvitado");
 }

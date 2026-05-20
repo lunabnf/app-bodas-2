@@ -53,8 +53,9 @@ function updateTripOptionalNumber(
 ): TransportTrip {
   const parsed = value ? Number(value) : NaN;
   if (!Number.isFinite(parsed)) {
-    const { precioOpcional: _precioOpcional, ...rest } = current;
-    return rest;
+    const next = { ...current };
+    delete next.precioOpcional;
+    return next;
   }
   return {
     ...current,
@@ -67,8 +68,9 @@ function updateNoticeRelatedTrip(
   value: string
 ): TransportNotice {
   if (!value) {
-    const { trayectoRelacionado: _trayectoRelacionado, ...rest } = current;
-    return rest;
+    const next = { ...current };
+    delete next.trayectoRelacionado;
+    return next;
   }
   return {
     ...current,

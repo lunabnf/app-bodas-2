@@ -88,7 +88,6 @@ function renderTimelineTable(items: TimelineItem[]) {
 
 export default function ActividadAdmin() {
   const [loading, setLoading] = useState(true);
-  const [timeline, setTimeline] = useState<TimelineItem[]>([]);
   const [blocks, setBlocks] = useState<ActivityBlockSummary[]>([]);
   const [notice, setNotice] = useState<Notice>(null);
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() => loadCollapsedState());
@@ -105,7 +104,6 @@ export default function ActividadAdmin() {
   async function loadData() {
     setLoading(true);
     const data = await loadActivityDashboardData();
-    setTimeline(data.timeline);
     setBlocks(data.blocks);
     setMetrics(data.metrics);
     setLoading(false);
