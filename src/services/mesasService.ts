@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { tableSchema } from "../domain/schemas";
-import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { Table } from "../domain/table";
 import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
@@ -40,26 +40,26 @@ function readLocalTables(): Table[] {
   const candidates = [scopedKey, STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
 
   for (const key of candidates) {
-      const raw = localStorage.getItem(key);
-      if (!raw) continue;
+    const raw = localStore.getItem(key);
+    if (!raw) continue;
 
     try {
       const parsed = readStorageWithSchema<unknown[]>(key, z.array(z.unknown()), []);
       const tables = parsed.map((item, index) => normalizeTable(item, index));
       const validated = tableListSchema.safeParse(tables);
       if (!validated.success) {
-        localStorage.removeItem(key);
+        localStore.removeItem(key);
         continue;
       }
 
       if (key !== scopedKey) {
         writeStorage(scopedKey, validated.data);
-        localStorage.removeItem(key);
+        localStore.removeItem(key);
       }
 
       return validated.data;
     } catch {
-      localStorage.removeItem(key);
+      localStore.removeItem(key);
     }
   }
 

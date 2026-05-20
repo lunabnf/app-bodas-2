@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { GuestTransportRequest, TransportNotice, TransportTrip } from "../types";
+import { createId } from "../../../lib/id";
 import {
   guardarAvisoTransporte,
   guardarSolicitudTransporte,
@@ -14,7 +15,7 @@ import { TransportStatusBadge } from "../components/TransportStatusBadge";
 
 function createEmptyTrip(): TransportTrip {
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     titulo: "",
     nombre: "",
     origen: "",
@@ -39,7 +40,7 @@ function createEmptyTrip(): TransportTrip {
 
 function createEmptyNotice(): TransportNotice {
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     titulo: "",
     mensaje: "",
     tipo: "info",

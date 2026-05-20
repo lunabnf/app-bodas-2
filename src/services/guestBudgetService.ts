@@ -9,6 +9,7 @@ import type {
 } from "../domain/budget";
 import type { Guest } from "../domain/guest";
 import { budgetDocumentSchema } from "../domain/schemas";
+import { createId } from "../lib/id";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { scopedStorageKey } from "./eventScopeService";
 import { obtenerSolicitudesTransporte } from "./transporteService";
@@ -66,12 +67,7 @@ const variableSourceLabels: Record<BudgetVariableSource, string> = {
 };
 
 function generateId() {
-  const c: Crypto | undefined = (globalThis as { crypto?: Crypto }).crypto;
-  if (c && "randomUUID" in c) {
-    const maybe = c as Crypto & { randomUUID?: () => string };
-    if (typeof maybe.randomUUID === "function") return maybe.randomUUID();
-  }
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  return createId();
 }
 
 function createTemplateItems(): BudgetItem[] {

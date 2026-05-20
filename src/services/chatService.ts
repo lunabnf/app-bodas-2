@@ -6,7 +6,8 @@ import type {
 import { z } from "zod";
 import { chatMessageSchema, chatRoomSchema } from "../domain/schemas";
 import type { GuestGroupType } from "../domain/guest";
-import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import { createId } from "../lib/id";
+import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
 import { supabaseConfig } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
 
@@ -76,11 +77,11 @@ function normalizeMessage(raw: unknown, index: number): ChatMessage {
 
 function readLocalRooms(): ChatRoom[] {
   const scopedRoomsKey = scopedStorageKey(ROOMS_KEY);
-  if (!localStorage.getItem(scopedRoomsKey)) {
-    const legacyRooms = localStorage.getItem(ROOMS_KEY);
+  if (!localStore.getItem(scopedRoomsKey)) {
+    const legacyRooms = localStore.getItem(ROOMS_KEY);
     if (legacyRooms) {
-      localStorage.setItem(scopedRoomsKey, legacyRooms);
-      localStorage.removeItem(ROOMS_KEY);
+      localStore.setItem(scopedRoomsKey, legacyRooms);
+      localStore.removeItem(ROOMS_KEY);
     } else {
       writeStorage(scopedRoomsKey, [DEFAULT_ROOM]);
     }
@@ -98,11 +99,11 @@ function readLocalRooms(): ChatRoom[] {
 
 function readLocalMessages(): ChatMessage[] {
   const scopedMessagesKey = scopedStorageKey(MESSAGES_KEY);
-  if (!localStorage.getItem(scopedMessagesKey)) {
-    const legacyMessages = localStorage.getItem(MESSAGES_KEY);
+  if (!localStore.getItem(scopedMessagesKey)) {
+    const legacyMessages = localStore.getItem(MESSAGES_KEY);
     if (legacyMessages) {
-      localStorage.setItem(scopedMessagesKey, legacyMessages);
-      localStorage.removeItem(MESSAGES_KEY);
+      localStore.setItem(scopedMessagesKey, legacyMessages);
+      localStore.removeItem(MESSAGES_KEY);
     } else {
       return [];
     }
@@ -195,7 +196,7 @@ export async function sendChatMessage(
     authorName: input.authorName,
     body: input.body,
     ...(input.authorToken ? { authorToken: input.authorToken } : {}),
-    id: crypto.randomUUID(),
+    id: createId(),
     createdAt: Date.now(),
   };
 

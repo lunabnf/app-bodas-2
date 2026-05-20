@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { GuestPhoto } from "../domain/photo";
+import { createId } from "../lib/id";
 import { borrarFotoInvitado, obtenerFotosInvitados } from "../services/fotosService";
 
 type Archivo = {
@@ -46,7 +47,7 @@ export default function Archivos() {
 
   const subirArchivo = (file: File) => {
     const nuevo: Archivo = {
-      id: crypto.randomUUID(),
+      id: createId(),
       nombre: file.name,
       tipo: file.type,
       tamaño: file.size,

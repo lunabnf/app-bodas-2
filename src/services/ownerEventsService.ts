@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { createId } from "../lib/id";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 
 export type OwnerEventPlan = "free" | "pro" | "premium";
@@ -103,7 +104,7 @@ export function createOwnerEvent(input: {
   }
 
   const nextEvent: OwnerEvent = {
-    id: crypto.randomUUID(),
+    id: createId(),
     coupleLabel: input.coupleLabel.trim(),
     slug,
     plan: input.plan,
@@ -144,7 +145,7 @@ export function duplicateOwnerEvent(eventId: string): OwnerEvent | null {
 
   const duplicated: OwnerEvent = {
     ...source,
-    id: crypto.randomUUID(),
+    id: createId(),
     coupleLabel: `${source.coupleLabel} (Copia)`,
     slug,
     status: "draft",

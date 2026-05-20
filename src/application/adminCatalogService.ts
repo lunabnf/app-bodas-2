@@ -1,5 +1,6 @@
 import type { LodgingOption, LodgingRequest } from "../domain/lodging";
 import type { TransportOption, TransportRequest } from "../domain/transport";
+import { createId } from "../lib/id";
 import {
   borrarAlojamiento,
   guardarAlojamientos,
@@ -27,7 +28,7 @@ export type TransportDraft = {
 
 export function createEmptyLodgingDraft(): LodgingOption {
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     nombre: "",
     tipo: "hotel",
     descripcion: "",
@@ -64,7 +65,7 @@ export function createEmptyTransportDraft(): TransportDraft {
 }
 
 function createTransportId() {
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  return createId();
 }
 
 export async function loadAdminCatalogData(): Promise<{
@@ -96,7 +97,7 @@ export async function createLodgingOption(
   if (!draft.nombre.trim()) return null;
 
   const lodging: LodgingOption = {
-    id: draft.id || crypto.randomUUID(),
+    id: draft.id || createId(),
     nombre: draft.nombre.trim(),
     tipo: draft.tipo,
     descripcion: draft.descripcion.trim(),

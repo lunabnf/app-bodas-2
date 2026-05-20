@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import type { GuestSession } from "../domain/guest";
+import { createId } from "../lib/id";
 import { registrarActividad } from "../services/actividadService";
 import { obtenerInvitadoPorToken } from "../services/invitadosService";
 import {
@@ -44,7 +45,7 @@ export default function IdentificarInvitado() {
       }
 
       await registrarActividad({
-        id: crypto.randomUUID(),
+        id: createId(),
         timestamp: Date.now(),
         tipo: "login_invitado",
         mensaje: `${invitado.nombre} ha accedido desde su invitación QR`,

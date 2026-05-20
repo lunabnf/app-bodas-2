@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
 
 export type AccessEventContext = {
   eventId: string;
@@ -28,5 +28,5 @@ export function setAccessEventContext(context: AccessEventContext) {
 }
 
 export function clearAccessEventContext() {
-  localStorage.removeItem(ACCESS_EVENT_CONTEXT_KEY);
+  localStore.removeItem(ACCESS_EVENT_CONTEXT_KEY);
 }

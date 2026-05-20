@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { logItemSchema } from "../domain/schemas";
+import { createId } from "../lib/id";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { supabaseConfig } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
@@ -17,7 +18,7 @@ const logsSchema = z.array(logItemSchema);
 // Registrar una acción
 export async function addLog(user: string, action: string) {
   const newLog: LogItem = {
-    id: crypto.randomUUID(),
+    id: createId(),
     user,
     action,
     timestamp: Date.now(),

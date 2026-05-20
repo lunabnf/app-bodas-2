@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { z } from "zod";
 import { guestSessionSchema } from "../domain/schemas";
-import { readStorageWithSchema } from "../lib/storage";
+import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { GuestSession } from "../domain/guest";
 import { clearOwnerEventContext } from "../services/ownerEventContextService";
 import { clearAccessEventContext } from "../services/accessEventContextService";
@@ -61,18 +61,6 @@ interface AuthState {
 }
 
 function readStoredAuth(): StoredAuth {
-  if (typeof window === "undefined") {
-    return {
-      esAdmin: false,
-      esSuperAdmin: false,
-      esOwner: false,
-      role: null,
-      currentEventId: null,
-      currentEventSlug: null,
-      currentEventLabel: null,
-      invitado: null,
-    };
-  }
   const parsed = readStorageWithSchema<StoredAuth>(
     AUTH_STORAGE_KEY,
     storedAuthSchema,
@@ -113,18 +101,15 @@ function readStoredAuth(): StoredAuth {
 }
 
 function persistAuth(state: StoredAuth) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(state));
+  writeStorage(AUTH_STORAGE_KEY, state);
 }
 
 function persistCurrentUser(user: unknown) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+  writeStorage(USER_STORAGE_KEY, user);
 }
 
 function clearCurrentUser() {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(USER_STORAGE_KEY);
+  localStore.removeItem(USER_STORAGE_KEY);
 }
 
 const initialAuth = readStoredAuth();

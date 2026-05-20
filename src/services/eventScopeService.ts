@@ -1,6 +1,8 @@
 import { getOwnerEventContext } from "./ownerEventContextService";
 import { getAccessEventContext } from "./accessEventContextService";
 import { findOwnerEventBySlug } from "./ownerEventsService";
+import { getBrowserLocation, isBrowser } from "../lib/browser";
+import { localStore } from "../lib/storage";
 
 const AUTH_STORAGE_KEY = "wedding.auth";
 const DEFAULT_EVENT_ID = "evt-demo";
@@ -12,10 +14,8 @@ type StoredAuth = {
 };
 
 function readStoredAuth(): StoredAuth | null {
-  if (typeof window === "undefined") return null;
-
   try {
-    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    const raw = localStore.getItem(AUTH_STORAGE_KEY);
     if (!raw) return null;
     return JSON.parse(raw) as StoredAuth;
   } catch {
@@ -24,9 +24,10 @@ function readStoredAuth(): StoredAuth | null {
 }
 
 function resolveEventIdFromRoute(): string | null {
-  if (typeof window === "undefined") return null;
+  const location = getBrowserLocation();
+  if (!location) return null;
 
-  const match = window.location.pathname.match(/^\/(?:w|evento)\/([^/]+)/);
+  const match = location.pathname.match(/^\/(?:w|evento)\/([^/]+)/);
   const slug = match?.[1]?.trim().toLowerCase();
   if (!slug) return null;
 
@@ -35,7 +36,7 @@ function resolveEventIdFromRoute(): string | null {
 }
 
 export function getActiveEventId(): string {
-  if (typeof window === "undefined") return DEFAULT_EVENT_ID;
+  if (!isBrowser()) return DEFAULT_EVENT_ID;
   const auth = readStoredAuth();
 
   if (auth?.currentEventId) {
@@ -65,19 +66,10 @@ export function scopedStorageKey(baseKey: string): string {
 }
 
 export function clearEventScopedStorage(eventId: string) {
-  if (typeof window === "undefined") return;
   const suffix = `::${eventId}`;
-  const keysToDelete: string[] = [];
-
-  for (let index = 0; index < localStorage.length; index += 1) {
-    const key = localStorage.key(index);
-    if (!key) continue;
-    if (key.endsWith(suffix)) {
-      keysToDelete.push(key);
-    }
-  }
+  const keysToDelete = localStore.keys().filter((key) => key.endsWith(suffix));
 
   for (const key of keysToDelete) {
-    localStorage.removeItem(key);
+    localStore.removeItem(key);
   }
 }

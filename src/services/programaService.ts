@@ -8,6 +8,7 @@ import type {
   WeddingProgramDocument,
   WeddingProgramItem,
 } from "../domain/program";
+import { createId } from "../lib/id";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { scopedStorageKey } from "./eventScopeService";
 import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
@@ -57,7 +58,7 @@ function normalizeCategory(value?: string): WeddingProgramCategory {
 
 function normalizeItem(item: RawWeddingProgramItem, index: number): WeddingProgramItem {
   return {
-    id: item.id?.trim() || crypto.randomUUID(),
+    id: item.id?.trim() || createId(),
     hora: item.hora?.trim() || "",
     titulo: item.titulo?.trim() || `Momento ${index + 1}`,
     subtitulo: item.subtitulo?.trim() || "",
@@ -162,7 +163,7 @@ export function saveWeddingProgram(events: WeddingProgramItem[]) {
 
 export function createEmptyProgramItem(order: number): WeddingProgramItem {
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     hora: "",
     titulo: "",
     subtitulo: "",

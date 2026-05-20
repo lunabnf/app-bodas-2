@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { z } from "zod";
+import { getElementById } from "../lib/browser";
+import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import {
   applyAppearanceSettings,
   defaultAppearanceSettings,
@@ -25,6 +28,8 @@ const guestHomeTargetOptions: Array<{ value: GuestHomeButtonTarget; label: strin
   { value: "chat", label: "Chat" },
   { value: "buscar_boda", label: "Buscar boda" },
 ] as const;
+
+const COLLAPSED_STORAGE_KEY = "wedding.admin.settings.collapsed";
 
 type SettingsSectionId =
   | "identidad"
@@ -126,23 +131,20 @@ function buildInitialCollapsedState() {
 }
 
 function loadCollapsedState(): Record<SettingsSectionId, boolean> {
-  if (typeof window === "undefined") return buildInitialCollapsedState();
-  try {
-    const raw = localStorage.getItem("wedding.admin.settings.collapsed");
-    if (!raw) return buildInitialCollapsedState();
-    const parsed = JSON.parse(raw) as Partial<Record<SettingsSectionId, boolean>>;
-    return {
-      ...buildInitialCollapsedState(),
-      ...parsed,
-    };
-  } catch {
-    return buildInitialCollapsedState();
-  }
+  const parsed = readStorageWithSchema<Partial<Record<SettingsSectionId, boolean>>>(
+    COLLAPSED_STORAGE_KEY,
+    z.record(z.string(), z.boolean()),
+    {}
+  );
+
+  return {
+    ...buildInitialCollapsedState(),
+    ...parsed,
+  };
 }
 
 function saveCollapsedState(next: Record<SettingsSectionId, boolean>) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem("wedding.admin.settings.collapsed", JSON.stringify(next));
+  writeStorage(COLLAPSED_STORAGE_KEY, next);
 }
 
 export default function Ajustes() {
@@ -309,7 +311,7 @@ export default function Ajustes() {
               </div>
               <button
                 type="button"
-                onClick={() => document.getElementById("filePortada")?.click()}
+                onClick={() => getElementById<HTMLInputElement>("filePortada")?.click()}
                 className="app-button-secondary"
               >
                 Subir portada
@@ -433,7 +435,7 @@ export default function Ajustes() {
             </div>
             <button
               type="button"
-              onClick={() => document.getElementById("fileInicioInvitados")?.click()}
+              onClick={() => getElementById<HTMLInputElement>("fileInicioInvitados")?.click()}
               className="app-button-secondary"
             >
               Subir imagen principal

@@ -1,4 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { z } from "zod";
+import { confirmDialog } from "../lib/browser";
+import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import {
   clearAdminActivityHistory,
   filterTimelineItems,
@@ -16,6 +19,7 @@ type Notice = {
 } | null;
 
 const COLLAPSE_STORAGE_KEY = "wedding.admin.activity.collapsed";
+const localCollapsedStateSchema = z.record(z.string(), z.boolean());
 
 const categoryOptions: Array<{ value: "todas" | ActivityCategory; label: string }> = [
   { value: "todas", label: "Todas" },
@@ -31,18 +35,15 @@ const categoryOptions: Array<{ value: "todas" | ActivityCategory; label: string 
 ];
 
 function loadCollapsedState(): Record<string, boolean> {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = localStorage.getItem(COLLAPSE_STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
-  } catch {
-    return {};
-  }
+  return readStorageWithSchema<Record<string, boolean>>(
+    COLLAPSE_STORAGE_KEY,
+    localCollapsedStateSchema,
+    {}
+  );
 }
 
 function saveCollapsedState(next: Record<string, boolean>) {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(COLLAPSE_STORAGE_KEY, JSON.stringify(next));
+  writeStorage(COLLAPSE_STORAGE_KEY, next);
 }
 
 function getBlockTone(block: ActivityCategory) {
@@ -156,7 +157,7 @@ export default function ActividadAdmin() {
   }, [blocks, categoryFilter, onlyImportant, periodFilter]);
 
   async function handleLimpiar() {
-    const confirmar = window.confirm(
+    const confirmar = confirmDialog(
       "Se borrará el historial de eventos y logs, pero no las respuestas ni solicitudes de invitados. ¿Continuar?"
     );
     if (!confirmar) return;

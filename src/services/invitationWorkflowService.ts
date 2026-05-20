@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { ChildForm, AdultForm } from "../application/guestParticipationService";
+import { createId } from "../lib/id";
 import type {
   AssignmentState,
   Guest,
@@ -562,7 +563,7 @@ export async function processInvitationRsvp(
     recalculateGuestBudgetSnapshot(updatedGuests);
 
     await registrarActividad({
-      id: crypto.randomUUID(),
+      id: createId(),
       timestamp: now,
       tipo: "invitacion_rechazada",
       mensaje: `${input.holderName} ha rechazado la invitación`,
@@ -571,7 +572,7 @@ export async function processInvitationRsvp(
 
     if (input.note?.trim()) {
       await registrarActividad({
-        id: crypto.randomUUID(),
+        id: createId(),
         timestamp: now,
         tipo: "motivo_no_asistencia",
         mensaje: `${input.holderName} dejó motivo de no asistencia`,
@@ -604,7 +605,7 @@ export async function processInvitationRsvp(
       if (matchedPrevious) {
         targetToken = matchedPrevious.token;
       } else {
-        targetToken = crypto.randomUUID();
+        targetToken = createId();
       }
     }
 
@@ -746,7 +747,7 @@ export async function processInvitationRsvp(
   const budget = recalculateGuestBudgetSnapshot(nextGuests);
 
   await registrarActividad({
-    id: crypto.randomUUID(),
+    id: createId(),
     timestamp: now,
     tipo: baseRecord.responseCount > 0 ? "invitacion_modificada" : "invitacion_confirmada",
     mensaje: `${input.holderName} confirmó asistencia (${adults.length} adultos, ${children.length} niños)`,
@@ -755,7 +756,7 @@ export async function processInvitationRsvp(
 
   if (cancelledGuestTokens.length > 0) {
     await registrarActividad({
-      id: crypto.randomUUID(),
+      id: createId(),
       timestamp: now,
       tipo: "asistentes_modificados",
       mensaje: `${input.holderName} actualizó asistentes (${cancelledGuestTokens.length} cancelados)`,
@@ -768,7 +769,7 @@ export async function processInvitationRsvp(
   );
   if (companionAdults.length > 0) {
     await registrarActividad({
-      id: crypto.randomUUID(),
+      id: createId(),
       timestamp: now,
       tipo: "acceso_acompanantes",
       mensaje: `${companionAdults.length} acompañante(s) adulto(s) con acceso disponible`,
@@ -777,7 +778,7 @@ export async function processInvitationRsvp(
   }
 
   await registrarActividad({
-    id: crypto.randomUUID(),
+    id: createId(),
     timestamp: now,
     tipo: "presupuesto_actualizado",
     mensaje: `Presupuesto recalculado: ${budget.totalEstimado.toLocaleString()} €`,

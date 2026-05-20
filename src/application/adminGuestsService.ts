@@ -1,6 +1,7 @@
 import type { Guest } from "../domain/guest";
 import type { Table } from "../domain/table";
 import { invitadosDemo, mesasDemo } from "../admin/data/mesasDemo";
+import { createId } from "../lib/id";
 import {
   guardarInvitado,
   guardarInvitados,
@@ -84,7 +85,7 @@ export async function createGuest(
     grupo: draft.grupo.trim(),
     grupoTipo: draft.grupoTipo,
     estado: draft.estado,
-    token: crypto.randomUUID(),
+    token: createId(),
     esAdulto: draft.tipo !== "Niño",
     invitationRole: draft.tipo === "Niño" ? "acompanante" : "titular",
     personaEstado: draft.estado === "confirmado" ? "confirmada" : "creada",

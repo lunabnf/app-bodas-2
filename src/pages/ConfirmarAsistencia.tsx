@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { RsvpAttendance } from "../domain/rsvp";
+import { createId } from "../lib/id";
 import {
   type AdultForm,
   type Allergy,
@@ -41,12 +42,7 @@ const ALLERGY_OPTIONS: { value: Allergy; label: string }[] = [
 ];
 
 function uuid(): string {
-  const c: Crypto | undefined = (globalThis as { crypto?: Crypto }).crypto;
-  if (c && "randomUUID" in c) {
-    const maybe = c as Crypto & { randomUUID?: () => string };
-    if (typeof maybe.randomUUID === "function") return maybe.randomUUID();
-  }
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  return createId();
 }
 
 export default function ConfirmarAsistencia() {

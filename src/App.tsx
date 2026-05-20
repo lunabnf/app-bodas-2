@@ -2,6 +2,7 @@ import { lazy, Suspense, type ReactElement, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 
 import { useAuth } from "./store/useAuth";
+import { scrollWindowToTop } from "./lib/browser";
 import { applyAppearanceSettings, getAppearanceSettings } from "./services/appearanceService";
 import { trackRouteView } from "./services/backofficeAnalyticsService";
 import { DEV_OPEN_WEDDING_ADMIN } from "./services/devAccessService";
@@ -113,7 +114,7 @@ function ScrollToTopOnRouteChange() {
   const { pathname, search } = useLocation();
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    scrollWindowToTop();
     trackRouteView(`${pathname}${search}`);
   }, [pathname, search]);
 

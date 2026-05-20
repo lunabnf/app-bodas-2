@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Guest } from "../domain/guest";
+import { createBrowserElement } from "../lib/browser";
 import { obtenerInvitados } from "../services/invitadosService";
 
 type CeremonySeatGuest = Pick<Guest, "id" | "token" | "nombre" | "mesa" | "estado">;
@@ -107,7 +108,8 @@ export default function AsientosCeremonia() {
       type: "application/json",
     });
     const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
+    const anchor = createBrowserElement("a");
+    if (!anchor) return;
     anchor.href = url;
     anchor.download = "plan-ceremonia.json";
     anchor.click();

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { activityEventSchema } from "../domain/schemas";
-import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
 import { supabaseConfig } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
 
@@ -45,7 +45,7 @@ export async function registrarActividad(evento: EventoActividad): Promise<boole
 export async function limpiarActividad(): Promise<boolean> {
   const scopedKey = scopedStorageKey(STORAGE_KEY);
   if (!supabaseConfig.enabled) {
-    localStorage.removeItem(scopedKey);
+    localStore.removeItem(scopedKey);
     return true;
   }
 

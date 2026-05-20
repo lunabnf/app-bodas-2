@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { ceremonySeatAssignmentSchema, guestSchema } from "../domain/schemas";
-import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import { isBrowser } from "../lib/browser";
+import { createId } from "../lib/id";
+import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { Guest } from "../domain/guest";
 import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
@@ -19,7 +21,7 @@ function normalizeGuest(raw: unknown, index: number): Guest {
 
   return {
     id: String(source.id ?? source.token ?? index + 1),
-    token: source.token ?? crypto.randomUUID(),
+    token: source.token ?? createId(),
     nombre: source.nombre?.trim() || `Invitado ${index + 1}`,
     tipo: source.tipo === "Niño" ? "Niño" : "Adulto",
     grupo: source.grupo?.trim() || "",
@@ -52,7 +54,7 @@ function readLocalGuests(): Guest[] {
   const candidates = [scopedKey, STORAGE_KEY, ...LEGACY_STORAGE_KEYS];
 
   for (const key of candidates) {
-    const raw = localStorage.getItem(key);
+    const raw = localStore.getItem(key);
     if (!raw) continue;
 
     try {
@@ -60,18 +62,18 @@ function readLocalGuests(): Guest[] {
       const guests = parsed.map((item, index) => normalizeGuest(item, index));
       const validated = guestListSchema.safeParse(guests);
       if (!validated.success) {
-        localStorage.removeItem(key);
+        localStore.removeItem(key);
         continue;
       }
 
       if (key !== scopedKey) {
         writeStorage(scopedKey, validated.data);
-        localStorage.removeItem(key);
+        localStore.removeItem(key);
       }
 
       return validated.data as Guest[];
     } catch {
-      localStorage.removeItem(key);
+      localStore.removeItem(key);
     }
   }
 
@@ -79,7 +81,7 @@ function readLocalGuests(): Guest[] {
 }
 
 export function obtenerInvitadosSync(): Guest[] {
-  if (typeof window === "undefined") return [];
+  if (!isBrowser()) return [];
   if (!supabaseConfig.enabled) {
     return readLocalGuests();
   }

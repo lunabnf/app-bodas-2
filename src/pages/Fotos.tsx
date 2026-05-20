@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../store/useAuth";
 import type { GuestPhoto } from "../domain/photo";
+import { createId } from "../lib/id";
 import { borrarFotoInvitado, guardarFotoInvitado, obtenerFotosInvitados } from "../services/fotosService";
 import { registrarActividad } from "../services/actividadService";
 
@@ -47,7 +48,7 @@ export default function Fotos() {
       for (const file of files) {
         const dataUrl = await readFileAsDataUrl(file);
         const nextPhoto: GuestPhoto = {
-          id: crypto.randomUUID(),
+          id: createId(),
           name: file.name,
           type: file.type,
           size: file.size,
@@ -61,7 +62,7 @@ export default function Fotos() {
         if (saved) {
           nextPhotos.push(nextPhoto);
           await registrarActividad({
-            id: crypto.randomUUID(),
+            id: createId(),
             timestamp: nextPhoto.createdAt,
             tipo: "foto_subida",
             mensaje: `${nextPhoto.uploadedByName} subió una foto`,

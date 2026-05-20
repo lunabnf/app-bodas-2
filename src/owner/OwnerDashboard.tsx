@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { confirmDialog } from "../lib/browser";
 import {
   createOwnerEvent,
   deleteOwnerEvent,
@@ -96,7 +97,7 @@ export default function OwnerDashboard() {
   }
 
   function handleDeleteEvent(event: OwnerEvent) {
-    const confirmed = window.confirm(
+    const confirmed = confirmDialog(
       `Se eliminará la boda "${event.coupleLabel}" y sus datos locales asociados. ¿Continuar?`
     );
     if (!confirmed) return;

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { LodgingOption, LodgingRequest, LodgingType } from "../domain/lodging";
+import { createId } from "../lib/id";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { supabaseConfig } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
@@ -86,7 +87,7 @@ function readLocalRequests(): LodgingRequest[] {
 
 export function createEmptyLodgingOptionDraft(): LodgingOption {
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     nombre: "",
     tipo: "hotel",
     descripcion: "",

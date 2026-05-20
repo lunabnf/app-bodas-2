@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
 
 export type OwnerEventContext = {
   eventId: string;
@@ -28,5 +28,5 @@ export function setOwnerEventContext(context: OwnerEventContext) {
 }
 
 export function clearOwnerEventContext() {
-  localStorage.removeItem(OWNER_EVENT_CONTEXT_KEY);
+  localStore.removeItem(OWNER_EVENT_CONTEXT_KEY);
 }

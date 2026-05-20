@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import { isBrowser } from "../lib/browser";
+import { readStorageWithSchema, sessionStore, writeStorage } from "../lib/storage";
 
 const ANALYTICS_STORAGE_KEY = "backoffice.analytics.v1";
 const SESSION_STORAGE_KEY = "backoffice.analytics.currentSession";
@@ -43,12 +44,10 @@ function getDefaultStore() {
 }
 
 function loadStore() {
-  if (typeof window === "undefined") return getDefaultStore();
   return readStorageWithSchema(ANALYTICS_STORAGE_KEY, analyticsSchema, getDefaultStore());
 }
 
 function saveStore(sessions: AnalyticsSession[]) {
-  if (typeof window === "undefined") return;
   const trimmedSessions = sessions.slice(0, MAX_SESSIONS).map((session) => ({
     ...session,
     actions: session.actions.slice(-MAX_ACTIONS_PER_SESSION),
@@ -57,16 +56,15 @@ function saveStore(sessions: AnalyticsSession[]) {
 }
 
 function getOrCreateSessionId() {
-  if (typeof window === "undefined") return null;
-  const current = sessionStorage.getItem(SESSION_STORAGE_KEY);
+  const current = sessionStore.getItem(SESSION_STORAGE_KEY);
   if (current) return current;
   const created = createId("visit");
-  sessionStorage.setItem(SESSION_STORAGE_KEY, created);
+  sessionStore.setItem(SESSION_STORAGE_KEY, created);
   return created;
 }
 
 export function trackRouteView(path: string) {
-  if (typeof window === "undefined") return;
+  if (!isBrowser()) return;
 
   const sessionId = getOrCreateSessionId();
   if (!sessionId) return;

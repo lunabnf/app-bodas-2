@@ -1,5 +1,6 @@
 import type { ChatAudience, ChatMessage, ChatRoom } from "../domain/chat";
 import type { GuestGroupType, GuestSession } from "../domain/guest";
+import { createId } from "../lib/id";
 import { registrarActividad } from "../services/actividadService";
 import {
   canAccessChatRoom,
@@ -101,7 +102,7 @@ export async function sendGuestChatMessage(input: {
     await addLog(authorName, `Envió un mensaje en el chat: ${body.slice(0, 60)}`);
   } else if (input.invitado) {
     await registrarActividad({
-      id: crypto.randomUUID(),
+      id: createId(),
       timestamp: Date.now(),
       tipo: "chat_mensaje",
       mensaje: `${input.invitado.nombre} envió un mensaje en el chat`,
@@ -120,7 +121,7 @@ export async function saveAdminChatRoom(input: {
   if (!name) return null;
 
   const room = await saveChatRoom({
-    id: input.form.id || crypto.randomUUID(),
+    id: input.form.id || createId(),
     name,
     description: input.form.description.trim(),
     audience: input.form.audience,
@@ -140,7 +141,7 @@ export async function saveAdminChatRoom(input: {
     `${input.form.id ? "Actualizó" : "Creó"} sala de chat: ${room.name}`
   );
   await registrarActividad({
-    id: crypto.randomUUID(),
+    id: createId(),
     timestamp: Date.now(),
     tipo: "chat_admin",
     mensaje: `${input.adminName} ${input.form.id ? "actualizó" : "creó"} la sala "${room.name}"`,
@@ -183,7 +184,7 @@ export async function sendAdminChatMessage(input: {
     `Envió un mensaje en la sala: ${input.selectedRoomName || input.selectedRoomId}`
   );
   await registrarActividad({
-    id: crypto.randomUUID(),
+    id: createId(),
     timestamp: Date.now(),
     tipo: "chat_admin_mensaje",
     mensaje: `${input.adminName} escribió en la sala "${input.selectedRoomName || input.selectedRoomId}"`,

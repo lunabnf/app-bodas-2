@@ -1,5 +1,6 @@
 import type { GuestSession } from "../domain/guest";
 import type { GuestRsvp, RsvpAttendance } from "../domain/rsvp";
+import { createId } from "../lib/id";
 import { registrarActividad } from "../services/actividadService";
 import { addLog } from "../services/logsService";
 import {
@@ -42,12 +43,7 @@ export type RsvpFormState = {
 };
 
 function uuid(): string {
-  const c: Crypto | undefined = (globalThis as { crypto?: Crypto }).crypto;
-  if (c && "randomUUID" in c) {
-    const maybe = c as Crypto & { randomUUID?: () => string };
-    if (typeof maybe.randomUUID === "function") return maybe.randomUUID();
-  }
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  return createId();
 }
 
 export function cleanPersonBase<T extends PersonBase>(item: T): T {
@@ -238,7 +234,7 @@ export async function proposeSong({
   }
 
   await guardarCancion({
-    id: crypto.randomUUID(),
+    id: createId(),
     titulo: titulo.trim(),
     artista: artista.trim(),
     propuestaPorToken: invitado.token,
@@ -246,7 +242,7 @@ export async function proposeSong({
   });
 
   await registrarActividad({
-    id: crypto.randomUUID(),
+    id: createId(),
     timestamp: Date.now(),
     tipo: "musica_propuesta",
     mensaje: `${invitado.nombre} ha propuesto: ${titulo.trim()} - ${artista.trim()}`,
@@ -279,7 +275,7 @@ export async function voteSong({
   const song = canciones.find((item) => item.id === songId);
   if (song) {
     await registrarActividad({
-      id: crypto.randomUUID(),
+      id: createId(),
       timestamp: Date.now(),
       tipo: "musica_voto",
       mensaje: `${invitado.nombre} ha votado: ${song.titulo} - ${song.artista}`,

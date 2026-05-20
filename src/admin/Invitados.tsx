@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useParams } from "react-router-dom";
+import { getBrowserLocation } from "../lib/browser";
 import type { Guest, GuestStatus, GuestType } from "../domain/guest";
 import {
   createEmptyGuestDraft,
@@ -33,7 +34,7 @@ export default function Invitados() {
   }, []);
 
   const rsvpBaseUrl = useMemo(() => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const origin = getBrowserLocation()?.origin ?? "";
     const resolvedSlug = slug ?? "demo";
     return `${origin}/w/${resolvedSlug}/rsvp`;
   }, [slug]);

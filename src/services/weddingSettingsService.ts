@@ -1,5 +1,5 @@
 import { weddingSettingsSchema } from "../domain/schemas";
-import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
 import { scopedStorageKey } from "./eventScopeService";
 import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 
@@ -92,10 +92,10 @@ function migrateLegacySettings(): WeddingSettings {
   const scopedKey = scopedStorageKey(SETTINGS_KEY);
   const merged: WeddingSettings = {
     ...defaultWeddingSettings,
-    novio: localStorage.getItem(LEGACY_KEYS.novio) || "",
-    novia: localStorage.getItem(LEGACY_KEYS.novia) || "",
-    fecha: localStorage.getItem(LEGACY_KEYS.fecha) || "",
-    hora: localStorage.getItem(LEGACY_KEYS.hora) || "",
+    novio: localStore.getItem(LEGACY_KEYS.novio) || "",
+    novia: localStore.getItem(LEGACY_KEYS.novia) || "",
+    fecha: localStore.getItem(LEGACY_KEYS.fecha) || "",
+    hora: localStore.getItem(LEGACY_KEYS.hora) || "",
   };
 
   writeStorage(scopedKey, merged);
@@ -140,7 +140,7 @@ export function getWeddingSettings(): WeddingSettings {
       },
     };
     writeStorage(scopedKey, normalized);
-    localStorage.removeItem(SETTINGS_KEY);
+    localStore.removeItem(SETTINGS_KEY);
     return normalized;
   }
 

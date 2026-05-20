@@ -1,4 +1,5 @@
 import { appearanceSettingsSchema } from "../domain/schemas";
+import { getDocumentRoot } from "../lib/browser";
 import { readStorageWithSchema, writeStorage } from "../lib/storage";
 import { scopedStorageKey } from "./eventScopeService";
 
@@ -25,9 +26,6 @@ function clamp(value: number, min: number, max: number) {
 }
 
 export function getAppearanceSettings(): AppearanceSettings {
-  if (typeof window === "undefined") {
-    return defaultAppearanceSettings;
-  }
   const parsed = readStorageWithSchema<AppearanceSettings>(
     scopedStorageKey(STORAGE_KEY),
     appearanceSettingsSchema,
@@ -43,14 +41,12 @@ export function getAppearanceSettings(): AppearanceSettings {
 }
 
 export function saveAppearanceSettings(settings: AppearanceSettings) {
-  if (typeof window === "undefined") return;
   writeStorage(scopedStorageKey(STORAGE_KEY), settings);
 }
 
 export function applyAppearanceSettings(settings: AppearanceSettings) {
-  if (typeof document === "undefined") return;
-
-  const root = document.documentElement;
+  const root = getDocumentRoot();
+  if (!root) return;
   root.style.setProperty("--app-hero-title-max", `${settings.heroTitleMaxRem}rem`);
   root.style.setProperty("--app-page-title-size", `${settings.pageTitleRem}rem`);
   root.style.setProperty("--app-section-title-size", `${settings.sectionTitleRem}rem`);

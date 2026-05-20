@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { guestRsvpSchema } from "../domain/schemas";
-import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
 import type { GuestRsvp } from "../domain/rsvp";
 import { supabaseConfig, throwSupabaseFeatureNotImplemented } from "./supabaseConfig";
 import { scopedStorageKey } from "./eventScopeService";
@@ -17,12 +17,11 @@ function readAllLocalRsvps(): GuestRsvp[] {
   );
   const migrated = [...collection];
 
-  for (let index = 0; index < localStorage.length; index += 1) {
-    const key = localStorage.key(index);
+  for (const key of localStore.keys()) {
     if (!key || !key.startsWith("wedding.rsvp.")) continue;
 
     const guestToken = key.replace("wedding.rsvp.", "");
-    const raw = localStorage.getItem(key);
+    const raw = localStore.getItem(key);
     if (!raw) continue;
 
     try {
@@ -49,9 +48,9 @@ function readAllLocalRsvps(): GuestRsvp[] {
         });
       }
 
-      localStorage.removeItem(key);
+      localStore.removeItem(key);
     } catch {
-      localStorage.removeItem(key);
+      localStore.removeItem(key);
     }
   }
 

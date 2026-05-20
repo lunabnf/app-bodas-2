@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import type { MusicSongSummary, SongVote } from "../domain/music";
+import { createId } from "../lib/id";
 import { registrarActividad } from "../services/actividadService";
 import { DEV_OPEN_PUBLIC_WEDDING, resolvePublicGuestSession } from "../services/devAccessService";
 import { obtenerInvitadoPorTokenSync } from "../services/invitadosService";
@@ -127,7 +128,7 @@ export default function Musica() {
 
     try {
       await guardarSongProposal({
-        id: crypto.randomUUID(),
+        id: createId(),
         title: title.trim(),
         artist: artist.trim(),
         ...(url.trim() ? { url: url.trim() } : {}),
@@ -137,7 +138,7 @@ export default function Musica() {
       });
 
       await registrarActividad({
-        id: crypto.randomUUID(),
+        id: createId(),
         timestamp: Date.now(),
         tipo: "musica_propuesta",
         mensaje: `${effectiveGuest.nombre} ha propuesto: ${title.trim()} - ${artist.trim()}`,
@@ -177,7 +178,7 @@ export default function Musica() {
     }
 
     await registrarActividad({
-      id: crypto.randomUUID(),
+      id: createId(),
       timestamp: Date.now(),
       tipo: result.voted ? "musica_voto" : "musica_retirada_voto",
       mensaje: result.voted

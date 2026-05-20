@@ -1,7 +1,8 @@
 import { z } from "zod";
 import type { MusicSongSummary, SongProposal, SongVote } from "../domain/music";
 import { songProposalSchema, songVoteSchema } from "../domain/schemas";
-import { readStorageWithSchema, writeStorage } from "../lib/storage";
+import { createId } from "../lib/id";
+import { localStore, readStorageWithSchema, writeStorage } from "../lib/storage";
 import { scopedStorageKey } from "./eventScopeService";
 import { supabaseConfig } from "./supabaseConfig";
 
@@ -40,12 +41,10 @@ const legacySongListSchema = z.array(
 );
 
 function readLocalStorage<T>(key: string, schema: z.ZodTypeAny, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
   return readStorageWithSchema<T>(key, schema, fallback);
 }
 
 function writeLocalStorage<T>(key: string, value: T) {
-  if (typeof window === "undefined") return;
   writeStorage(key, value);
 }
 
@@ -59,7 +58,7 @@ function normalizeLegacySong(raw: LegacySong, index: number): SongProposal | nul
   if (!title || !artist) return null;
 
   return {
-    id: raw.id?.trim() || crypto.randomUUID(),
+    id: raw.id?.trim() || createId(),
     title,
     artist,
     proposerGuestToken: raw.propuestaPorToken?.trim() || `legacy-proposal-${index + 1}`,
@@ -78,7 +77,7 @@ function readProposalCandidates(): SongProposal[] {
     if (proposals.length > 0) {
       if (key !== scopedKey) {
         writeLocalStorage(scopedKey, proposals);
-        localStorage.removeItem(key);
+        localStore.removeItem(key);
       }
       return proposals;
     }
@@ -91,7 +90,7 @@ function readProposalCandidates(): SongProposal[] {
 
       writeLocalStorage(scopedKey, migrated);
       if (key !== scopedKey) {
-        localStorage.removeItem(key);
+        localStore.removeItem(key);
       }
       return migrated;
     }
@@ -252,7 +251,7 @@ export async function toggleSongVote(
     : [
         ...votes,
         {
-          id: crypto.randomUUID(),
+          id: createId(),
           proposalId,
           guestToken,
           createdAt: Date.now(),

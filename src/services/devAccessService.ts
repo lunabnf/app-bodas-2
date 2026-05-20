@@ -1,4 +1,5 @@
 import type { GuestSession } from "../domain/guest";
+import { getBrowserLocation } from "../lib/browser";
 
 // TEMP DEV: abrir módulos públicos de boda sin identificación obligatoria.
 // TODO: desactivar antes de producción y volver a exigir identificación real.
@@ -18,22 +19,24 @@ function isEditorOrPreviewHint(pathname: string, search: string) {
 }
 
 function resolveDevPublicAccessFlag() {
-  if (typeof window === "undefined") return false;
+  const location = getBrowserLocation();
+  if (!location) return false;
 
   // Entorno local de desarrollo Vite.
   if (import.meta.env.DEV) return true;
 
   // Preview/editor local explícito sin abrir producción real.
-  const { hostname, pathname, search } = window.location;
+  const { hostname, pathname, search } = location;
   return isLocalhostHost(hostname) && isEditorOrPreviewHint(pathname, search);
 }
 
 export const DEV_OPEN_PUBLIC_WEDDING = resolveDevPublicAccessFlag();
 
 function resolveDevAdminAccessFlag() {
-  if (typeof window === "undefined") return false;
+  const location = getBrowserLocation();
+  if (!location) return false;
   if (import.meta.env["VITE_ENABLE_DEV_ADMIN_BYPASS"] !== "true") return false;
-  return import.meta.env.DEV || isLocalhostHost(window.location.hostname);
+  return import.meta.env.DEV || isLocalhostHost(location.hostname);
 }
 
 export const DEV_OPEN_WEDDING_ADMIN = resolveDevAdminAccessFlag();
@@ -41,8 +44,7 @@ export const DEV_OPEN_WEDDING_ADMIN = resolveDevAdminAccessFlag();
 export type DevGuestRole = "holder" | "companion";
 
 export function resolveDevGuestRole(): DevGuestRole {
-  if (typeof window === "undefined") return "holder";
-  const role = new URLSearchParams(window.location.search).get("dev-role");
+  const role = new URLSearchParams(getBrowserLocation?.()?.search ?? "").get("dev-role");
   return role === "companion" ? "companion" : "holder";
 }
 

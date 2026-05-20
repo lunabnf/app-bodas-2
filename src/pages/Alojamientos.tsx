@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import type { LodgingOption, LodgingRequest } from "../domain/lodging";
+import { createId } from "../lib/id";
 import { registrarActividad } from "../services/actividadService";
 import {
   borrarInteresAlojamiento,
@@ -92,7 +93,7 @@ export default function AlojamientosPage() {
     setInterests((current) => [...current.filter((entry) => entry.id !== nextInterest.id), nextInterest]);
 
     await registrarActividad({
-      id: crypto.randomUUID(),
+      id: createId(),
       timestamp: Date.now(),
       tipo: "alojamiento_interes",
       mensaje: `${effectiveGuest.nombre} ha marcado interés en ${item.nombre}`,
