@@ -325,37 +325,118 @@ export default function Gestion({ initialTab = "general" }: GestionProps) {
   const categoryOptions = getGestionCategoryOptions();
   const priorityOptions = getGestionPriorityOptions();
   const moduleOptions = getGestionModuleOptions();
+  const totalGuests = insights?.totalInvitados ?? 0;
+  const rsvpResponses = insights?.rsvpRespondidos ?? 0;
+  const rsvpProgress = totalGuests === 0 ? 0 : Math.min(100, Math.round((rsvpResponses / totalGuests) * 100));
+  const assignedGuests = Math.max((insights?.confirmados ?? 0) - (insights?.sinMesa ?? 0), 0);
+  const dashboardModules = [
+    {
+      label: "Invitados",
+      eyebrow: "Lista principal",
+      metric: totalGuests.toLocaleString("es-ES"),
+      description:
+        totalGuests > 0
+          ? `${insights?.confirmados ?? 0} confirmados y ${insights?.pendientes ?? 0} pendientes`
+          : "Añade la lista de personas que compartirán vuestro día.",
+      to: `${adminBasePath}/invitados`,
+      action: totalGuests > 0 ? "Gestionar invitados" : "Añadir invitados",
+    },
+    {
+      label: "Confirmaciones RSVP",
+      eyebrow: "Respuestas",
+      metric: `${rsvpProgress}%`,
+      description:
+        totalGuests > 0
+          ? `${rsvpResponses} respuestas recibidas de ${totalGuests} invitados`
+          : "Las respuestas aparecerán aquí cuando prepares las invitaciones.",
+      to: `${adminBasePath}/invitados`,
+      action: "Revisar confirmaciones",
+    },
+    {
+      label: "Mesas",
+      eyebrow: "Organización",
+      metric: `${assignedGuests}/${insights?.confirmados ?? 0}`,
+      description:
+        (insights?.sinMesa ?? 0) > 0
+          ? `${insights?.sinMesa ?? 0} confirmados todavía necesitan mesa`
+          : "Todos los invitados confirmados tienen mesa asignada.",
+      to: `${adminBasePath}/mesas`,
+      action: "Organizar mesas",
+    },
+    {
+      label: "Música",
+      eyebrow: "Participación",
+      metric: (insights?.musica.propuestas ?? 0).toLocaleString("es-ES"),
+      description:
+        (insights?.musica.propuestas ?? 0) > 0
+          ? `${insights?.musica.votosTotales ?? 0} votos entre las propuestas`
+          : "Todavía no hay canciones propuestas por los invitados.",
+      to: `${adminBasePath}/musica`,
+      action: "Abrir música",
+    },
+    {
+      label: "Alojamiento",
+      eyebrow: "Logística",
+      metric: (insights?.alojamiento.invitadosInteresados ?? 0).toLocaleString("es-ES"),
+      description:
+        (insights?.alojamiento.invitadosInteresados ?? 0) > 0
+          ? `${insights?.alojamiento.personasPotenciales ?? 0} personas potenciales`
+          : "Publica opciones cómodas para quienes vienen de fuera.",
+      to: `${adminBasePath}/alojamientos`,
+      action: "Gestionar alojamiento",
+    },
+    {
+      label: "Programa de la boda",
+      eyebrow: "Experiencia",
+      metric: `${insights?.programa.visibles ?? 0}/${insights?.programa.total ?? 0}`,
+      description: insights?.programa.publicado
+        ? "El programa está publicado para los invitados."
+        : "Completa y publica los momentos importantes del día.",
+      to: `${adminBasePath}/programa`,
+      action: "Editar programa",
+    },
+    {
+      label: "Ajustes de la boda",
+      eyebrow: "Personalización",
+      metric: insights?.publicacion.mesasPublicadas ? "En directo" : "Privado",
+      description: "Revisa la identidad, la visibilidad y las opciones de la web.",
+      to: `${adminBasePath}/ajustes`,
+      action: "Abrir ajustes",
+    },
+  ];
 
   return (
     <div className="space-y-6 text-[var(--app-ink)]">
-      <section className="app-surface p-6 sm:p-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <section className="app-surface overflow-hidden p-6 sm:p-8 lg:p-10">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <p className="app-kicker">Gestión</p>
-            <h1 className="app-page-title mt-4">Centro de organización de la boda</h1>
-            <p className="mt-3 text-[var(--app-muted)]">
-              Une el estado general, la planificación temporal y el seguimiento de tareas en un mismo lugar.
+            <p className="app-kicker">Panel de novios</p>
+            <h1 className="app-page-title mt-4">Todo lo importante, en calma.</h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--app-muted)] sm:text-lg">
+              Una vista sencilla para saber cómo avanza la boda y entrar directamente en lo que necesita atención.
             </p>
           </div>
-          <div className="rounded-2xl border border-[var(--app-line)] bg-[rgba(255,255,255,0.7)] px-4 py-3 text-xs uppercase tracking-[0.12em] text-[var(--app-muted)]">
-            EventID: {activeEventId} · Slug: /{activeSlug}
+          <div className="flex items-center gap-3 self-start rounded-full border border-[var(--app-line)] bg-[rgba(255,255,255,0.74)] px-4 py-2.5 text-sm text-[var(--app-muted)] lg:self-auto">
+            <span className="h-2 w-2 rounded-full bg-[#5f8069]" />
+            <span className="font-medium text-[var(--app-ink)]">{activeEvent?.coupleLabel ?? activeContext?.coupleLabel ?? "Boda activa"}</span>
+            <span className="hidden sm:inline">/{activeSlug}</span>
           </div>
         </div>
 
-        <div className="mt-6 grid gap-3 md:grid-cols-3">
+        <div className="mt-8 grid gap-2 rounded-[24px] border border-[var(--app-line)] bg-[rgba(255,255,255,0.54)] p-2 md:grid-cols-3">
           {TAB_OPTIONS.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => setTab(item.id)}
-              className={`rounded-[22px] border px-4 py-4 text-left transition ${
+              className={`rounded-[18px] border px-4 py-3 text-left transition sm:px-5 sm:py-4 ${
                 tab === item.id
-                  ? "border-[rgba(24,24,23,0.08)] bg-[#181817] text-[#f8f7f3]"
-                  : "border-[var(--app-line)] bg-[rgba(255,255,255,0.72)]"
+                  ? "border-[#181817] bg-[#181817] text-[#f8f7f3] shadow-[0_12px_28px_rgba(24,24,23,0.14)]"
+                  : "border-transparent bg-transparent hover:bg-[rgba(255,255,255,0.72)]"
               }`}
             >
-              <p className="text-lg font-semibold">{item.label}</p>
-              <p className={`mt-1 text-sm ${tab === item.id ? "text-[#f1efe8]" : "text-[var(--app-muted)]"}`}>
+              <p className="font-semibold">{item.label}</p>
+              <p className={`mt-1 hidden text-sm sm:block ${tab === item.id ? "text-[#d8d6cf]" : "text-[var(--app-muted)]"}`}>
                 {item.description}
               </p>
             </button>
@@ -364,64 +445,55 @@ export default function Gestion({ initialTab = "general" }: GestionProps) {
       </section>
 
       {tab === "general" ? (
-        <div className="space-y-6">
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <Link to={`${adminBasePath}/invitados`} className="app-surface-soft block p-5 transition hover:translate-y-[-1px]">
-              <p className="text-sm text-[var(--app-muted)]">Invitados</p>
-              <p className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{insights?.confirmados ?? 0}</p>
-              <p className="mt-2 text-sm text-[var(--app-muted)]">
-                {insights?.pendientes ?? 0} pendientes · {insights?.rechazados ?? 0} rechazados
+        <div className="space-y-8">
+          <section>
+            <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="app-kicker">Vista general</p>
+                <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">La boda, de un vistazo</h2>
+              </div>
+              <p className="text-sm text-[var(--app-muted)]">
+                Apertura prevista: <span className="font-medium text-[var(--app-ink)]">{formatDate(guestOpeningDate)}</span>
               </p>
-            </Link>
-            <Link to={`${adminBasePath}/mesas`} className="app-surface-soft block p-5 transition hover:translate-y-[-1px]">
-              <p className="text-sm text-[var(--app-muted)]">Mesas</p>
-              <p className="mt-3 text-3xl font-semibold tracking-[-0.04em]">
-                {(insights?.confirmados ?? 0) - (insights?.sinMesa ?? 0)}/{insights?.confirmados ?? 0}
-              </p>
-              <p className="mt-2 text-sm text-[var(--app-muted)]">{insights?.sinMesa ?? 0} confirmados siguen sin mesa</p>
-            </Link>
-            <Link to={`${adminBasePath}/ceremonia`} className="app-surface-soft block p-5 transition hover:translate-y-[-1px]">
-              <p className="text-sm text-[var(--app-muted)]">Ceremonia</p>
-              <p className="mt-3 text-3xl font-semibold tracking-[-0.04em]">
-                {insights?.ceremoniaAsignados ?? 0}/{insights?.confirmados ?? 0}
-              </p>
-              <p className="mt-2 text-sm text-[var(--app-muted)]">{insights?.ceremoniaSinAsignar ?? 0} sin asignar</p>
-            </Link>
-            <Link to={`${adminBasePath}/presupuesto`} className="app-surface-soft block p-5 transition hover:translate-y-[-1px]">
-              <p className="text-sm text-[var(--app-muted)]">Presupuesto</p>
-              <p className="mt-3 text-3xl font-semibold tracking-[-0.04em]">
-                {formatCompactCurrency(insights?.presupuestoResumen.summary.currentEstimatedTotal ?? 0)}
-              </p>
-              <p className="mt-2 text-sm text-[var(--app-muted)]">
-                {formatCompactCurrency(insights?.presupuestoResumen.summary.pendingTotal ?? 0)} pendientes
-              </p>
-            </Link>
-          </section>
+            </div>
 
-          <section className="grid gap-4 lg:grid-cols-3">
-            <article className="app-surface-soft p-5">
-              <p className="text-sm text-[var(--app-muted)]">Apertura a invitados</p>
-              <p className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{formatDate(guestOpeningDate)}</p>
-              <p className="mt-2 text-sm text-[var(--app-muted)]">
-                Plan activo: apertura prevista {openingLeadDays} días antes de la boda.
-              </p>
-            </article>
-            <Link to={`${adminBasePath}/alojamientos`} className="app-surface-soft block p-5 transition hover:translate-y-[-1px]">
-              <p className="text-sm text-[var(--app-muted)]">Logística</p>
-              <p className="mt-3 text-3xl font-semibold tracking-[-0.04em]">
-                {(insights?.alojamiento.invitadosInteresados ?? 0) + (insights?.transporte.solicitudes ?? 0)}
-              </p>
-              <p className="mt-2 text-sm text-[var(--app-muted)]">
-                {insights?.alojamiento.invitadosInteresados ?? 0} intereses en alojamiento · {insights?.transporte.solicitudes ?? 0} solicitudes de transporte
-              </p>
-            </Link>
-            <Link to={`${adminBasePath}/musica`} className="app-surface-soft block p-5 transition hover:translate-y-[-1px]">
-              <p className="text-sm text-[var(--app-muted)]">Participación</p>
-              <p className="mt-3 text-3xl font-semibold tracking-[-0.04em]">{insights?.musica.propuestas ?? 0}</p>
-              <p className="mt-2 text-sm text-[var(--app-muted)]">
-                {insights?.musica.votosTotales ?? 0} votos · {insights?.actividadReciente ?? 0} acciones en 24h
-              </p>
-            </Link>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {!insights ? (
+                Array.from({ length: 6 }, (_, index) => (
+                  <div key={index} className="app-surface-soft min-h-56 animate-pulse p-6">
+                    <div className="h-3 w-24 rounded-full bg-[rgba(24,24,23,0.08)]" />
+                    <div className="mt-8 h-10 w-20 rounded-xl bg-[rgba(24,24,23,0.08)]" />
+                    <div className="mt-5 h-4 w-full rounded-full bg-[rgba(24,24,23,0.06)]" />
+                    <div className="mt-2 h-4 w-2/3 rounded-full bg-[rgba(24,24,23,0.06)]" />
+                  </div>
+                ))
+              ) : (
+                dashboardModules.map((item, index) => (
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    className={`group app-surface-soft flex min-h-56 flex-col justify-between p-6 transition duration-200 hover:-translate-y-1 hover:border-[var(--app-line-strong)] hover:shadow-[0_22px_48px_rgba(53,52,48,0.09)] ${
+                      index === 0 ? "md:col-span-2 xl:col-span-1" : ""
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--app-muted)]">{item.eyebrow}</p>
+                          <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em]">{item.label}</h3>
+                        </div>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--app-line)] bg-[rgba(255,255,255,0.75)] text-lg transition group-hover:bg-[#181817] group-hover:text-white">
+                          &rarr;
+                        </span>
+                      </div>
+                      <p className="mt-7 text-4xl font-semibold tracking-[-0.055em]">{item.metric}</p>
+                      <p className="mt-3 max-w-sm text-sm leading-6 text-[var(--app-muted)]">{item.description}</p>
+                    </div>
+                    <p className="mt-6 text-sm font-semibold">{item.action}</p>
+                  </Link>
+                ))
+              )}
+            </div>
           </section>
 
           <section className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.85fr)]">

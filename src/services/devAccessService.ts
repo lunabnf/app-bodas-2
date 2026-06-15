@@ -1,12 +1,14 @@
 import type { GuestSession } from "../domain/guest";
+import {
+  allowDevBypass,
+  isDemoMode,
+  isLocalDev,
+  isLocalHostname,
+} from "../config/appEnv";
 import { getBrowserLocation } from "../lib/browser";
 
 // TEMP DEV: abrir módulos públicos de boda sin identificación obligatoria.
 // TODO: desactivar antes de producción y volver a exigir identificación real.
-function isLocalhostHost(hostname: string) {
-  return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "0.0.0.0";
-}
-
 function isEditorOrPreviewHint(pathname: string, search: string) {
   const params = new URLSearchParams(search);
   return (
@@ -23,20 +25,21 @@ function resolveDevPublicAccessFlag() {
   if (!location) return false;
 
   // Entorno local de desarrollo Vite.
-  if (import.meta.env.DEV) return true;
+  if (isLocalDev) return true;
 
   // Preview/editor local explícito sin abrir producción real.
   const { hostname, pathname, search } = location;
-  return isLocalhostHost(hostname) && isEditorOrPreviewHint(pathname, search);
+  return (
+    isDemoMode &&
+    isLocalHostname(hostname) &&
+    isEditorOrPreviewHint(pathname, search)
+  );
 }
 
 export const DEV_OPEN_PUBLIC_WEDDING = resolveDevPublicAccessFlag();
 
 function resolveDevAdminAccessFlag() {
-  const location = getBrowserLocation();
-  if (!location) return false;
-  if (import.meta.env["VITE_ENABLE_DEV_ADMIN_BYPASS"] !== "true") return false;
-  return import.meta.env.DEV || isLocalhostHost(location.hostname);
+  return allowDevBypass;
 }
 
 export const DEV_OPEN_WEDDING_ADMIN = resolveDevAdminAccessFlag();

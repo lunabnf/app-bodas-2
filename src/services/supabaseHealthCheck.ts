@@ -1,3 +1,4 @@
+import { isLocalDev } from "../config/appEnv";
 import { supabaseConfig } from "./supabaseConfig";
 
 export type SupabaseHealthCheckResult =
@@ -7,7 +8,7 @@ export type SupabaseHealthCheckResult =
 let hasRun = false;
 
 export async function runSupabaseHealthCheckOnce(): Promise<SupabaseHealthCheckResult | null> {
-  if (import.meta.env["VITE_APP_ENV"] !== "local") {
+  if (!isLocalDev) {
     return null;
   }
 
