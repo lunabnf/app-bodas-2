@@ -8,6 +8,7 @@ import {
   saveWeddingProgramDocument,
   sortProgramItemsByHour,
 } from "../services/programaService";
+import EmptyState from "../components/EmptyState";
 
 type Notice = {
   type: "success" | "error";
@@ -173,8 +174,17 @@ export default function ProgramaAdmin() {
 
       <div className="space-y-4">
         {document.items.length === 0 ? (
-          <div className="app-surface-soft p-6 text-sm text-[var(--app-muted)]">
-            Aún no hay bloques creados. Añade el primero para construir el timeline del día.
+          <div className="app-surface-soft p-5 sm:p-6">
+            <EmptyState
+              eyebrow="Empieza por el primer momento"
+              title="Programa pendiente de completar"
+              description="Añade la ceremonia, el cóctel, el banquete o cualquier momento importante para construir el timeline del día."
+              action={
+                <button type="button" onClick={handleAddEvent} className="app-button-primary">
+                  Añadir primer momento
+                </button>
+              }
+            />
           </div>
         ) : (
           document.items.map((item, index) => (

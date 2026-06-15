@@ -482,7 +482,7 @@ export default function Gestion({ initialTab = "general" }: GestionProps) {
                           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--app-muted)]">{item.eyebrow}</p>
                           <h3 className="mt-3 text-xl font-semibold tracking-[-0.03em]">{item.label}</h3>
                         </div>
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--app-line)] bg-[rgba(255,255,255,0.75)] text-lg transition group-hover:bg-[#181817] group-hover:text-white">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--app-line)] bg-[rgba(255,255,255,0.75)] text-lg transition group-hover:bg-[#181817] group-hover:text-[#f8f7f3]">
                           &rarr;
                         </span>
                       </div>

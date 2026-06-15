@@ -33,7 +33,7 @@ const IdentificarInvitado = lazy(() => import("./pages/IdentificarInvitado"));
 const AdminLayout = lazy(() => import("./admin/AdminLayout"));
 const GestionAdmin = lazy(() => import("./admin/Gestion"));
 const Resumen = lazy(() => import("./admin/Resumen"));
-const InvitadosAdmin = lazy(() => import("./admin/Invitados"));
+const InvitadosAdmin = lazy(() => import("./admin/InvitadosAdminPage"));
 const MesasAdmin = lazy(() => import("./admin/Mesas"));
 const CeremoniaAdmin = lazy(() => import("./admin/Ceremonia"));
 const PresupuestoAdmin = lazy(() => import("./admin/Presupuesto"));

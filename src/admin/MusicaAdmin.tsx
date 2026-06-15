@@ -7,6 +7,7 @@ import {
   borrarCancion,
   obtenerMusicSongSummaries,
 } from "../services/musicaService";
+import EmptyState from "../components/EmptyState";
 
 type MusicFilter = "mas_votadas" | "mas_recientes" | "ocultas" | "por_invitado";
 type Notice = {
@@ -155,28 +156,28 @@ export default function MusicaAdmin() {
           <button
             type="button"
             onClick={() => setFilter("mas_votadas")}
-            className={`rounded-full px-4 py-2 text-sm ${filter === "mas_votadas" ? "bg-[var(--app-ink)] text-white" : "border border-[var(--app-line)] bg-white/80"}`}
+            className={`rounded-full px-4 py-2 text-sm ${filter === "mas_votadas" ? "bg-[var(--app-ink)] text-[#f8f7f3]" : "border border-[var(--app-line)] bg-white/80"}`}
           >
             Más votadas
           </button>
           <button
             type="button"
             onClick={() => setFilter("mas_recientes")}
-            className={`rounded-full px-4 py-2 text-sm ${filter === "mas_recientes" ? "bg-[var(--app-ink)] text-white" : "border border-[var(--app-line)] bg-white/80"}`}
+            className={`rounded-full px-4 py-2 text-sm ${filter === "mas_recientes" ? "bg-[var(--app-ink)] text-[#f8f7f3]" : "border border-[var(--app-line)] bg-white/80"}`}
           >
             Más recientes
           </button>
           <button
             type="button"
             onClick={() => setFilter("ocultas")}
-            className={`rounded-full px-4 py-2 text-sm ${filter === "ocultas" ? "bg-[var(--app-ink)] text-white" : "border border-[var(--app-line)] bg-white/80"}`}
+            className={`rounded-full px-4 py-2 text-sm ${filter === "ocultas" ? "bg-[var(--app-ink)] text-[#f8f7f3]" : "border border-[var(--app-line)] bg-white/80"}`}
           >
             Ocultas
           </button>
           <button
             type="button"
             onClick={() => setFilter("por_invitado")}
-            className={`rounded-full px-4 py-2 text-sm ${filter === "por_invitado" ? "bg-[var(--app-ink)] text-white" : "border border-[var(--app-line)] bg-white/80"}`}
+            className={`rounded-full px-4 py-2 text-sm ${filter === "por_invitado" ? "bg-[var(--app-ink)] text-[#f8f7f3]" : "border border-[var(--app-line)] bg-white/80"}`}
           >
             Por invitado
           </button>
@@ -200,8 +201,16 @@ export default function MusicaAdmin() {
 
       <section className="space-y-4">
         {filteredSongs.length === 0 ? (
-          <div className="app-surface-soft p-6 text-sm text-[var(--app-muted)]">
-            No hay propuestas en este filtro todavía.
+          <div className="app-surface-soft p-5 sm:p-6">
+            <EmptyState
+              eyebrow={songs.length === 0 ? "Participación pendiente" : "Sin resultados"}
+              title={songs.length === 0 ? "Todavía no hay canciones propuestas" : "No hay propuestas en este filtro"}
+              description={
+                songs.length === 0
+                  ? "Las canciones que propongan los invitados aparecerán aquí para poder moderarlas y preparar el ranking."
+                  : "Cambia el filtro para consultar el resto de propuestas musicales."
+              }
+            />
           </div>
         ) : (
           filteredSongs.map((song, index) => {

@@ -2,9 +2,12 @@ import { createClient } from "@supabase/supabase-js";
 
 const url = import.meta.env["VITE_SUPABASE_URL"];
 const anonKey = import.meta.env["VITE_SUPABASE_ANON_KEY"];
+const dataEnabled = import.meta.env["VITE_ENABLE_SUPABASE_DATA"] === "true";
+const configured = Boolean(url && anonKey);
 
 export const supabaseConfig = {
-  enabled: Boolean(url && anonKey),
+  configured,
+  enabled: configured && dataEnabled,
   url: url ?? "",
   key: anonKey ?? "",
   client: url && anonKey ? createClient(url, anonKey) : null,

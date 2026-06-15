@@ -11,6 +11,7 @@ import {
 } from "../services/alojamientosService";
 import { DEV_OPEN_PUBLIC_WEDDING, resolvePublicGuestSession } from "../services/devAccessService";
 import { useAuth } from "../store/useAuth";
+import EmptyState from "../components/EmptyState";
 
 const typeLabels: Record<LodgingOption["tipo"], string> = {
   hotel: "Hotel",
@@ -115,14 +116,18 @@ export default function AlojamientosPage() {
       </div>
 
       {alojamientos.length === 0 ? (
-        <div className="app-surface-soft p-6">
-          <p className="text-sm text-[var(--app-muted)]">No hay alojamientos visibles todavía.</p>
+        <div className="app-surface-soft p-5 sm:p-6">
+          <EmptyState
+            eyebrow="Información en preparación"
+            title="No hay alojamientos añadidos"
+            description="Los novios todavía están preparando sus recomendaciones. Aquí aparecerán hoteles, apartamentos y opciones cercanas."
+          />
         </div>
       ) : (
         <>
           <div className="app-surface-soft flex flex-wrap items-center gap-3 p-4">
             <p className="text-sm text-[var(--app-muted)]">Filtrar por tipo:</p>
-            <button type="button" onClick={() => setFilterType("todos")} className={`rounded-full px-4 py-2 text-sm ${filterType === "todos" ? "bg-[var(--app-ink)] text-white" : "border border-[var(--app-line)] bg-white/80"}`}>
+            <button type="button" onClick={() => setFilterType("todos")} className={`rounded-full px-4 py-2 text-sm ${filterType === "todos" ? "bg-[var(--app-ink)] text-[#f8f7f3]" : "border border-[var(--app-line)] bg-white/80"}`}>
               Todos
             </button>
             {Object.entries(typeLabels).map(([value, label]) => (
@@ -130,7 +135,7 @@ export default function AlojamientosPage() {
                 key={value}
                 type="button"
                 onClick={() => setFilterType(value as LodgingOption["tipo"])}
-                className={`rounded-full px-4 py-2 text-sm ${filterType === value ? "bg-[var(--app-ink)] text-white" : "border border-[var(--app-line)] bg-white/80"}`}
+                className={`rounded-full px-4 py-2 text-sm ${filterType === value ? "bg-[var(--app-ink)] text-[#f8f7f3]" : "border border-[var(--app-line)] bg-white/80"}`}
               >
                 {label}
               </button>

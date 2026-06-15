@@ -13,6 +13,7 @@ import {
   toggleSongVote,
 } from "../services/musicaService";
 import { useAuth } from "../store/useAuth";
+import EmptyState from "../components/EmptyState";
 
 type Notice = {
   type: "success" | "error";
@@ -295,7 +296,14 @@ export default function Musica() {
         </div>
 
         {songs.length === 0 ? (
-          <p className="mt-4 text-sm text-[var(--app-muted)]">Todavía no hay canciones visibles.</p>
+          <div className="mt-5">
+            <EmptyState
+              eyebrow="La playlist empieza aquí"
+              title="Todavía no hay canciones propuestas"
+              description="Sé la primera persona en proponer una canción para la fiesta. Cada invitado adulto puede añadir hasta dos."
+              compact
+            />
+          </div>
         ) : (
           <div className="mt-5 space-y-3">
             {songs.map((song, index) => {
@@ -343,7 +351,7 @@ export default function Musica() {
                         disabled={!canParticipate || isOwnProposal}
                         className={`rounded-full px-4 py-2 text-sm font-medium transition ${
                           hasVoted
-                            ? "bg-[var(--app-ink)] text-white"
+                            ? "bg-[var(--app-ink)] text-[#f8f7f3]"
                             : "border border-[var(--app-line)] bg-white/80 text-[var(--app-ink)]"
                         } disabled:cursor-not-allowed disabled:opacity-50`}
                       >

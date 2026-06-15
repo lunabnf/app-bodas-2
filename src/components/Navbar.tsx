@@ -133,15 +133,39 @@ export default function Navbar() {
       </div>
 
       <div
-        className={`mx-4 overflow-hidden rounded-[24px] border border-[var(--app-line)] bg-[rgba(255,255,255,0.92)] shadow-[var(--app-shadow-soft)] transition-all duration-300 md:hidden ${
-          menuOpen ? "mb-3 max-h-80 py-3" : "mb-0 max-h-0 border-transparent py-0"
+        className={`mx-4 overflow-hidden rounded-[24px] border border-[var(--app-line)] bg-[rgba(255,255,255,0.94)] shadow-[var(--app-shadow-soft)] transition-all duration-300 md:hidden ${
+          menuOpen ? "mb-3 max-h-[36rem] py-3" : "mb-0 max-h-0 border-transparent py-0"
         }`}
       >
-        {showWeddingAdminLink ? (
+        <div className="grid grid-cols-2 gap-1 border-b border-[var(--app-line)] px-3 pb-3">
+          {[
+            { label: "Inicio", to: paths.home },
+            { label: "Programa", to: paths.programa },
+            { label: "Confirmar", to: paths.participaConfirmacion },
+            { label: "Música", to: paths.participaMusica },
+            { label: "Alojamiento", to: paths.alojamientos },
+            { label: "Cómo llegar", to: paths.desplazamientos },
+          ].map((item) => (
+            <NavLink
+              key={item.label}
+              to={item.to}
+              onClick={() => setMenuOpen(false)}
+              className={({ isActive }) =>
+                `rounded-[16px] px-3 py-2.5 text-sm font-medium ${
+                  isActive ? "bg-[var(--app-ink)] text-[#f8f7f3]" : "text-[var(--app-ink)] hover:bg-white"
+                }`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </div>
+
+        {showStandaloneWeddingAdminLink ? (
           <NavLink
             to={adminPath}
             onClick={() => setMenuOpen(false)}
-            className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
+            className="mt-2 block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
           >
             Panel de Novios
           </NavLink>
@@ -154,7 +178,7 @@ export default function Navbar() {
                 setMenuOpen(false);
                 logout();
               }}
-              className="block w-full px-4 py-2 text-left text-sm font-medium text-[var(--app-muted)]"
+              className="mt-2 block w-full px-4 py-2 text-left text-sm font-medium text-[var(--app-muted)]"
             >
               Salir
             </button>
@@ -164,7 +188,7 @@ export default function Navbar() {
             <NavLink
               to={adminPath}
               onClick={() => setMenuOpen(false)}
-              className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
+              className="mt-2 block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
             >
               Panel de Novios
             </NavLink>
@@ -203,7 +227,7 @@ export default function Navbar() {
           <NavLink
             to="/buscar-boda"
             onClick={() => setMenuOpen(false)}
-            className="block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
+            className="mt-2 block px-4 py-2 text-sm font-medium text-[var(--app-ink)]"
           >
             Acceder
           </NavLink>

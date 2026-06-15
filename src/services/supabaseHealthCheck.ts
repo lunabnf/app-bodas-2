@@ -18,8 +18,8 @@ export async function runSupabaseHealthCheckOnce(): Promise<SupabaseHealthCheckR
 
   hasRun = true;
 
-  if (!supabaseConfig.enabled || !supabaseConfig.client) {
-    return { ok: false, details: "disabled (missing env vars)" };
+  if (!supabaseConfig.configured || !supabaseConfig.client) {
+    return { ok: false, details: "not configured (missing env vars)" };
   }
 
   const { error } = await supabaseConfig.client.auth.getSession();
@@ -28,5 +28,10 @@ export async function runSupabaseHealthCheckOnce(): Promise<SupabaseHealthCheckR
     return { ok: false, details: error.message };
   }
 
-  return { ok: true, details: "auth endpoint reachable" };
+  return {
+    ok: true,
+    details: supabaseConfig.enabled
+      ? "auth endpoint reachable; data mode enabled"
+      : "auth endpoint reachable; data mode disabled",
+  };
 }

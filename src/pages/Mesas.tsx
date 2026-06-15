@@ -4,6 +4,7 @@ import type { Table } from "../domain/table";
 import { obtenerInvitados } from "../services/invitadosService";
 import { obtenerMesas } from "../services/mesasService";
 import { getWeddingSettings, isMesasPublishedForGuests } from "../services/weddingSettingsService";
+import EmptyState from "../components/EmptyState";
 
 export default function Mesas() {
   const [guests, setGuests] = useState<Guest[]>([]);
@@ -30,6 +31,13 @@ export default function Mesas() {
             Los novios todavía no han publicado la organización de mesas.
           </p>
         </div>
+        <div className="app-surface-soft p-5 sm:p-6">
+          <EmptyState
+            eyebrow="Distribución privada"
+            title="Mesas pendientes de publicar"
+            description="La organización todavía no es visible. Cuando los novios la publiquen podrás consultar aquí tu mesa."
+          />
+        </div>
       </section>
     );
   }
@@ -41,6 +49,13 @@ export default function Mesas() {
           <p className="app-kicker">Participación</p>
           <h1 className="app-page-title mt-4">Distribución de mesas</h1>
           <p className="mt-3 app-subtitle">Todavía no se ha publicado la organización de mesas.</p>
+        </div>
+        <div className="app-surface-soft p-5 sm:p-6">
+          <EmptyState
+            eyebrow="Organización en curso"
+            title="Mesas pendientes de organizar"
+            description="Aún no hay una distribución disponible. Esta sección se actualizará cuando el seating esté preparado."
+          />
         </div>
       </section>
     );

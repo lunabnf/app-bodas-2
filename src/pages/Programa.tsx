@@ -1,6 +1,7 @@
 import { getWeddingSettings } from "../services/weddingSettingsService";
 import { getVisibleWeddingProgram, getWeddingProgramDocument } from "../services/programaService";
 import type { WeddingProgramCategory, WeddingProgramItem } from "../domain/program";
+import EmptyState from "../components/EmptyState";
 
 const categoryBadge: Record<WeddingProgramCategory, { label: string; accent: string }> = {
   general: { label: "Momento", accent: "bg-stone-100 text-stone-700" },
@@ -69,14 +70,20 @@ export default function Programa() {
       </div>
 
       {!settings.mostrarPrograma ? (
-        <div className="app-surface-soft p-6">
-          <p className="text-sm text-[var(--app-muted)]">
-            El programa aún no está publicado para invitados.
-          </p>
+        <div className="app-surface-soft p-5 sm:p-6">
+          <EmptyState
+            eyebrow="Programa privado"
+            title="El programa se publicará próximamente"
+            description="Los novios están terminando de preparar los horarios y detalles del día. Cuando esté listo, aparecerá aquí."
+          />
         </div>
       ) : eventos.length === 0 ? (
-        <div className="app-surface-soft p-6">
-          <p className="text-sm text-[var(--app-muted)]">No hay eventos visibles configurados aún.</p>
+        <div className="app-surface-soft p-5 sm:p-6">
+          <EmptyState
+            eyebrow="Próximamente"
+            title="Programa pendiente de completar"
+            description="Todavía no hay momentos publicados. Vuelve más adelante para consultar el horario completo de la boda."
+          />
         </div>
       ) : (
         <div className="app-surface p-5 sm:p-6">

@@ -300,9 +300,15 @@ export default function ConfirmarAsistencia() {
             className="app-panel w-full max-w-4xl space-y-6 p-5 sm:p-6"
           >
             <div>
-              <span className="block text-sm text-[var(--app-muted)] mb-2">¿Asistirás a la boda?</span>
-              <div className="flex flex-wrap gap-6">
-                <label className="inline-flex items-center gap-2">
+              <span className="mb-3 block text-sm font-medium text-[var(--app-muted)]">¿Asistirás a la boda?</span>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label
+                  className={`cursor-pointer rounded-[20px] border p-4 transition ${
+                    attending === "si"
+                      ? "border-[var(--app-ink)] bg-[var(--app-ink)] text-[#f8f7f3] shadow-[0_12px_28px_rgba(24,24,23,0.12)]"
+                      : "border-[var(--app-line)] bg-white/72 hover:border-[var(--app-line-strong)]"
+                  }`}
+                >
                   <input
                     type="radio"
                     name="attending"
@@ -310,10 +316,20 @@ export default function ConfirmarAsistencia() {
                     checked={attending === "si"}
                     onChange={() => setAttending("si")}
                     required
+                    className="sr-only"
                   />
-                  Sí
+                  <span className="block text-lg font-semibold">Sí, allí estaré</span>
+                  <span className={`mt-1 block text-sm ${attending === "si" ? "text-[#d8d6cf]" : "text-[var(--app-muted)]"}`}>
+                    Completaré los datos de las personas que asistirán.
+                  </span>
                 </label>
-                <label className="inline-flex items-center gap-2">
+                <label
+                  className={`cursor-pointer rounded-[20px] border p-4 transition ${
+                    attending === "no"
+                      ? "border-[var(--app-ink)] bg-[var(--app-ink)] text-[#f8f7f3] shadow-[0_12px_28px_rgba(24,24,23,0.12)]"
+                      : "border-[var(--app-line)] bg-white/72 hover:border-[var(--app-line-strong)]"
+                  }`}
+                >
                   <input
                     type="radio"
                     name="attending"
@@ -321,8 +337,12 @@ export default function ConfirmarAsistencia() {
                     checked={attending === "no"}
                     onChange={() => setAttending("no")}
                     required
+                    className="sr-only"
                   />
-                  No
+                  <span className="block text-lg font-semibold">No podré asistir</span>
+                  <span className={`mt-1 block text-sm ${attending === "no" ? "text-[#d8d6cf]" : "text-[var(--app-muted)]"}`}>
+                    Avisaré a los novios para que puedan cerrar la organización.
+                  </span>
                 </label>
               </div>
             </div>
