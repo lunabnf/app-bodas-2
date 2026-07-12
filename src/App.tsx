@@ -5,7 +5,7 @@ import { useAuth } from "./store/useAuth";
 import { scrollWindowToTop } from "./lib/browser";
 import { applyAppearanceSettings, getAppearanceSettings } from "./services/appearanceService";
 import { trackRouteView } from "./services/backofficeAnalyticsService";
-import { DEV_OPEN_WEDDING_ADMIN } from "./services/devAccessService";
+import { canOpenWeddingAdminInDev } from "./services/devAccessService";
 import { evaluateGuestPublicAccessByToken } from "./services/invitationWorkflowService";
 
 const AppLayout = lazy(() => import("./layouts/AppLayout"));
@@ -75,7 +75,7 @@ function ProtectedRoute({ children }: { children: ReactElement }) {
   const esSuperAdmin = useAuth((s) => s.esSuperAdmin);
   const currentEventSlug = useAuth((s) => s.currentEventSlug);
 
-  if (DEV_OPEN_WEDDING_ADMIN) return children;
+  if (canOpenWeddingAdminInDev(slug)) return children;
   if (esSuperAdmin) return children;
   if (!esAdmin || !slug || currentEventSlug !== slug) {
     return <Navigate to="/buscar-boda" replace />;

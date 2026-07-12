@@ -44,6 +44,11 @@ function resolveDevAdminAccessFlag() {
 
 export const DEV_OPEN_WEDDING_ADMIN = resolveDevAdminAccessFlag();
 
+export function canOpenWeddingAdminInDev(weddingSlug?: string): boolean {
+  const normalizedSlug = weddingSlug?.trim().toLowerCase();
+  return DEV_OPEN_WEDDING_ADMIN || (isLocalDev && normalizedSlug === "demo");
+}
+
 export type DevGuestRole = "holder" | "companion";
 
 export function resolveDevGuestRole(): DevGuestRole {

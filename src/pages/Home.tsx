@@ -5,6 +5,7 @@ import {
   getWeddingSettings,
   type GuestHomeButtonTarget,
 } from "../services/weddingSettingsService";
+import { canOpenWeddingAdminInDev } from "../services/devAccessService";
 import { useAuth } from "../store/useAuth";
 
 function resolveGuestHomeTarget(
@@ -42,9 +43,10 @@ export default function Home() {
   const paths = buildEventSitePaths(slug);
   const settings = getWeddingSettings();
   const isDemoWedding = slug === "demo";
+  const isLocalDemoAdminOpen = canOpenWeddingAdminInDev(slug);
   const adminPath = slug ? `/w/${slug}/admin` : "/w/demo/admin";
   const heroImage = settings.guestHome.imagenPrincipal || settings.portada;
-  const primaryHref = esAdmin
+  const primaryHref = esAdmin || isLocalDemoAdminOpen
     ? adminPath
     : resolveGuestHomeTarget(settings.guestHome.botonPrincipalDestino, paths);
   const secondaryHref = resolveGuestHomeTarget(settings.guestHome.botonSecundarioDestino, paths);
@@ -151,7 +153,7 @@ export default function Home() {
 
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <Link to={primaryHref} className="app-button-primary text-center">
-                {esAdmin
+                {esAdmin || isLocalDemoAdminOpen
                   ? "Ir al panel de novios"
                   : primaryLabel}
               </Link>

@@ -6,7 +6,7 @@ import BrandMark from "../components/BrandMark";
 import { useAuth } from "../store/useAuth";
 
 const EVENT_MANAGEMENT_ITEMS = [
-  { label: "Invitados", path: "invitados" },
+  { label: "Invitados y RSVP", path: "invitados" },
   { label: "Mesas", path: "mesas" },
   { label: "Ceremonia", path: "ceremonia" },
   { label: "Programa", path: "programa" },

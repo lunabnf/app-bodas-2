@@ -350,7 +350,7 @@ export default function Gestion({ initialTab = "general" }: GestionProps) {
           ? `${rsvpResponses} respuestas recibidas de ${totalGuests} invitados`
           : "Las respuestas aparecerán aquí cuando prepares las invitaciones.",
       to: `${adminBasePath}/invitados`,
-      action: "Revisar confirmaciones",
+      action: "Ver RSVP en invitados",
     },
     {
       label: "Mesas",

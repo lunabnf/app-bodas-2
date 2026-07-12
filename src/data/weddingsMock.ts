@@ -7,6 +7,12 @@ export type WeddingMock = {
 
 const WEDDINGS: WeddingMock[] = [
   {
+    id: "evt-demo",
+    nombre: "Boda Demo · María & Javier",
+    slug: "demo",
+    codigo: "DEMO-2026",
+  },
+  {
     id: "evt-garcia-lopez",
     nombre: "Boda Garcia & Lopez",
     slug: "garcia-lopez",
